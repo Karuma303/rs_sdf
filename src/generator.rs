@@ -1,11 +1,6 @@
-use std::fs::File;
 use std::result::Result::Err;
 
-use png::Decoder;
-use png::Transformations;
-
 use crate::naive::generate_sdf;
-use crate::source::SourceField;
 use crate::input::get_source_from_png_file_input;
 
 pub struct DistanceGenerator {
@@ -44,67 +39,40 @@ impl DistanceGenerator {
 
             let source = get_source_from_png_file_input(path);
             let sdf = generate_sdf(&source.unwrap());
-            //
-            // // moved to input.rs
-            // if let Ok(file) = File::open(path) {
-            //     // NOTE: There's also a new_with_limits() constructor !
-            //
-            //     // The decoder is a build for reader and can be used to set various decoding options
-            //     // via `Transformations`. The default output transformation is `Transformations::EXPAND
-            //     // | Transformations::STRIP_ALPHA`.
-            //
-            //     let mut d = Decoder::new(file);
-            //     d.set_transformations(Transformations::IDENTITY);
-            //
-            //     if let Ok(read_info) = d.read_info() {
-            //         let info = read_info.0;
-            //         let mut reader = read_info.1;
-            //         println!("source png: {}", path);
-            //         println!("size (w/h): {} * {}", info.width, info.height);
-            //         println!("line_size (bytes): {}", info.line_size);
-            //         println!("size (bytes): {}", info.buffer_size());
-            //         println!("color type: {:?}", info.color_type); // Grayscale, RGB, Indexed, GrayscaleAlpha, RGBA
-            //         println!("bit depth: {:?}", info.bit_depth); // One, Two, Four, Eight, Sixteen
-            //
-            //         // Allocate the output buffer.
-            //         let mut buffer = vec![0; info.buffer_size()];
-            //         // Read the next frame. Currently this function should only called once.
-            //         // The default options
-            //         reader.next_frame(&mut buffer).unwrap();
-            //
-            //
-            //         // the source is RGBA (8 bit per channel)
-            //         // in this case, we just take a look at the 8-bit alpha channel
-            //         let mut alpha_buffer = vec![0u8; info.buffer_size() / 4];
-            //         let mut index = 0;
-            //         for mut x in &alpha_buffer {
-            //             // x = &buffer[index];
-            //             buffer[index] = 10;
-            //             index += 4;
-            //         }
-            //
-            //         let field = SourceField::new(&alpha_buffer, info.width, info.height);
-            //         let sdf = generate_sdf(&field);
 
-                    // TODO: generate output file here
+            // TODO: generate output file here
 
-
-            //         // test
-            //     } else {
-            //         return Err("given input file is not decodable");
-            //     }
-            // } else {
-            //     return Err("not a valid file path");
-            // }
 
             // let x = Decoder::new_with_limits()
 
             // TODO: process data according to strategy
             // TODO: write file
 
-//                let (info, mut reader) = d.read_info().unwrap();
-            // Allocate the output buffer.
+
 //                let mut buffer = vec![0; info.buffer_size()];
+
+
+            // we should test and maybe microbenchmark at least two known apporches here:
+            // 1) brute force O(n²)
+            // 2) the old EightPointSeqEuclideanDistTrans O(n)
+
+
+// Notes from old C# repository:
+
+// edges detecten und markieren
+
+// next: make it signed
+// next: vector field
+
+// vectoren zeichnen
+// später: brute force circle methode auch mal ausprobieren : https://github.com/chriscummings100/signeddistancefields/blob/master/Assets/SignedDistanceFields/SignedDistanceFieldGenerator.cs
+
+
+// https://github.com/chriscummings100/signeddistancefields
+// https://shaderfun.com/
+// https://shaderfun.com/2018/03/23/signed-distance-fields-part-1-unsigned-distance-fields/
+
+
         } else {
             return Err("no input path specified");
         }
@@ -130,14 +98,6 @@ mod tests {
     fn no_input_path() {
         let gen = DistanceGenerator::new();
         assert!(gen.generate().is_err(), "non existing input path should generate an error");
-    }
-
-    // moved to input.rs
-    #[test]
-    fn input_file_is_valid_rgba() {
-        let gen = DistanceGenerator::new()
-            .input(r"assets\SDF_Test_Texture_RGBA.png");
-        assert!(gen.generate().is_ok());
     }
 
     /*

@@ -40,7 +40,7 @@ pub fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, Fi
     let info = read_info.0;
 
     if info.color_type != ColorType::RGBA {
-        return Err(FileInputError::InvalidImageFormat)
+        return Err(FileInputError::InvalidImageFormat);
     }
 
     println!("source png: {}", file_path);
@@ -51,23 +51,19 @@ pub fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, Fi
     println!("bit depth: {:?}", info.bit_depth); // One, Two, Four, Eight, Sixteen
 
     // Allocate the output buffer.
-    let mut buffer = vec![0; info.buffer_size()];
+    let mut image_buffer = vec![0; info.buffer_size()];
     // Read the next frame. Currently this function should only called once.
     // The default options
-    reader.next_frame(&mut buffer).unwrap();
-
+    reader.next_frame(&mut image_buffer).unwrap();
 
     // the source is RGBA (8 bit per channel)
     // in this case, we just take a look at the 8-bit alpha channel
-    let mut alpha_buffer = vec![0u8; info.buffer_size() / 4];
-    let mut index = 0;
-    for mut x in &alpha_buffer {
-        // x = &buffer[index];
-        buffer[index] = 10;
-        index += 4;
+    let mut output_buffer = vec![0u8; info.buffer_size() / 4];
+    for (index, element) in output_buffer.iter_mut().enumerate() {
+        *element = image_buffer[index * 4 + 3];
     }
 
-    let source = SourceField::new(&alpha_buffer, info.width, info.height);
+    let source = SourceField::new(&output_buffer, info.width, info.height);
     Ok(source)
 }
 
@@ -97,5 +93,24 @@ mod tests {
     fn input_file_is_valid() {
         let res = get_source_from_png_file_input(r"assets\SDF_Test_Texture_RGBA.png");
         assert!(res.is_ok());
+    }
+
+    #[test]
+    fn generated_source_field_contains_valid_data() {
+
+        // check fully transparent 1x1 image
+        let s1 = get_source_from_png_file_input(r"assets\rgba_1x1_fully_transparent.png").unwrap();
+        assert_eq!(s1.data[0], false);
+
+        // check fully opaque 1x1 image
+        let s2 = get_source_from_png_file_input(r"assets\rgba_1x1_90_percent_opaque.png").unwrap();
+        assert_eq!(s2.data[0], true);
+
+        // check checkered 2x2 image
+        let s3 = get_source_from_png_file_input(r"assets\rgba_2x2_checkerboard.png").unwrap();
+        assert_eq!(s3.data[0], true); // tl
+        assert_eq!(s3.data[1], false); // tr
+        assert_eq!(s3.data[2], false); // bl
+        assert_eq!(s3.data[3], true); // br
     }
 }
