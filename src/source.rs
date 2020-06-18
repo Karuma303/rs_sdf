@@ -40,21 +40,21 @@ mod tests {
     #[should_panic]
     fn source_must_have_width_greater_than_zero() {
         let b = [0];
-        let f = SourceField::new(&b, 0, 1);
+        SourceField::new(&b, 0, 1);
     }
 
     #[test]
     #[should_panic]
     fn source_must_have_height_greater_than_zero() {
         let b = [0];
-        let f = SourceField::new(&b, 1, 0);
+        SourceField::new(&b, 1, 0);
     }
 
     #[test]
     #[should_panic]
     fn buffer_size_does_not_match_given_dimensions() {
         let b = [20];
-        let f = SourceField::new(&b, 10, 10);
+        SourceField::new(&b, 10, 10);
     }
 
     #[test]

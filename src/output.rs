@@ -1,8 +1,8 @@
 use png::{Encoder, ColorType, Compression, BitDepth, FilterType};
-use std::fs::File;
 use std::path::Path;
 use std::io::{BufWriter};
 use crate::naive::DistanceField;
+use std::fs::File;
 
 
 pub struct SdfExporter<T> {
@@ -71,8 +71,7 @@ fn save_to_png_file(field: &DistanceField<u8>, file_path: &Path) {
 #[cfg(test)]
 mod tests {
     use std::path::{Path, PathBuf};
-    use std::fs::{File, remove_file, create_dir_all, remove_dir};
-    use std::ops::Deref;
+    use std::fs::{remove_file, create_dir_all, remove_dir};
     use crate::naive::DistanceField;
     use crate::output::save_to_png_file;
 

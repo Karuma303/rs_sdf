@@ -90,8 +90,6 @@ pub struct Configuration {}
 
 #[cfg(test)]
 mod tests {
-    use std::fs::File;
-
     use crate::generator::DistanceGenerator;
 
     #[test]

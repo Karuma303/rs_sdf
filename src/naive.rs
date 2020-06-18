@@ -1,7 +1,7 @@
 use crate::source::SourceField;
 
 // creates an 8-bit resolution distance field (only with outer values)
-pub fn generate_df(field: &SourceField) -> DistanceField<u8> {
+/*pub fn generate_df(field: &SourceField) -> DistanceField<u8> {
     let size = (field.width * field.height) as usize;
 
     DistanceField {
@@ -9,7 +9,7 @@ pub fn generate_df(field: &SourceField) -> DistanceField<u8> {
         width: field.width,
         height: field.height,
     }
-}
+}*/
 
 // creates an 8-bit resolution outer distance field
 pub fn generate_outer_df(field: &SourceField) -> DistanceField<u8> {
@@ -30,9 +30,7 @@ pub fn generate_signed_df(field: &SourceField) -> DistanceField<i8> {
     let inner_df = generate_inner_df(&field);
     let outer_df = generate_outer_df(&field);
 
-    // TODO: invert inner field
-    // TODO: add the two fields together
-    // TODO: clamp results (clamp, clamp_balanced)
+    combine_distance_fields(&inner_df, &outer_df)
 }
 
 fn sweep(buffer: &mut Vec<u8>) {
@@ -52,25 +50,48 @@ fn sweep(buffer: &mut Vec<u8>) {
     // right to left
 }
 
-fn get_df_from_buffer(buffer: &Vec<u8>, width: u32, height: u32) -> DistanceField<u8> {
-    if buffer.len() != ((width + 2) * (height +2)) as usize {
-       panic!("incorrect buffer size");
+fn combine_distance_fields(inner_df: &DistanceField<u8>, outer_df: &DistanceField<u8>) -> DistanceField<i8> {
+    if inner_df.data.len() != outer_df.data.len() {
+        panic!("inner and outer distance fields must have same size!");
+    }
+    let len = inner_df.data.len();
+    let mut data = vec![0; len];
+
+    for index in 0..len {
+        // TODO: we have to check overflows here and clamp the results (clamp, clamp_balanced)
+        data[index] = outer_df.data[index] as i8 - inner_df.data[index] as i8;
     }
 
-    let distance_vec = vec![0; (width * height) as usize];
+    DistanceField {
+        data,
+        width: inner_df.width,
+        height: inner_df.height,
+    }
+}
 
-    // TODO: copy values from buffer vector to distance vector
+fn get_df_from_buffer(buffer: &Vec<u8>, width: u32, height: u32) -> DistanceField<u8> {
+    let source_w = (width + 2) as usize;
+    let source_h = (height + 2) as usize;
 
-    [0..height].iter().for_each(|y| {
-        [0..width].iter().for_each(|x| {
+    if buffer.len() != source_w * source_h {
+        panic!("incorrect buffer size");
+    }
 
-        });
-    });
+    let target_w = width as usize;
+    let target_h = height as usize;
+
+    let mut distance_vec = vec![0; target_w * target_h];
+
+    for y in 0..target_h {
+        for x in 0..target_w {
+            distance_vec[y * target_w + x] = buffer[(y + 1) * source_w + x + 1];
+        }
+    }
 
     DistanceField {
         data: distance_vec,
-        width: field.width,
-        height: field.height,
+        width,
+        height,
     }
 }
 
@@ -194,15 +215,29 @@ impl DistanceField<f32> {
 #[cfg(test)]
 mod tests {
     use crate::source::SourceField;
-    use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances, generate_sdf};
+    use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances, generate_sdf, get_df_from_buffer, generate_outer_df, generate_inner_df};
 
     // helper method to get an empty source field
     fn get_source_0_0() -> SourceField {
         SourceField::new(&[], 0, 0)
     }
 
-    // helper method to get an 1x1 source field width a checkered pattern
-    fn get_source_1_1_checker() -> SourceField {
+    // helper method to get an empty 1x1 source field
+    fn get_source_1_1_empty() -> SourceField {
+        SourceField::new(&[
+            0,
+        ], 1, 1)
+    }
+
+    // helper method to get an filled 1x1 source field
+    fn get_source_1_1_filled() -> SourceField {
+        SourceField::new(&[
+            255,
+        ], 1, 1)
+    }
+
+    // helper method to get an 2x2 source field width a checkered pattern
+    fn get_source_2_2_checker() -> SourceField {
         SourceField::new(&[255, 0, 0, 255], 2, 2)
     }
 
@@ -226,16 +261,19 @@ mod tests {
 
     #[test]
     fn generates_buffer_with_additional_border() {
-        let b_empty = init_buffer(&get_source_0_0(), 0, 0);
-        assert_eq!(b_empty.len(), 2 * 2);
+        let b_1x1_empty = init_buffer(&get_source_1_1_empty(), 0, 0);
+        assert_eq!(b_1x1_empty.len(), 3 * 3);
 
-        let b_2x2 = init_buffer(&get_source_1_1_checker(), 0, 0);
+        let b_1x1_filled = init_buffer(&get_source_1_1_filled(), 0, 0);
+        assert_eq!(b_1x1_filled.len(), 3 * 3);
+
+        let b_2x2 = init_buffer(&get_source_2_2_checker(), 0, 0);
         assert_eq!(b_2x2.len(), 4 * 4);
     }
 
     #[test]
     fn get_filled_buffer_for_outer_distance() {
-        let b = init_buffer_for_outer_distances(&get_source_1_1_checker());
+        let b = init_buffer_for_outer_distances(&get_source_2_2_checker());
         let m = u8::MAX;
         assert_eq!(b, [
             m, m, m, m,
@@ -247,7 +285,7 @@ mod tests {
 
     #[test]
     fn get_filled_buffer_for_inner_distance() {
-        let b = init_buffer_for_inner_distances(&get_source_1_1_checker());
+        let b = init_buffer_for_inner_distances(&get_source_2_2_checker());
         let m = u8::MAX;
         assert_eq!(b, [
             0, 0, 0, 0,
@@ -257,15 +295,41 @@ mod tests {
         ]);
     }
 
-
     #[test]
-    fn generates_distance_field_u8_3x3() {
-//        let b = vec![0, 0, 0, 0, 1, 0, 0, 0, 0];
-        let s = SourceField::new(&b, 3, 3);
-        let df = generate_sdf(get_source_3_3_empty());
-        assert!(df.data == vec![2, 1, 2, 1, 0, 1, 2, 1, 2]);
+    fn gets_correct_distance_field_size_from_oversize_buffer() {
+        let b_filled = init_buffer_for_outer_distances(&get_source_1_1_filled());
+        let df_filled = get_df_from_buffer(&b_filled, 1, 1);
+        assert_eq!(df_filled.data.len(), 1);
+        assert_eq!(df_filled.data[0], 0);
+
+        let b_empty = init_buffer_for_outer_distances(&get_source_1_1_empty());
+        let df_filled = get_df_from_buffer(&b_empty, 1, 1);
+        assert_eq!(df_filled.data.len(), 1);
+        assert_eq!(df_filled.data[0], u8::MAX);
     }
 
+    #[test]
+    fn generates_outer_distance_field() {
+        let df_checker = generate_outer_df(&get_source_2_2_checker());
+        assert!(df_checker.data == vec![0, 1, 1, 0]);
+
+        // TODO: empty
+
+        // TODO: filled
+    }
+
+    #[test]
+    fn generates_inner_distance_field() {
+        let df_checker = generate_inner_df(&get_source_2_2_checker());
+        assert!(df_checker.data == vec![1, 0, 0, 0]);
+
+        // TODO: empty
+
+        // TODO: filled
+    }
+
+    // TODO: generate signed distance field
+    // TODO: check for max ranges and clamping
     /*
     #[test]
     fn generates_signed_distance_field_i8_3x3() {
