@@ -4,15 +4,6 @@ use crate::source::SourceField;
 pub fn generate_df(field: &SourceField) -> DistanceField<u8> {
     let size = (field.width * field.height) as usize;
 
-    // step 1 - init the buffer
-    // let outer_buf = get_buffer_for_outer_distances(field.width + 2, field.height + 2);
-
-    // step 2 - swipe over buffer
-
-    // phase down (2 steps)
-
-    // phase up (2 steps)
-
     DistanceField {
         data: vec![0; size],
         width: field.width,
@@ -20,15 +11,78 @@ pub fn generate_df(field: &SourceField) -> DistanceField<u8> {
     }
 }
 
+// creates an 8-bit resolution outer distance field
+pub fn generate_outer_df(field: &SourceField) -> DistanceField<u8> {
+    let mut buffer = init_buffer_for_outer_distances(&field);
+    sweep(&mut buffer);
+    get_df_from_buffer(&buffer, field.width, field.height)
+}
+
+// creates an 8-bit resolution inner distance field
+pub fn generate_inner_df(field: &SourceField) -> DistanceField<u8> {
+    let mut buffer = init_buffer_for_inner_distances(&field);
+    sweep(&mut buffer);
+    get_df_from_buffer(&buffer, field.width, field.height)
+}
+
+// creates an 8-bit resolution signed distance field (with inner and outer distances)
+pub fn generate_signed_df(field: &SourceField) -> DistanceField<i8> {
+    let inner_df = generate_inner_df(&field);
+    let outer_df = generate_outer_df(&field);
+
+    // TODO: invert inner field
+    // TODO: add the two fields together
+    // TODO: clamp results (clamp, clamp_balanced)
+}
+
+fn sweep(buffer: &mut Vec<u8>) {
+
+    // TODO: implement !
+
+    // phase 1: down
+
+    // left to right
+
+    // right to left
+
+    // phase 2: up
+
+    // left to right
+
+    // right to left
+}
+
+fn get_df_from_buffer(buffer: &Vec<u8>, width: u32, height: u32) -> DistanceField<u8> {
+    if buffer.len() != ((width + 2) * (height +2)) as usize {
+       panic!("incorrect buffer size");
+    }
+
+    let distance_vec = vec![0; (width * height) as usize];
+
+    // TODO: copy values from buffer vector to distance vector
+
+    [0..height].iter().for_each(|y| {
+        [0..width].iter().for_each(|x| {
+
+        });
+    });
+
+    DistanceField {
+        data: distance_vec,
+        width: field.width,
+        height: field.height,
+    }
+}
+
 // background cells populated with the maximum distance value
 // foreground cells have zero distance values
-pub fn init_buffer_for_outer_distances(source: &SourceField) -> Vec<u8> {
+fn init_buffer_for_outer_distances(source: &SourceField) -> Vec<u8> {
     init_buffer(source, 0, u8::MAX)
 }
 
 // background cells have zero distance values
 // foreground cells populated with the maximum distance value
-pub fn init_buffer_for_inner_distances(source: &SourceField) -> Vec<u8> {
+fn init_buffer_for_inner_distances(source: &SourceField) -> Vec<u8> {
     init_buffer(source, u8::MAX, 0)
 }
 
@@ -140,7 +194,7 @@ impl DistanceField<f32> {
 #[cfg(test)]
 mod tests {
     use crate::source::SourceField;
-    use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances};
+    use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances, generate_sdf};
 
     // helper method to get an empty source field
     fn get_source_0_0() -> SourceField {
@@ -204,15 +258,13 @@ mod tests {
     }
 
 
-    /*
     #[test]
     fn generates_distance_field_u8_3x3() {
-        let b = vec![0, 0, 0, 0, 1, 0, 0, 0, 0];
+//        let b = vec![0, 0, 0, 0, 1, 0, 0, 0, 0];
         let s = SourceField::new(&b, 3, 3);
-        let df = generate_df(&s);
+        let df = generate_sdf(get_source_3_3_empty());
         assert!(df.data == vec![2, 1, 2, 1, 0, 1, 2, 1, 2]);
     }
-    */
 
     /*
     #[test]

@@ -7,6 +7,13 @@ pub struct SourceField {
 
 impl SourceField {
     pub fn new(buffer: &[u8], width: u32, height: u32) -> Self {
+        if width == 0 {
+            panic!("width must be greater than zero"); // maybe an error type "incorrect dimensions" would be better here!
+        }
+        if height == 0 {
+            panic!("height must be greater than zero"); // maybe an error type "incorrect dimensions" would be better here!
+        }
+
         let size = (width * height) as usize;
         if buffer.len() != size {
             panic!("buffer size should be {}", width * height);
@@ -28,6 +35,20 @@ impl SourceField {
 #[cfg(test)]
 mod tests {
     use crate::source::SourceField;
+
+    #[test]
+    #[should_panic]
+    fn source_must_have_width_greater_than_zero() {
+        let b = [0];
+        let f = SourceField::new(&b, 0, 1);
+    }
+
+    #[test]
+    #[should_panic]
+    fn source_must_have_height_greater_than_zero() {
+        let b = [0];
+        let f = SourceField::new(&b, 1, 0);
+    }
 
     #[test]
     #[should_panic]
