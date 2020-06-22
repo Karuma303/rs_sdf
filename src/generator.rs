@@ -1,6 +1,6 @@
 use std::result::Result::Err;
 
-use crate::naive::generate_sdf;
+use crate::naive::{generate_signed_df};
 use crate::input::get_source_from_png_file_input;
 
 pub struct DistanceGenerator {
@@ -38,7 +38,8 @@ impl DistanceGenerator {
         if let Some(path) = &self.input_path {
 
             let source = get_source_from_png_file_input(path);
-            let sdf = generate_sdf(&source.unwrap());
+            // let sdf = generate_sdf(&source.unwrap());
+            let sdf = generate_signed_df(&source.unwrap());
 
             // TODO: generate output file here
 

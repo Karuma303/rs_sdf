@@ -68,6 +68,10 @@ namespace Lib.SignedDistanceField {
 		private void CalculateSdf(DistanceVector[,] grid, bool discardType) {
 			// forward pass
 			for (int y = 0; y < _height; y++) {
+
+			    // ***
+			    // *O.
+			    // ...
 				for (int x = 0; x < _width; x++) {
 					Compare(grid, x, y, -1, 0, discardType);
 					Compare(grid, x, y, 0, -1, discardType);
@@ -75,6 +79,9 @@ namespace Lib.SignedDistanceField {
 					Compare(grid, x, y, 1, -1, discardType);
 				}
 
+                // ...
+                // .O*
+                // ...
 				for (int x = _width - 1; x >= 0; x--) {
 					Compare(grid, x, y, 1, 0, discardType);
 				}
@@ -82,6 +89,10 @@ namespace Lib.SignedDistanceField {
 
 			// backward pass
 			for (int y = _height - 1; y >= 0; y--) {
+
+			    // ...
+			    // .O*
+			    // ***
 				for (int x = _width - 1; x >= 0; x--) {
 					Compare(grid, x, y, 1, 0, discardType);
 					Compare(grid, x, y, 0, 1, discardType);
@@ -89,6 +100,9 @@ namespace Lib.SignedDistanceField {
 					Compare(grid, x, y, 1, 1, discardType);
 				}
 
+			    // ...
+			    // *O.
+			    // ...
 				for (int x = 0; x < _width; x++) {
 					Compare(grid, x, y, -1, 0, discardType);
 				}
@@ -154,7 +168,7 @@ namespace Lib.SignedDistanceField {
 			}
 
 			/// <summary>
-			/// The sqared distance of the vector.
+			/// The squared distance of the vector.
 			/// </summary>
 			/// <returns>The sqared distance</returns>
 			public int DistSq() {

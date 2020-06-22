@@ -1,16 +1,5 @@
 use crate::source::SourceField;
 
-// creates an 8-bit resolution distance field (only with outer values)
-/*pub fn generate_df(field: &SourceField) -> DistanceField<u8> {
-    let size = (field.width * field.height) as usize;
-
-    DistanceField {
-        data: vec![0; size],
-        width: field.width,
-        height: field.height,
-    }
-}*/
-
 // creates an 8-bit resolution outer distance field
 pub fn generate_outer_df(field: &SourceField) -> DistanceField<u8> {
     let mut buffer = init_buffer_for_outer_distances(&field);
@@ -124,52 +113,6 @@ fn init_buffer(source: &SourceField, set_value: u8, unset_value: u8) -> Vec<u8> 
     buf
 }
 
-// creates an 8-bit resolution signed distance field (with inner and outer values)
-pub fn generate_sdf(source: &SourceField) -> DistanceField<i8> {
-
-    // source field has a vector of boolean in his data property
-    // true at a give positions means that the field is occupied, false means that the field is empty
-
-    let size = (source.width * source.height) as usize;
-
-    let mut outer_buffer = init_buffer_for_outer_distances(source);
-    let mut inner_buffer = init_buffer_for_inner_distances(source);
-
-    calculate_distances(&mut outer_buffer);
-    calculate_distances(&mut inner_buffer);
-
-    // TODO: add the two fields together
-
-    // TODO: return the real sdf here and not this dummy DistanceField
-    DistanceField {
-        width: source.width,
-        height: source.height,
-        data: vec![0; size],
-    }
-
-    // step 1 - detect outer distances
-
-
-    // step 2 - detect inner distances
-
-    // swipe top/left
-
-    // swipe right
-}
-
-pub fn calculate_distances(buffer: &mut Vec<u8>) {
-    // TODO: implement
-
-    // swipe top/left
-
-    // swipe right
-}
-
-pub fn get_combined_buffer(outer_buffer: &Vec<u8>, inner_buffer: &Vec<u8>) -> Vec<u8> {
-    // TODO: implement
-    vec![0, 0]
-}
-
 pub struct DistanceField<T> {
     pub data: Vec<T>,
     pub width: u32,
@@ -198,24 +141,10 @@ impl DistanceField<u8> {
     fn init_for_inner_distance() {}
 }
 
-trait InitDistanceField {}
-
-impl InitDistanceField for DistanceField<i8> {
-//    fn init_for_outer_distance(source : &SourceField) {
-//        // TODO:
-//    }
-}
-
-impl DistanceField<f32> {
-//    fn init(source: &SourceField) {
-    // TODO:
-//    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::source::SourceField;
-    use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances, generate_sdf, get_df_from_buffer, generate_outer_df, generate_inner_df};
+    use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances, get_df_from_buffer, generate_outer_df, generate_inner_df};
 
     // helper method to get an empty source field
     fn get_source_0_0() -> SourceField {
@@ -311,21 +240,25 @@ mod tests {
     #[test]
     fn generates_outer_distance_field() {
         let df_checker = generate_outer_df(&get_source_2_2_checker());
-        assert!(df_checker.data == vec![0, 1, 1, 0]);
+        assert_eq!(df_checker.data, vec![0, 1, 1, 0]);
 
-        // TODO: empty
+        let df_empty = generate_outer_df(&get_source_1_1_empty());
+        assert_eq!(df_empty.data, vec![u8::MAX]);
 
-        // TODO: filled
+        let df_filled = generate_outer_df(&get_source_1_1_filled());
+        assert_eq!(df_empty.data, vec![0]);
     }
 
     #[test]
     fn generates_inner_distance_field() {
         let df_checker = generate_inner_df(&get_source_2_2_checker());
-        assert!(df_checker.data == vec![1, 0, 0, 0]);
+        assert!(df_checker.data == vec![1, 0, 0, 1]);
 
-        // TODO: empty
+        let df_empty = generate_inner_df(&get_source_1_1_empty());
+        assert_eq!(df_empty.data, vec![0]);
 
-        // TODO: filled
+        let df_filled = generate_inner_df(&get_source_1_1_filled());
+        assert_eq!(df_empty.data, vec![1]);
     }
 
     // TODO: generate signed distance field
