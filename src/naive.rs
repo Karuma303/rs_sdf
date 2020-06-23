@@ -26,6 +26,7 @@ fn sweep(buffer: &mut Vec<u8>) {
 
     // TODO: implement !
 
+
     // phase 1: down
 
     // left to right
@@ -111,6 +112,19 @@ fn init_buffer(source: &SourceField, set_value: u8, unset_value: u8) -> Vec<u8> 
         };
     };
     buf
+}
+
+// new structure - we should use that !
+pub struct NearestEdge<T> {
+    pub x : T,
+    pub y : T,
+    pub distance_sqared: T,
+}
+
+impl NearestEdge<i32> {
+    pub fn new(x : i32, y : i32) -> Self {
+        NearestEdge{x, y, distance_sqared: x * y}
+    }
 }
 
 pub struct DistanceField<T> {
