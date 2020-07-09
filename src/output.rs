@@ -4,76 +4,40 @@ use std::io::{BufWriter};
 use crate::naive::DistanceField;
 use std::fs::File;
 
-
-pub struct SdfExporter<T> {
-    data: DistanceField<T>,
-}
-
-impl SdfExporter<DistanceField<u8>> {
-    fn export(/*field: DistanceField<u8>*/) {
-        unimplemented!()
-    }
-}
-
-impl SdfExporter<DistanceField<u16>> {
-    fn export(/*field: DistanceField<u16>*/) {
-        unimplemented!()
-    }
-}
-
-//impl<T> SdfExporter<T> {
-//    fn new(field: DistanceField<T>) -> Self {
-//        SdfExporter {
-//            data: field,
-//        }
-//    }
-//}
-
-// impl<u8> SdfExporter<u8> {}
-
-// impl<u16> SdfExporter<u16> {}
-
 trait PngExporter<T> {
-    fn export(&self, field: &DistanceField<T>);
+    fn export(&self, file_path: &Path);
 }
 
-impl dyn PngExporter<u8> {
-    fn export(&self, field: &DistanceField<u8>) {
-        unimplemented!()
+impl PngExporter<u8> for DistanceField<u8> {
+    fn export(&self, file_path: &Path) {
+        // save_to_png_file(&self, &file_path);
+
+        println!("{:?}", file_path);
+        let file = File::create(file_path).unwrap();
+        let ref mut w = BufWriter::new(file);
+
+        let mut e = Encoder::new(w, self.width, self.height);
+        e.set_color(ColorType::Grayscale);
+        e.set_compression(Compression::Best);
+        e.set_depth(BitDepth::Eight);
+        e.set_filter(FilterType::NoFilter); // ???
+
+        let mut writer = e.write_header().unwrap();
+
+        // TODO: In this case, we write the byte content of the DistanceField directly into the image
+        // There will be some buffer transformations happen here in future versions
+
+        writer.write_image_data(&self.data).unwrap(); // Save
     }
 }
 
-impl dyn PngExporter<u16> {
-    fn export(&self, field: &DistanceField<u16>) {
-        unimplemented!()
-    }
-}
-
-fn save_to_png_file(field: &DistanceField<u8>, file_path: &Path) {
-    println!("{:?}", file_path);
-    let file = File::create(file_path).unwrap();
-    let ref mut w = BufWriter::new(file);
-
-    let mut e = Encoder::new(w, field.width, field.height);
-    e.set_color(ColorType::Grayscale);
-    e.set_compression(Compression::Best);
-    e.set_depth(BitDepth::Eight);
-    e.set_filter(FilterType::NoFilter); // ???
-
-    let mut writer = e.write_header().unwrap();
-
-    // TODO: In this case, we write the byte content of the DistanceField directly into the image
-    // There will be some buffer transformations happen here in future versions
-
-    writer.write_image_data(&field.data).unwrap(); // Save
-}
 
 #[cfg(test)]
 mod tests {
     use std::path::{Path, PathBuf};
     use std::fs::{remove_file, create_dir_all, remove_dir};
     use crate::naive::DistanceField;
-    use crate::output::save_to_png_file;
+    use crate::output::PngExporter;
 
     const TEMP_DIR: &str = r"__tmp__output__dir__/";
     const TEMP_IMAGE_FILE: &str = r"image.png";
@@ -110,7 +74,10 @@ mod tests {
 
         create_temp_dir();
 
-        let res = save_to_png_file(&d, &get_temp_image_path());
+        // TODO: implement the exporter as a type (not as a trait)
+
+        d.export(&get_temp_image_path());
+
         assert!(get_temp_image_path().is_file());
 
         delete_temp_image_file();

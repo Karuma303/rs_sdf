@@ -1,7 +1,8 @@
 use std::result::Result::Err;
 
-use crate::naive::{generate_signed_df};
+use crate::naive::*;
 use crate::input::get_source_from_png_file_input;
+// use crate::output::SdfExporter;
 
 pub struct DistanceGenerator {
     input_path: Option<String>,
@@ -36,19 +37,16 @@ impl DistanceGenerator {
     pub fn generate(&self) -> Result<(), &str> {
         // input path is set?
         if let Some(path) = &self.input_path {
-
             let source = get_source_from_png_file_input(path);
             // let sdf = generate_sdf(&source.unwrap());
-            let sdf = generate_signed_df(&source.unwrap());
+            // let sdf = generate_signed_df(&source.unwrap());
+            let sdf = generate_outer_df(&source.unwrap());
 
-            // TODO: generate output file here
-
-
-            // let x = Decoder::new_with_limits()
-
-            // TODO: process data according to strategy
-            // TODO: write file
-
+//            let exporter: SdfExporter<u8> = SdfExporter {
+//                data: sdf,
+//            };
+            // TODO
+            // exporter.export(&output_path);
 
 //                let mut buffer = vec![0; info.buffer_size()];
 
@@ -72,8 +70,6 @@ impl DistanceGenerator {
 // https://github.com/chriscummings100/signeddistancefields
 // https://shaderfun.com/
 // https://shaderfun.com/2018/03/23/signed-distance-fields-part-1-unsigned-distance-fields/
-
-
         } else {
             return Err("no input path specified");
         }

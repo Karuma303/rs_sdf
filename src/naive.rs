@@ -1,5 +1,4 @@
 use crate::source::SourceField;
-use std::ops::{Add, Sub};
 
 // creates an 8-bit resolution outer distance field
 pub fn generate_outer_df(field: &SourceField) -> DistanceField<u8> {
@@ -34,13 +33,12 @@ fn sweep_down(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
 
     // outer loop (going down)
     let mut idx = buffer_width + 1; // start at pos (1/1)
-    let mut current_distance = 0;
-    for y in 0..field_height {
+    for _ in 0..field_height {
         //
         // ***
         // *O.  -->
         // ...
-        for x in 0..field_width {
+        for _ in 0..field_width {
             compare(buffer, idx, idx - 1); // left
             compare(buffer, idx, idx - buffer_width); // top
             compare(buffer, idx, idx - buffer_width - 1); // top left
@@ -50,7 +48,7 @@ fn sweep_down(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
         //      ...
         // <--  .O*
         //      ...
-        for x in (0..field_width).rev() {
+        for _ in (0..field_width).rev() {
             idx = idx - 1;
             compare(buffer, idx, idx + 1); // right
         }
@@ -63,11 +61,11 @@ fn sweep_up(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
 
     // outer loop (going up)
     let mut idx = field_height * buffer_width + field_width;
-    for y in (0..field_height).rev() {
+    for _ in (0..field_height).rev() {
         //      ...
         // <--  .O*
         //      ***
-        for x in (0..field_width).rev() {
+        for _ in (0..field_width).rev() {
             compare(buffer, idx, idx + 1); // right
             compare(buffer, idx, idx + buffer_width); // bottom
             compare(buffer, idx, idx + buffer_width - 1); // bottom left
@@ -77,7 +75,7 @@ fn sweep_up(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
         // ...
         // *O.  -->
         // ...
-        for x in 0..field_width {
+        for _ in 0..field_width {
             idx = idx + 1;
             compare(buffer, idx, idx - 1); // left
         }
