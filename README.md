@@ -8,6 +8,7 @@ TODO: Add some information here...
 | --- | --- |
 | <img alt="input image 1" src="assets/SDF_Test_Texture_RGBA.png" width="256" height="256" /> | <img alt="output image 1" src="output/my_first_test.png" width="256" height="256" /> |
 | <img alt="input image 2" src="assets/SDF_Test_Texture_2.png" width="256" height="256" /> | <img alt="output image 2" src="output/my_second_test.png" width="256" height="256" /> |
+| <img alt="input image 3" src="assets/SDF_Test_RGBA.png" width="256" height="256" /> | <img alt="output image 3" src="output/my_third_test.png" width="256" height="256" /> |
 
 
 # Links about SDFs and there usage (for example in text rendering) 

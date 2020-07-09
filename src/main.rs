@@ -23,4 +23,11 @@ fn main() {
         .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
     g.generate();
 
+    // another test
+    let g = DistanceGenerator::new()
+        .input(r"assets\SDF_Test_RGBA.png")
+        .output(r"output/my_third_test.png")
+        .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
+    g.generate();
+
 }
