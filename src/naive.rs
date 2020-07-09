@@ -1,4 +1,5 @@
 use crate::source::SourceField;
+use std::ops::{Add, Sub};
 
 // creates an 8-bit resolution outer distance field
 pub fn generate_outer_df(field: &SourceField) -> DistanceField<u8> {
@@ -29,30 +30,67 @@ fn sweep(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
 }
 
 fn sweep_down(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
+    let buffer_width = field_width + 2;
+
     // outer loop (going down)
+    let mut idx = buffer_width + 1; // start at pos (1/1)
+    let mut current_distance = 0;
     for y in 0..field_height {
-        // left to right
+        //
+        // ***
+        // *O.  -->
+        // ...
         for x in 0..field_width {
-            // TODO
+            compare(buffer, idx, idx - 1); // left
+            compare(buffer, idx, idx - buffer_width); // top
+            compare(buffer, idx, idx - buffer_width - 1); // top left
+            compare(buffer, idx, idx - buffer_width + 1); // top right
+            idx = idx + 1;
         }
-        // right to left
-        for x in 0..field_width.rev() {
-            // TODO
+        //      ...
+        // <--  .O*
+        //      ...
+        for x in (0..field_width).rev() {
+            idx = idx - 1;
+            compare(buffer, idx, idx + 1); // right
         }
+        idx = idx + buffer_width;
     }
 }
 
 fn sweep_up(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
+    let buffer_width = field_width + 2;
+
     // outer loop (going up)
-    for y in 0..field_height.rev() {
-        // right to left
-        for x in 0..field_width.rev() {
-            // TODO
+    let mut idx = field_height * buffer_width + field_width;
+    for y in (0..field_height).rev() {
+        //      ...
+        // <--  .O*
+        //      ***
+        for x in (0..field_width).rev() {
+            compare(buffer, idx, idx + 1); // right
+            compare(buffer, idx, idx + buffer_width); // bottom
+            compare(buffer, idx, idx + buffer_width - 1); // bottom left
+            compare(buffer, idx, idx + buffer_width + 1); // bottom right
+            idx = idx - 1;
         }
-        // left to right
+        // ...
+        // *O.  -->
+        // ...
         for x in 0..field_width {
-            // TODO
+            idx = idx + 1;
+            compare(buffer, idx, idx - 1); // left
         }
+        idx = idx - buffer_width;
+    }
+}
+
+fn compare(buffer: &mut Vec<u8>, check_index: u32, other_index: u32) {
+    // println!("{}/{}", check_index, other_index);
+    let orig_distance = buffer[check_index as usize];
+    let new_distance = buffer[other_index as usize].saturating_add(1);
+    if new_distance < orig_distance {
+        buffer[check_index as usize] = new_distance
     }
 }
 
@@ -275,20 +313,34 @@ mod tests {
         let df_empty = generate_outer_df(&get_source_1_1_empty());
         assert_eq!(df_empty.data, vec![u8::MAX]);
 
+        let df_empty_big = generate_outer_df(&get_source_3_3_empty());
+        assert_eq!(df_empty_big.data, vec![u8::MAX, u8::MAX, u8::MAX,
+                                           u8::MAX, u8::MAX, u8::MAX,
+                                           u8::MAX, u8::MAX, u8::MAX]);
+
         let df_filled = generate_outer_df(&get_source_1_1_filled());
-        assert_eq!(df_empty.data, vec![0]);
+        assert_eq!(df_filled.data, vec![0]);
+
+        let df_filled_big = generate_outer_df(&get_source_3_3_filled());
+        assert_eq!(df_filled_big.data, vec![0, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
 
     #[test]
     fn generates_inner_distance_field() {
         let df_checker = generate_inner_df(&get_source_2_2_checker());
-        assert!(df_checker.data == vec![1, 0, 0, 1]);
+        assert_eq!(df_checker.data, vec![1, 0, 0, 1]);
 
         let df_empty = generate_inner_df(&get_source_1_1_empty());
         assert_eq!(df_empty.data, vec![0]);
 
+        let df_empty_big = generate_inner_df(&get_source_3_3_empty());
+        assert_eq!(df_empty_big.data, vec![0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
         let df_filled = generate_inner_df(&get_source_1_1_filled());
-        assert_eq!(df_empty.data, vec![1]);
+        assert_eq!(df_filled.data, vec![1]);
+
+        let df_filled_big = generate_inner_df(&get_source_3_3_filled());
+        assert_eq!(df_filled_big.data, vec![1, 1, 1, 1, 2, 1, 1, 1, 1]);
     }
 
 // TODO: generate signed distance field
