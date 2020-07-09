@@ -1,19 +1,25 @@
-# Nützliche Links
+# About
+
+TODO: Add some information here...
+
+# Links about SDFs and there usage (for example in text rendering) 
 
 1) [Drawing Text with Signed Distance Fields in Mapbox GL](https://blog.mapbox.com/drawing-text-with-signed-distance-fields-in-mapbox-gl-b0933af6f817)  
-Interessanter Artikel, wie MapBox mit SDF die Labels auf den Karten zeichnet - Inklusive Code für den FragmentShader
+Interesting blog post about MapBox and how they SDF to render the labels on their maps - 
+including some source code for a FragmentShader
 
 1) [Signed Distance Fields](https://github.com/chriscummings100/signeddistancefields/blob/master/Assets/SignedDistanceFields/SignedDistanceFieldGenerator.cs)  
-C# Code Repo für einen SDF Generator mit unterschiedlichen Algorithmen. 8PSSDT sweep or a brute force eikonal algorithm
+C# code repository of a SDF generator with different generation algorithms 
+(8PSSDT sweep, brute force Eikonal etc.)
 
 1) [Shader Fun](https://shaderfun.com/)  
-Blogpost Serie über SDFs
+Blogpost series abouts SDFs
 
 1) [Distance Field Fonts](https://github.com/libgdx/libgdx/wiki/Distance-field-fonts)  
-Gute Erklärung, wie SDF Fonts in libGDX benutzt werden  
+Nixe explanation about the usage of SDF fonts in libGDX  
 
 1) [Ronjas Shader Tutorials](https://www.ronja-tutorials.com/2018/11/10/2d-sdf-basics.html)
-2D Signed Distance Field Basics - Blog mit mehreren Beiträgen zum Thema SDF
+2D Signed Distance Field Basics - blog with some posts about SDFs
 
 ## fluent syntax
 
@@ -25,7 +31,7 @@ Gute Erklärung, wie SDF Fonts in libGDX benutzt werden
         .generate();
 ```
 
-#### Erstversion
+#### First version
 ```rust
 let gen = DistanceGenerator::new()
             .input("/path")
@@ -34,30 +40,30 @@ let gen = DistanceGenerator::new()
 ```
 
 ## Input
-Aus ImageBuffer  
-Aus File (File -> ImageBuffer)  
-Aus TTF Font Datei  
-Zusätzlich können Transformer eingesetzt werden:
-Rotate, Flip, B/W, ChannelMatrix (Kanäle anders mappen), Threshold,
-scale (up/down) <- ganz wichtig ... inklusive linear/bilinear/triliniear interpolation
-Bits pro Kanal (1/8/16/32/64) (Ausgangsformat) - Aber wie sieht dann das Format zum berechnen aus? B/W vs. Greyscale
+From ImageBuffer  
+From File (File -> ImageBuffer)  
+From TTF Font File  
+Additional Transformers would be nice too:
+Rotate, Flip, B/W, ChannelMatrix (Re-Map Channels), Threshold,
+scale (up/down) <- very important ... inc. linear/bilinear/triliniear interpolation
+Bits per channel Kanal (1/8/16/32/64) (Source format) - 
+But how do we calculate the output? ->  B/W vs. Greyscale
 
 **Output**  
 ImageBuffer
-File (wobei File nur eine bestimmte Umwandlung des ImageBuffers ist. Welche Channel werden hier genutzt? 8/16/32 Bit? Int oder Float?
-Auch hier sind wieder alle möglichen Transformationen möglich (scale, rotate, flip)
-welche cannel
+File (just a special transformation of an ImageBuffers. Which channels do we use?   
+8/16/32 Bit?  
+Int or Float?  
+Even here we have the options to do multiple transformations (scale, rotate, flip)  
+
 
 **Configuration**  
-Verwendeter Algorithmus (Naiv, 8SED, Dead Reckoning, etc.)
+Used Algorithm (Naive, 8SED, Dead Reckoning, etc.)
 
-Das Ganze sollte auch auf TTF Fonts anwendbar sein. Hier wäre dann wichtig, dass man das Tool
-im Batch aufrufen kann -> irgendein Tool basteln, was festgelegte Glyphen erzeugen kann.
-entweder packt man dann die glyphen in eine max bounding box, oder (besser) jede glphe bekommt
-entsprechend ihrer größe eine bestimmmte box und zusätzlich wird im output das ganze hinting
-noch mit abgespeichert.
+In theory it should be possible to apply this to TTF Fonts. For that, we should have an CLI executable
+that should be configurable (used glyphs etc)  
+SDFs of the glyphs should be packed in some way to a texture atlas. What about hinting?
 
-Natürlich muss auch eine Atlas Textur mit einem Packer erzeugt werden
-Das wäre dann aber schon echt ein heftiges Tool, was sehr stark in die Richtung TextMeshPro geht ;)
+A good inspirational source is TextMeshPro!
 
-Gibt es ein Format für SDF Fonts?
+Is there any known file format for SDF Fonts?
