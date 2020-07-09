@@ -2,8 +2,10 @@
 
 TODO: Add some information here...
 
-<img src="assets/SDF_Test_Texture_RGBA.png" width="256" height="256" />
-<img src="output/my_first_test.png" width="256" height="256" />
+|  |  |
+|<img alt="foo" src="assets/SDF_Test_Texture_RGBA.png" width="256" height="256" />|  
+<img alt="bar" src="output/my_first_test.png" width="256" height="256" /></td> | 
+
 
 # Links about SDFs and there usage (for example in text rendering) 
 
