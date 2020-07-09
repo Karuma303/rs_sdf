@@ -15,4 +15,12 @@ fn main() {
     let result = g.generate();
 
     println!("generated: {}", result.is_ok());
+
+    // another test
+    let g = DistanceGenerator::new()
+        .input(r"assets\SDF_Test_Texture_2.png")
+        .output(r"output/my_second_test.png")
+        .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
+    g.generate();
+
 }
