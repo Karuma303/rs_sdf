@@ -3,14 +3,14 @@ use crate::source::SourceField;
 // creates an 8-bit resolution outer distance field
 pub fn generate_outer_df(field: &SourceField) -> DistanceField<u8> {
     let mut buffer = init_buffer_for_outer_distances(&field);
-    sweep(&mut buffer);
+    sweep(&mut buffer, field.width, field.height);
     get_df_from_buffer(&buffer, field.width, field.height)
 }
 
 // creates an 8-bit resolution inner distance field
 pub fn generate_inner_df(field: &SourceField) -> DistanceField<u8> {
     let mut buffer = init_buffer_for_inner_distances(&field);
-    sweep(&mut buffer);
+    sweep(&mut buffer, field.width, field.height);
     get_df_from_buffer(&buffer, field.width, field.height)
 }
 
@@ -22,22 +22,38 @@ pub fn generate_signed_df(field: &SourceField) -> DistanceField<i8> {
     combine_distance_fields(&inner_df, &outer_df)
 }
 
-fn sweep(buffer: &mut Vec<u8>) {
+fn sweep(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
+    // Two pass sweep (down + up)
+    sweep_down(buffer, field_width, field_height);
+    sweep_up(buffer, field_width, field_height);
+}
 
-    // TODO: implement !
+fn sweep_down(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
+    // outer loop (going down)
+    for y in 0..field_height {
+        // left to right
+        for x in 0..field_width {
+            // TODO
+        }
+        // right to left
+        for x in 0..field_width.rev() {
+            // TODO
+        }
+    }
+}
 
-
-    // phase 1: down
-
-    // left to right
-
-    // right to left
-
-    // phase 2: up
-
-    // left to right
-
-    // right to left
+fn sweep_up(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
+    // outer loop (going up)
+    for y in 0..field_height.rev() {
+        // right to left
+        for x in 0..field_width.rev() {
+            // TODO
+        }
+        // left to right
+        for x in 0..field_width {
+            // TODO
+        }
+    }
 }
 
 fn combine_distance_fields(inner_df: &DistanceField<u8>, outer_df: &DistanceField<u8>) -> DistanceField<i8> {
@@ -48,7 +64,7 @@ fn combine_distance_fields(inner_df: &DistanceField<u8>, outer_df: &DistanceFiel
     let mut data = vec![0; len];
 
     for index in 0..len {
-        // TODO: we have to check overflows here and clamp the results (clamp, clamp_balanced)
+// TODO: we have to check overflows here and clamp the results (clamp, clamp_balanced)
         data[index] = outer_df.data[index] as i8 - inner_df.data[index] as i8;
     }
 
@@ -116,14 +132,14 @@ fn init_buffer(source: &SourceField, set_value: u8, unset_value: u8) -> Vec<u8> 
 
 // new structure - we should use that !
 pub struct NearestEdge<T> {
-    pub x : T,
-    pub y : T,
+    pub x: T,
+    pub y: T,
     pub distance_squared: T,
 }
 
 impl NearestEdge<i32> {
-    pub fn new(x : i32, y : i32) -> Self {
-        NearestEdge{x, y, distance_squared: x * y}
+    pub fn new(x: i32, y: i32) -> Self {
+        NearestEdge { x, y, distance_squared: x * y }
     }
 }
 
@@ -131,9 +147,9 @@ pub struct DistanceField<T> {
     pub data: Vec<T>,
     pub width: u32,
     pub height: u32,
-    // TODO: add more metadata here maybe...
-    // largest (outer/inner) distance
-    // isSigned (true/false)
+// TODO: add more metadata here maybe...
+// largest (outer/inner) distance
+// isSigned (true/false)
 
 //    pub fn get_min_value() -> T;
 //    pub fn get_max_value() -> T;
@@ -275,8 +291,8 @@ mod tests {
         assert_eq!(df_empty.data, vec![1]);
     }
 
-    // TODO: generate signed distance field
-    // TODO: check for max ranges and clamping
+// TODO: generate signed distance field
+// TODO: check for max ranges and clamping
     /*
     #[test]
     fn generates_signed_distance_field_i8_3x3() {
