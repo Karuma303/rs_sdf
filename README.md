@@ -2,6 +2,9 @@
 
 TODO: Add some information here...
 
+<img src="assets/SDF_Test_Texture_RGBA.png" width="256" height="256" />
+<img src="output/my_first_test.png" width="256" height="256" />
+
 # Links about SDFs and there usage (for example in text rendering) 
 
 1) [Drawing Text with Signed Distance Fields in Mapbox GL](https://blog.mapbox.com/drawing-text-with-signed-distance-fields-in-mapbox-gl-b0933af6f817)  
