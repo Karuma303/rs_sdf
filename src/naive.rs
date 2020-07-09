@@ -118,12 +118,12 @@ fn init_buffer(source: &SourceField, set_value: u8, unset_value: u8) -> Vec<u8> 
 pub struct NearestEdge<T> {
     pub x : T,
     pub y : T,
-    pub distance_sqared: T,
+    pub distance_squared: T,
 }
 
 impl NearestEdge<i32> {
     pub fn new(x : i32, y : i32) -> Self {
-        NearestEdge{x, y, distance_sqared: x * y}
+        NearestEdge{x, y, distance_squared: x * y}
     }
 }
 
