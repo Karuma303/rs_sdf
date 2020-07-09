@@ -8,8 +8,8 @@ mod output;
 
 fn main() {
     let g = DistanceGenerator::new()
-        .input(r"assets/SDF_Test_Texture_RGBA.png")
-        .output(r"output/my_first_test.sdf")
+        .input(r"assets\SDF_Test_Texture_RGBA.png")
+        .output(r"output/my_first_test.png")
         .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
 
     let result = g.generate();

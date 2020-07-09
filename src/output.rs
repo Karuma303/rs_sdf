@@ -4,7 +4,7 @@ use std::io::{BufWriter};
 use crate::naive::DistanceField;
 use std::fs::File;
 
-trait PngExporter<T> {
+pub trait PngExporter<T> {
     fn export(&self, file_path: &Path);
 }
 

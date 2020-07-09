@@ -2,6 +2,8 @@ use std::result::Result::Err;
 
 use crate::naive::*;
 use crate::input::get_source_from_png_file_input;
+use crate::output::PngExporter;
+use std::path::{Path, PathBuf};
 // use crate::output::SdfExporter;
 
 pub struct DistanceGenerator {
@@ -40,14 +42,16 @@ impl DistanceGenerator {
             let source = get_source_from_png_file_input(path);
             // let sdf = generate_sdf(&source.unwrap());
             // let sdf = generate_signed_df(&source.unwrap());
-            let sdf = generate_outer_df(&source.unwrap());
+            let sdf : DistanceField<u8> = generate_outer_df(&source.unwrap());
 
+            if let Some(path) = &self.output_path {
+                sdf.export(&PathBuf::from(path));
 //            let exporter: SdfExporter<u8> = SdfExporter {
 //                data: sdf,
 //            };
-            // TODO
-            // exporter.export(&output_path);
-
+                // TODO
+                // exporter.export(&output_path);
+            }
 //                let mut buffer = vec![0; info.buffer_size()];
 
 
