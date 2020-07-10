@@ -1,7 +1,7 @@
 # About
 
 A simple library to generate 2-dimensional Signed Distance Fields (SDF) for font rendering.  
-Please not that this is my personal playground to learn the Rust programming language, so don't expect any highly 
+Please note that this is my personal playground to learn the Rust programming language, so don't expect any highly 
 sophisticated code samples here. I will try to improve this library over time, however right now it is not recommended
 to use it for anything and especially not in production.  😉
 
