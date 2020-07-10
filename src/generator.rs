@@ -4,6 +4,7 @@ use crate::naive::*;
 use crate::input::get_source_from_png_file_input;
 use crate::output::PngExporter;
 use std::path::{PathBuf};
+use crate::source::SourceField;
 // use crate::output::SdfExporter;
 
 pub struct DistanceGenerator {
@@ -36,29 +37,31 @@ impl DistanceGenerator {
         self
     }
 
-    pub fn generate(&self) -> Result<(), &str> {
+    pub fn generate(&self) -> Result<(), String> {
         // input path is set?
         if let Some(path) = &self.input_path {
             let source = get_source_from_png_file_input(path);
             // let sdf = generate_sdf(&source.unwrap());
             // let sdf = generate_signed_df(&source.unwrap());
-            let sdf : DistanceField<u8> = generate_outer_df(&source.unwrap());
 
-            if let Some(path) = &self.output_path {
-                sdf.export(&PathBuf::from(path));
-//            let exporter: SdfExporter<u8> = SdfExporter {
-//                data: sdf,
-//            };
-                // TODO
-                // exporter.export(&output_path);
+            match source {
+                Ok(sourceField) => {
+                    // generate_outer_df(&source.unwrap());
+                    let sdf = generate_outer_df(&sourceField);
+
+                    if let Some(path) = &self.output_path {
+                        sdf.export(&PathBuf::from(path));
+                    }
+                }
+                Err(e) => {
+                    let msg = format!("Invalid input file! {}", e);
+                    return Err(msg);
+                }
             }
-//                let mut buffer = vec![0; info.buffer_size()];
-
 
             // we should test and maybe microbenchmark at least two known apporches here:
             // 1) brute force O(n²)
             // 2) the old EightPointSeqEuclideanDistTrans O(n)
-
 
 // Notes from old C# repository:
 
@@ -75,7 +78,7 @@ impl DistanceGenerator {
 // https://shaderfun.com/
 // https://shaderfun.com/2018/03/23/signed-distance-fields-part-1-unsigned-distance-fields/
         } else {
-            return Err("no input path specified");
+            return Err(String::from("no input path specified"));
         }
         Ok(())
     }
