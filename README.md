@@ -9,10 +9,10 @@ to use it for anything and especially not in production.  😉
 
 | Input | Output |  
 | --- | --- |
-| <img alt="input image 1" src="assets/example_1_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 1" src="output/example_1_512x512.png" width="256" height="256" /> |
-| <img alt="input image 2" src="assets/example_2_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 2" src="output/example_2_512x512.png" width="256" height="256" /> |
-| <img alt="input image 3" src="assets/example_3_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 3" src="output/example_3_512x512.png" width="256" height="256" /> |
-| <img alt="input image 4" src="assets/example_4_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 4" src="output/example_4_512x512.png" width="256" height="256" /> |
+| <img alt="input image 1" src="assets/example_1_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 1" src="output/odf_example_1_512x512.png" width="256" height="256" /> |
+| <img alt="input image 2" src="assets/example_2_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 2" src="output/odf_example_2_512x512.png" width="256" height="256" /> |
+| <img alt="input image 3" src="assets/example_3_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 3" src="output/odf_example_3_512x512.png" width="256" height="256" /> |
+| <img alt="input image 4" src="assets/example_4_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 4" src="output/odf_example_4_512x512.png" width="256" height="256" /> |
 
 
 ## Links about SDFs and there usage (for example in text rendering) 

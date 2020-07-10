@@ -11,6 +11,7 @@ pub struct DistanceGenerator {
     input_path: Option<String>,
     output_path: Option<String>,
     strategy: GenerationStrategy,
+    export_type: ExportType,
 }
 
 impl DistanceGenerator {
@@ -19,6 +20,7 @@ impl DistanceGenerator {
             input_path: None,
             output_path: None,
             strategy: GenerationStrategy::Naive, // default
+            export_type: ExportType::SignedInnerOuterDistance,
         }
     }
 
@@ -34,6 +36,11 @@ impl DistanceGenerator {
 
     pub fn strategy(mut self, strategy: GenerationStrategy) -> Self {
         self.strategy = strategy;
+        self
+    }
+
+    pub fn export_type(mut self, export_type: ExportType) -> Self {
+        self.export_type = export_type;
         self
     }
 
@@ -88,6 +95,12 @@ pub enum GenerationStrategy {
     Naive,
     BruteForceRectangular,
     BruteForceCircular,
+}
+
+pub enum ExportType {
+    UnsignedInnerDistance,
+    UnsignedOuterDistance,
+    SignedInnerOuterDistance,
 }
 
 pub struct Configuration {}
