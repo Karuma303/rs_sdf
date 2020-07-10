@@ -9,10 +9,10 @@ mod output;
 fn main() {
 
     // generate some SDFs here based on input images
-    generate_sdf(r"assets\SDF_Test_Texture_RGBA.png", r"output/my_first_test.png");
-    generate_sdf(r"assets\SDF_Test_Texture_2.png", r"output/my_second_test.png");
-    generate_sdf(r"assets\SDF_Test_RGBA.png", r"output/my_third_test.png");
-    generate_sdf(r"assets\rgba_512x512_heart.png", r"output/heart.png");
+    generate_sdf(r"assets\example_1_rgba_512x512.png", r"output/example_1_512x512.png");
+    generate_sdf(r"assets\example_2_rgba_512x512.png", r"output/example_2_512x512.png");
+    generate_sdf(r"assets\example_3_rgba_512x512.png", r"output/example_3_512x512.png");
+    generate_sdf(r"assets\example_4_rgba_512x512.png", r"output/example_4_512x512.png");
 }
 
 fn generate_sdf(source_image_path: &str, destination_image_path: &str) {
