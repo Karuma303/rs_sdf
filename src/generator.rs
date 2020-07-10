@@ -3,7 +3,7 @@ use std::result::Result::Err;
 use crate::naive::*;
 use crate::input::get_source_from_png_file_input;
 use crate::output::PngExporter;
-use std::path::{Path, PathBuf};
+use std::path::{PathBuf};
 // use crate::output::SdfExporter;
 
 pub struct DistanceGenerator {
