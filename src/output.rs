@@ -7,7 +7,16 @@ use std::fs::File;
 pub trait PngExporter<T> {
     fn export(&self, file_path: &Path);
 }
+impl PngExporter<i8> for DistanceField<i8> {
+    fn export(&self, file_path : &Path) {
+        // todo!("lala");
+        foo();
+    }
+}
 
+fn foo() {
+
+}
 impl PngExporter<u8> for DistanceField<u8> {
     fn export(&self, file_path: &Path) {
         // save_to_png_file(&self, &file_path);

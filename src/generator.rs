@@ -5,7 +5,6 @@ use crate::input::get_source_from_png_file_input;
 use crate::output::PngExporter;
 use std::path::{PathBuf};
 use crate::source::SourceField;
-// use crate::output::SdfExporter;
 
 pub struct DistanceGenerator {
     input_path: Option<String>,
@@ -54,10 +53,25 @@ impl DistanceGenerator {
             match source {
                 Ok(sourceField) => {
                     // generate_outer_df(&source.unwrap());
-                    let sdf = generate_outer_df(&sourceField);
-
                     if let Some(path) = &self.output_path {
-                        sdf.export(&PathBuf::from(path));
+                        match self.export_type {
+                            ExportType::UnsignedOuterDistance => {
+                                let sdf =
+                                    generate_outer_df(&sourceField);
+                                sdf.export(&PathBuf::from(path));
+                            }
+                            ExportType::UnsignedInnerDistance => {
+                                let sdf =
+                                    generate_inner_df(&sourceField);
+                                sdf.export(&PathBuf::from(path));
+                            }
+
+                            ExportType::SignedInnerOuterDistance => {
+                                let sdf =
+                                    generate_signed_df(&sourceField);
+                                sdf.export(&PathBuf::from(path));
+                            }
+                        };
                     }
                 }
                 Err(e) => {
@@ -66,24 +80,19 @@ impl DistanceGenerator {
                 }
             }
 
-            // we should test and maybe microbenchmark at least two known apporches here:
+            // we should test and maybe micro-benchmark at least two known approaches here:
             // 1) brute force O(n²)
             // 2) the old EightPointSeqEuclideanDistTrans O(n)
 
-// Notes from old C# repository:
+            // Notes from old C# repository:
 
-// edges detecten und markieren
+            // detect edges and mark them
 
-// next: make it signed
-// next: vector field
+            // next: make it signed
+            // next: vector field
 
-// vectoren zeichnen
-// später: brute force circle methode auch mal ausprobieren : https://github.com/chriscummings100/signeddistancefields/blob/master/Assets/SignedDistanceFields/SignedDistanceFieldGenerator.cs
-
-
-// https://github.com/chriscummings100/signeddistancefields
-// https://shaderfun.com/
-// https://shaderfun.com/2018/03/23/signed-distance-fields-part-1-unsigned-distance-fields/
+            // draw distance vectors
+            // implement brute force / circle method  : https://github.com/chriscummings100/signeddistancefields/blob/master/Assets/SignedDistanceFields/SignedDistanceFieldGenerator.cs
         } else {
             return Err(String::from("no input path specified"));
         }
