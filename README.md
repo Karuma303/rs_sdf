@@ -1,17 +1,21 @@
 # About
 
-TODO: Add some information here...
+A simple library to generate 2-dimensional Signed Distance Fields (SDF) for font rendering.  
+Please not that this is my personal playground to learn the Rust programming language, so don't expect any highly 
+sophisticated code samples here. I will try to improve this library over time, however right now it is not recommended
+to use it for anything and especially not in production.  😉
 
-# Examples
+## Examples
 
 | Input | Output |  
 | --- | --- |
 | <img alt="input image 1" src="assets/SDF_Test_Texture_RGBA.png" width="256" height="256" /> | <img alt="output image 1" src="output/my_first_test.png" width="256" height="256" /> |
 | <img alt="input image 2" src="assets/SDF_Test_Texture_2.png" width="256" height="256" /> | <img alt="output image 2" src="output/my_second_test.png" width="256" height="256" /> |
 | <img alt="input image 3" src="assets/SDF_Test_RGBA.png" width="256" height="256" /> | <img alt="output image 3" src="output/my_third_test.png" width="256" height="256" /> |
+| <img alt="input image 4" src="assets/rgba_512x512_heart.png" width="256" height="256" /> | <img alt="output image 4" src="output/heart.png" width="256" height="256" /> |
 
 
-# Links about SDFs and there usage (for example in text rendering) 
+## Links about SDFs and there usage (for example in text rendering) 
 
 1) [Drawing Text with Signed Distance Fields in Mapbox GL](https://blog.mapbox.com/drawing-text-with-signed-distance-fields-in-mapbox-gl-b0933af6f817)  
 Interesting blog post about MapBox and how they SDF to render the labels on their maps - 
@@ -30,7 +34,17 @@ Nixe explanation about the usage of SDF fonts in libGDX
 1) [Ronjas Shader Tutorials](https://www.ronja-tutorials.com/2018/11/10/2d-sdf-basics.html)
 2D Signed Distance Field Basics - blog with some posts about SDFs
 
-## fluent syntax
+## Fluent syntax
+
+##### Current version
+```rust
+let gen = DistanceGenerator::new()
+            .input("/path")
+            .output("/path")
+            .generate();
+```
+
+##### Future versions
 
 ```rust
     let gen = DistanceGenerator()
@@ -38,14 +52,6 @@ Nixe explanation about the usage of SDF fonts in libGDX
         .fromInput(ImageFileInput("/path"))
         .toOutput(FileOutput("/path")) // also ImageBufferOutput
         .generate();
-```
-
-#### First version
-```rust
-let gen = DistanceGenerator::new()
-            .input("/path")
-            .output("/path")
-            .generate();
 ```
 
 ## Input
@@ -58,7 +64,7 @@ scale (up/down) <- very important ... inc. linear/bilinear/triliniear interpolat
 Bits per channel Kanal (1/8/16/32/64) (Source format) - 
 But how do we calculate the output? ->  B/W vs. Greyscale
 
-**Output**  
+## Output  
 ImageBuffer
 File (just a special transformation of an ImageBuffers. Which channels do we use?   
 8/16/32 Bit?  
@@ -66,7 +72,7 @@ Int or Float?
 Even here we have the options to do multiple transformations (scale, rotate, flip)  
 
 
-**Configuration**  
+## Configuration  
 Used Algorithm (Naive, 8SED, Dead Reckoning, etc.)
 
 In theory it should be possible to apply this to TTF Fonts. For that, we should have an CLI executable

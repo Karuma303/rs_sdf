@@ -30,4 +30,11 @@ fn main() {
         .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
     g.generate();
 
+    // another test
+    let g = DistanceGenerator::new()
+        .input(r"assets\rgba_512x512_heart.png")
+        .output(r"output/heart.png")
+        .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
+    g.generate();
+
 }
