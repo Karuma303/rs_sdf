@@ -4,7 +4,7 @@ use crate::naive::*;
 use crate::input::get_source_from_png_file_input;
 use crate::output::PngExporter;
 use std::path::{PathBuf};
-use crate::source::SourceField;
+// use crate::source::SourceField;
 
 pub struct DistanceGenerator {
     input_path: Option<String>,
@@ -19,7 +19,7 @@ impl DistanceGenerator {
             input_path: None,
             output_path: None,
             strategy: GenerationStrategy::Naive, // default
-            export_type: ExportType::SignedInnerOuterDistance,
+            export_type: ExportType::UnsignedInnerOuterDistance,
         }
     }
 
@@ -66,9 +66,9 @@ impl DistanceGenerator {
                                 sdf.export(&PathBuf::from(path));
                             }
 
-                            ExportType::SignedInnerOuterDistance => {
+                            ExportType::UnsignedInnerOuterDistance => {
                                 let sdf =
-                                    generate_signed_df(&sourceField);
+                                    generate_combined_df(&sourceField);
                                 sdf.export(&PathBuf::from(path));
                             }
                         };
@@ -109,7 +109,7 @@ pub enum GenerationStrategy {
 pub enum ExportType {
     UnsignedInnerDistance,
     UnsignedOuterDistance,
-    SignedInnerOuterDistance,
+    UnsignedInnerOuterDistance,
 }
 
 pub struct Configuration {}

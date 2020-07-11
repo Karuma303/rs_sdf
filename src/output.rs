@@ -9,27 +9,21 @@ pub trait PngExporter<T> {
 }
 impl PngExporter<i8> for DistanceField<i8> {
     fn export(&self, file_path : &Path) {
-        // todo!("lala");
-        foo();
+        let e = get_standard_encoder(&file_path, self.width, self.height);
+
+        let mut writer = e.write_header().unwrap();
+
+        let dest = &self.data
+            .iter()
+            .map(|element| element.clone() as u8)
+            .collect::<Vec<u8>>();
+        writer.write_image_data(&dest).unwrap(); // Save
     }
 }
 
-fn foo() {
-
-}
 impl PngExporter<u8> for DistanceField<u8> {
     fn export(&self, file_path: &Path) {
-        // save_to_png_file(&self, &file_path);
-
-        println!("{:?}", file_path);
-        let file = File::create(file_path).unwrap();
-        let ref mut w = BufWriter::new(file);
-
-        let mut e = Encoder::new(w, self.width, self.height);
-        e.set_color(ColorType::Grayscale);
-        e.set_compression(Compression::Best);
-        e.set_depth(BitDepth::Eight);
-        e.set_filter(FilterType::NoFilter); // ???
+        let e = get_standard_encoder(&file_path, self.width, self.height);
 
         let mut writer = e.write_header().unwrap();
 
@@ -40,6 +34,18 @@ impl PngExporter<u8> for DistanceField<u8> {
     }
 }
 
+fn get_standard_encoder(file_path : &Path, width : u32, height  : u32) -> Encoder<BufWriter<File>> {
+    println!("{:?}", file_path);
+    let file = File::create(file_path).unwrap();
+    let mut w = BufWriter::new(file);
+
+    let mut e = Encoder::new(w, width, height);
+    e.set_color(ColorType::Grayscale);
+    e.set_compression(Compression::Best);
+    e.set_depth(BitDepth::Eight);
+    e.set_filter(FilterType::NoFilter); // ???
+    e
+}
 
 #[cfg(test)]
 mod tests {

@@ -43,9 +43,9 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str) {
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);
 
-    let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "sdf_" + target_image_name;
+    let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "cdf_" + target_image_name;
     let g = g.output(&target_image_path)
-        .export_type(ExportType::SignedInnerOuterDistance);
+        .export_type(ExportType::UnsignedInnerOuterDistance);
 
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);

@@ -1,4 +1,5 @@
 use crate::source::SourceField;
+use std::cmp::{max, min};
 
 // creates an 8-bit resolution outer distance field
 pub fn generate_outer_df(field: &SourceField) -> DistanceField<u8> {
@@ -14,8 +15,8 @@ pub fn generate_inner_df(field: &SourceField) -> DistanceField<u8> {
     get_df_from_buffer(&buffer, field.width, field.height)
 }
 
-// creates an 8-bit resolution signed distance field (with inner and outer distances)
-pub fn generate_signed_df(field: &SourceField) -> DistanceField<i8> {
+// creates an 8-bit resolution unsigned distance field (with inner and outer distances)
+pub fn generate_combined_df(field: &SourceField) -> DistanceField<u8> {
     let inner_df = generate_inner_df(&field);
     let outer_df = generate_outer_df(&field);
 
@@ -92,16 +93,22 @@ fn compare(buffer: &mut Vec<u8>, check_index: u32, other_index: u32) {
     }
 }
 
-fn combine_distance_fields(inner_df: &DistanceField<u8>, outer_df: &DistanceField<u8>) -> DistanceField<i8> {
+fn combine_distance_fields(inner_df: &DistanceField<u8>, outer_df: &DistanceField<u8>) -> DistanceField<u8> {
     if inner_df.data.len() != outer_df.data.len() {
         panic!("inner and outer distance fields must have same size!");
     }
     let len = inner_df.data.len();
-    let mut data = vec![0; len];
+    let mut data:Vec<u8> = vec![0; len];
 
     for index in 0..len {
-// TODO: we have to check overflows here and clamp the results (clamp, clamp_balanced)
-        data[index] = outer_df.data[index] as i8 - inner_df.data[index] as i8;
+        let inner = inner_df.data[index];
+        let outer = outer_df.data[index];
+        assert!(inner == 0 || outer == 0, "not null");
+        data[index] = inner + outer;
+        //data[index] = match (outer) {
+        //    0 => (max(-(inner as i16 * 2), -128i16))as i8,
+        //    _ => (min((outer as i16), 127i16)) as i8,
+        //};
     }
 
     DistanceField {
