@@ -7,12 +7,12 @@ to use it for anything and especially not in production.  😉
 
 ## Examples
 
-| Input | Output |  
-| --- | --- |
-| <img alt="input image 1" src="assets/example_1_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 1" src="output/odf_example_1_512x512.png" width="256" height="256" /> |
-| <img alt="input image 2" src="assets/example_2_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 2" src="output/odf_example_2_512x512.png" width="256" height="256" /> |
-| <img alt="input image 3" src="assets/example_3_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 3" src="output/odf_example_3_512x512.png" width="256" height="256" /> |
-| <img alt="input image 4" src="assets/example_4_rgba_512x512.png" width="256" height="256" /> | <img alt="output image 4" src="output/odf_example_4_512x512.png" width="256" height="256" /> |
+| Input | Outer dist. | Inner dist.   
+| --- | --- | --- |
+| <img alt="input image 1" src="assets/example_1_rgba_512x512.png" width="128" height="128" /> | <img alt="outer distance 1" src="output/odf_example_1_512x512.png" width="128" height="128" /> | <img alt="inner distance 1" src="output/idf_example_1_512x512.png" width="128" height="128" />
+| <img alt="input image 2" src="assets/example_2_rgba_512x512.png" width="128" height="128" /> | <img alt="outer distance 2" src="output/odf_example_2_512x512.png" width="128" height="128" /> | <img alt="inner distance 2" src="output/idf_example_2_512x512.png" width="128" height="128" />
+| <img alt="input image 3" src="assets/example_3_rgba_512x512.png" width="128" height="128" /> | <img alt="outer distance 3" src="output/odf_example_3_512x512.png" width="128" height="128" /> | <img alt="inner distance 3" src="output/idf_example_3_512x512.png" width="128" height="128" />
+| <img alt="input image 4" src="assets/example_4_rgba_512x512.png" width="128" height="128" /> | <img alt="outer distance 4" src="output/odf_example_4_512x512.png" width="128" height="128" /> | <img alt="inner distance 4" src="output/idf_example_4_512x512.png" width="128" height="128" />
 
 
 ## Links about SDFs and there usage (for example in text rendering) 
