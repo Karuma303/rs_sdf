@@ -7,6 +7,34 @@ use png::Transformations;
 use crate::source::SourceField;
 use std::fmt;
 
+/// A FieldInput is a valid input for a distance field generator.
+/// Implementors of this trait provide a SourceField that can be further processed by the generator.
+pub trait FieldInput {
+    fn get_source_field(&self) -> Option<SourceField>;
+}
+
+pub struct PngInput {
+    file_path: String,
+}
+
+impl PngInput {
+    pub fn new(file_path: &String) -> Self {
+        Self {
+            file_path : String::from(file_path),
+        }
+    }
+}
+
+impl FieldInput for PngInput {
+    fn get_source_field(&self) -> Option<SourceField> {
+        let res = get_source_from_png_file_input(&self.file_path);
+        match res {
+            Ok(sourcefield) => Some(sourcefield),
+            Err(_) => None
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum FileInputError {
     InvalidFile,
@@ -23,7 +51,7 @@ impl fmt::Display for FileInputError {
 }
 
 /// Opens a png file from the given path and converts it into a SourceField
-pub fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, FileInputError> {
+fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, FileInputError> {
     let input_file = File::open(&file_path).map_err(|_| { FileInputError::InvalidFile })?;
 
     // The decoder is a build for reader and can be used to set various decoding options

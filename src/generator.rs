@@ -1,13 +1,13 @@
 use std::result::Result::Err;
 
 use crate::naive::*;
-use crate::input::get_source_from_png_file_input;
+use crate::input::{FieldInput};
 use crate::output::PngExporter;
 use std::path::{PathBuf};
 // use crate::source::SourceField;
 
 pub struct DistanceGenerator {
-    input_path: Option<String>,
+    input: Option<Box<dyn FieldInput>>,
     output_path: Option<String>,
     strategy: GenerationStrategy,
     export_type: ExportType,
@@ -16,15 +16,15 @@ pub struct DistanceGenerator {
 impl DistanceGenerator {
     pub fn new() -> DistanceGenerator {
         DistanceGenerator {
-            input_path: None,
+            input: None,
             output_path: None,
             strategy: GenerationStrategy::Naive, // default
             export_type: ExportType::UnsignedInnerOuterDistance,
         }
     }
 
-    pub fn input(mut self, path: &str) -> Self {
-        self.input_path = Some(String::from(path));
+    pub fn input(mut self, input: impl FieldInput + 'static) -> Self {
+        self.input = Some(Box::new(input));
         self
     }
 
@@ -45,39 +45,27 @@ impl DistanceGenerator {
 
     pub fn generate(&self) -> Result<(), String> {
         // input path is set?
-        if let Some(path) = &self.input_path {
-            let source = get_source_from_png_file_input(path);
-            // let sdf = generate_sdf(&source.unwrap());
-            // let sdf = generate_signed_df(&source.unwrap());
-
-            match source {
-                Ok(sourceField) => {
-                    // generate_outer_df(&source.unwrap());
-                    if let Some(path) = &self.output_path {
-                        match self.export_type {
-                            ExportType::UnsignedOuterDistance => {
-                                let sdf =
-                                    generate_outer_df(&sourceField);
-                                sdf.export(&PathBuf::from(path));
-                            }
-                            ExportType::UnsignedInnerDistance => {
-                                let sdf =
-                                    generate_inner_df(&sourceField);
-                                sdf.export(&PathBuf::from(path));
-                            }
-
-                            ExportType::UnsignedInnerOuterDistance => {
-                                let sdf =
-                                    generate_combined_df(&sourceField);
-                                sdf.export(&PathBuf::from(path));
-                            }
-                        };
+        if let Some(input) = &self.input {
+            let source = input.get_source_field().unwrap();
+            if let Some(path) = &self.output_path {
+                match self.export_type {
+                    ExportType::UnsignedOuterDistance => {
+                        let sdf =
+                            generate_outer_df(&source);
+                        sdf.export(&PathBuf::from(path));
                     }
-                }
-                Err(e) => {
-                    let msg = format!("Invalid input file! {}", e);
-                    return Err(msg);
-                }
+                    ExportType::UnsignedInnerDistance => {
+                        let sdf =
+                            generate_inner_df(&source);
+                        sdf.export(&PathBuf::from(path));
+                    }
+
+                    ExportType::UnsignedInnerOuterDistance => {
+                        let sdf =
+                            generate_combined_df(&source);
+                        sdf.export(&PathBuf::from(path));
+                    }
+                };
             }
 
             // we should test and maybe micro-benchmark at least two known approaches here:

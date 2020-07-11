@@ -1,4 +1,5 @@
 use crate::generator::{DistanceGenerator, GenerationStrategy, ExportType};
+use crate::input::PngInput;
 
 mod input;
 mod source;
@@ -28,7 +29,7 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str) {
     let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "odf_" + target_image_name;
 
     let g = DistanceGenerator::new()
-        .input(&source_image_path)
+        .input(PngInput::new(&source_image_path))
         .output(&target_image_path)
         .export_type(ExportType::UnsignedOuterDistance)
         .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
