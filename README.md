@@ -1,9 +1,12 @@
 # About
 
-A simple library to generate 2-dimensional Signed Distance Fields (SDF) for font rendering.  
-Please note that this is my personal playground to learn the Rust programming language, so don't expect any highly 
-sophisticated code samples here. I will try to improve this library over time, however right now it is not recommended
-to use it for anything and especially not in production.  😉
+A simple library to generate 2-dimensional Signed Distance Fields (SDF) for 
+font rendering.  
+Please note that this is my personal playground to learn the Rust programming 
+language, so don't expect any highly sophisticated code samples here. 
+I will try to improve this library over time, however right now the whole repo
+is work in progress and it is not recommended to use it for anything 
+and especially not in production. 😉
 
 ## Examples
 
@@ -53,6 +56,13 @@ let gen = DistanceGenerator::new()
         .toOutput(FileOutput("/path")) // also ImageBufferOutput
         .generate();
 ```
+
+## TODO / Next
+
+[ ] Add simple CLI  
+[ ] Allow multi channel output  
+[ ] Allow 4/8/16 Bit output  
+[ ] Simple (GL?) Viewer with Fragment Shader 
 
 ## Input
 From ImageBuffer  

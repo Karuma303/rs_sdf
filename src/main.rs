@@ -24,7 +24,6 @@ fn main() {
     generate_sdf("example_4_rgba_512x512.png", "example_4_512x512.png");
 }
 
-/// Implements foobar
 fn generate_sdf(source_image_name: &str, target_image_name: &str) {
     let source_image_path = BASE_ASSET_PATH.to_owned().clone() + source_image_name;
 
