@@ -37,6 +37,12 @@ Nixe explanation about the usage of SDF fonts in libGDX
 1) [Ronjas Shader Tutorials](https://www.ronja-tutorials.com/2018/11/10/2d-sdf-basics.html)
 2D Signed Distance Field Basics - blog with some posts about SDFs
 
+1) [The ‘dead reckoning’ signed distance transform](https://perso.ensta-paris.fr/~manzaner/Download/IAD/Grevera_04.pdf)  
+Paper about the dead reckoning algorithm for Distance Field calculation
+
+1) [8-points Signed Sequential Euclidean Distance Transform](https://github.com/Lisapple/8SSEDT)  
+Explanation of the 8PSSDT algorithm
+
 ## Fluent syntax
 
 ##### Current version
@@ -62,6 +68,7 @@ let gen = DistanceGenerator::new()
 [ ] Add simple CLI  
 [ ] Allow multi channel output  
 [ ] Allow 4/8/16 Bit output  
+[ ] Allow raw export
 [ ] Simple (GL?) Viewer with Fragment Shader 
 
 ## Input
