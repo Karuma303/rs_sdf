@@ -1,34 +1,197 @@
-use crate::source::SourceField;
 use std::cmp::{max, min};
 
+use crate::df::{Cell, CellLayer, DistanceField};
+use crate::input::FieldInput;
+use crate::source::SourceField;
+
+/// Generate a distance field for the source field.
+pub fn generate_df(field: &SourceField) -> DistanceField {
+    let mut buffer = init_buffer_for_distance_field(&field);
+    sweep_buffer(&mut buffer, field.width, field.height);
+    get_distance_field_from_buffer(&buffer, field.width, field.height)
+}
+
+/// Initialize an inner buffer with cells to calculate the distance field.
+fn init_buffer_for_distance_field(source: &SourceField) -> Vec<Cell> {
+    // let mut buf = vec![unset_value; ((source.width + 2) * (source.height + 2)) as usize];
+    let mut buf: Vec<Cell> = Vec::with_capacity(((source.width + 2) * (source.height + 2)) as usize);
+
+    let d = &source.data;
+    let w = source.width as u16;
+    let h = source.height as u16;
+
+    for y in 0..h {
+        for x in 0..w {
+            buf[(x + 1 + (y + 1) * (w + 2)) as usize] = match d[(x + (y * h)) as usize] {
+                true => Cell::new(CellLayer::Foreground, x, y),
+                false => Cell::new(CellLayer::Background, x, y),
+            };
+        };
+    };
+    buf
+}
+
+/// 2-pass sweep over the inner buffer to calculate the distances.
+fn sweep_buffer(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
+    // Two pass sweep (down + up)
+    sweep_buffer_down(buffer, field_width, field_height);
+    sweep_buffer_up(buffer, field_width, field_height);
+}
+
+/// Down sweep (pass #1)
+fn sweep_buffer_down(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
+    let buffer_width: usize = field_width as usize + 2;
+
+    // outer loop (going down)
+    let mut idx = buffer_width + 1; // start at pos (1/1)
+    for _ in 0..field_height {
+        //
+        // ***
+        // *O.  -->
+        // ...
+        for _ in 0..field_width {
+            // let target_cell = &mut buffer[idx];
+            compare_cells(&buffer, idx, idx - 1, -1, 0); // left
+            compare_cells(&buffer, idx, idx - buffer_width, 0, -1); // top
+            compare_cells(&buffer, idx, idx - buffer_width - 1, -1, -1); // top left
+            compare_cells(&buffer, idx, idx - buffer_width + 1, 1, -1); // top right
+            idx = idx + 1;
+        }
+        //      ...
+        // <--  .O*
+        //      ...
+        for _ in (0..field_width).rev() {
+            idx = idx - 1;
+            compare_cells(&buffer, idx, idx + 1, 1, 0); // right
+        }
+        idx = idx + buffer_width;
+    }
+}
+
+/// Up sweep (pass #2)
+fn sweep_buffer_up(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
+    let buffer_width = field_width as usize + 2;
+
+    // outer loop (going up)
+    let mut idx = buffer_width * field_height as usize + field_width as usize;
+    for _ in (0..field_height).rev() {
+        //      ...
+        // <--  .O*
+        //      ***
+        for _ in (0..field_width).rev() {
+            // let mut target_cell = &mut buffer[idx];
+            compare_cells(&buffer, idx, idx + 1, 1, 0); // right
+            compare_cells(&buffer, idx, idx + buffer_width, 0, 1); // bottom
+            compare_cells(&buffer, idx, idx + buffer_width - 1, -1, 1); // bottom left
+            compare_cells(&buffer, idx, idx + buffer_width + 1, 1, 1); // bottom right
+            idx = idx - 1;
+        }
+        // ...
+        // *O.  -->
+        // ...
+        for _ in 0..field_width {
+            idx = idx + 1;
+            compare_cells(&buffer, idx, idx - 1, -1, 0); // left
+        }
+        idx = idx - buffer_width;
+    }
+}
+
+fn compare_cells(
+    buffer: &[Cell],
+    target_index: usize,
+    source_index: usize,
+    inc_x: i8,
+    inc_y: i8) {
+    let target_cell = &buffer[target_index];
+    let source_cell = &buffer[source_index];
+
+    // if target = other type -> distance == 1
+    // if target == same_type = dist = min(d_source, d_target+1)
+    // if(target_cell.layer )
+
+    // TODO: implement again!!!
+    /*
+    let orig_distance = buffer[check_index as usize];
+    let new_distance = buffer[other_index as usize].saturating_add(1);
+    if new_distance < orig_distance {
+        buffer[check_index as usize] = new_distance
+    }
+     */
+}
+
+// new
+fn get_distance_field_from_buffer(buffer: &Vec<Cell>, width: u32, height: u32) -> DistanceField {
+    let source_w = (width + 2) as usize;
+    let source_h = (height + 2) as usize;
+
+    if buffer.len() != source_w * source_h {
+        panic!("incorrect buffer size");
+    }
+
+    let target_w = width as usize;
+    let target_h = height as usize;
+
+    // let mut distance_vec = vec![0; target_w * target_h];
+    let mut cells: Vec<Cell> = Vec::with_capacity(target_w * target_h);
+
+    for y in 0..target_h {
+        for x in 0..target_w {
+            cells[y * target_w + x] = buffer[(y + 1) * source_w + x + 1].clone();
+        }
+    }
+
+    DistanceField {
+        data: cells,
+        width,
+        height,
+    }
+}
+
+
+// @deprecated
 // creates an 8-bit resolution outer distance field
-pub fn generate_outer_df(field: &SourceField) -> DistanceField<u8> {
+/*
+pub fn generate_outer_df(field: &SourceField) -> DistanceField {
     let mut buffer = init_buffer_for_outer_distances(&field);
     sweep(&mut buffer, field.width, field.height);
     get_df_from_buffer(&buffer, field.width, field.height)
 }
+*/
 
+
+// @deprecated
 // creates an 8-bit resolution inner distance field
-pub fn generate_inner_df(field: &SourceField) -> DistanceField<u8> {
+/*
+pub fn generate_inner_df(field: &SourceField) -> DistanceField {
     let mut buffer = init_buffer_for_inner_distances(&field);
     sweep(&mut buffer, field.width, field.height);
     get_df_from_buffer(&buffer, field.width, field.height)
 }
+ */
 
+// @deprecated
 // creates an 8-bit resolution unsigned distance field (with inner and outer distances)
-pub fn generate_combined_df(field: &SourceField) -> DistanceField<u8> {
+/*
+pub fn generate_combined_df(field: &SourceField) -> DistanceField {
     let inner_df = generate_inner_df(&field);
     let outer_df = generate_outer_df(&field);
 
     combine_distance_fields(&inner_df, &outer_df)
 }
+ */
 
+// @deprecated
+/*
 fn sweep(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
     // Two pass sweep (down + up)
     sweep_down(buffer, field_width, field_height);
     sweep_up(buffer, field_width, field_height);
 }
+ */
 
+// @deprecated
+/*
 fn sweep_down(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
     let buffer_width = field_width + 2;
 
@@ -56,7 +219,10 @@ fn sweep_down(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
         idx = idx + buffer_width;
     }
 }
+ */
 
+// @deprecated
+/*
 fn sweep_up(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
     let buffer_width = field_width + 2;
 
@@ -83,7 +249,10 @@ fn sweep_up(buffer: &mut Vec<u8>, field_width: u32, field_height: u32) {
         idx = idx - buffer_width;
     }
 }
+ */
 
+// deprecated
+/*
 fn compare(buffer: &mut Vec<u8>, check_index: u32, other_index: u32) {
     // println!("{}/{}", check_index, other_index);
     let orig_distance = buffer[check_index as usize];
@@ -92,13 +261,16 @@ fn compare(buffer: &mut Vec<u8>, check_index: u32, other_index: u32) {
         buffer[check_index as usize] = new_distance
     }
 }
+ */
 
-fn combine_distance_fields(inner_df: &DistanceField<u8>, outer_df: &DistanceField<u8>) -> DistanceField<u8> {
+// deprecated?
+/*
+fn combine_distance_fields(inner_df: &DistanceField, outer_df: &DistanceField) -> DistanceField {
     if inner_df.data.len() != outer_df.data.len() {
         panic!("inner and outer distance fields must have same size!");
     }
     let len = inner_df.data.len();
-    let mut data:Vec<u8> = vec![0; len];
+    let mut data: Vec<u8> = vec![0; len];
 
     for index in 0..len {
         let inner = inner_df.data[index];
@@ -117,7 +289,10 @@ fn combine_distance_fields(inner_df: &DistanceField<u8>, outer_df: &DistanceFiel
         height: inner_df.height,
     }
 }
+ */
 
+// deprecated
+/*
 fn get_df_from_buffer(buffer: &Vec<u8>, width: u32, height: u32) -> DistanceField<u8> {
     let source_w = (width + 2) as usize;
     let source_h = (height + 2) as usize;
@@ -143,19 +318,28 @@ fn get_df_from_buffer(buffer: &Vec<u8>, width: u32, height: u32) -> DistanceFiel
         height,
     }
 }
+ */
 
+// deprecated
 // background cells populated with the maximum distance value
 // foreground cells have zero distance values
+/*
 fn init_buffer_for_outer_distances(source: &SourceField) -> Vec<u8> {
     init_buffer(source, 0, u8::MAX)
 }
+ */
 
+// deprecated
 // background cells have zero distance values
 // foreground cells populated with the maximum distance value
+/*
 fn init_buffer_for_inner_distances(source: &SourceField) -> Vec<u8> {
     init_buffer(source, u8::MAX, 0)
 }
+ */
 
+// deprecated
+/*
 fn init_buffer(source: &SourceField, set_value: u8, unset_value: u8) -> Vec<u8> {
     let mut buf = vec![unset_value; ((source.width + 2) * (source.height + 2)) as usize];
 
@@ -172,52 +356,13 @@ fn init_buffer(source: &SourceField, set_value: u8, unset_value: u8) -> Vec<u8> 
     };
     buf
 }
-
-// new structure - we should use that !
-pub struct NearestEdge<T> {
-    pub x: T,
-    pub y: T,
-    pub distance_squared: T,
-}
-
-impl NearestEdge<i32> {
-    pub fn new(x: i32, y: i32) -> Self {
-        NearestEdge { x, y, distance_squared: x * y }
-    }
-}
-
-pub struct DistanceField<T> {
-    pub data: Vec<T>,
-    pub width: u32,
-    pub height: u32,
-// TODO: add more metadata here maybe...
-// largest (outer/inner) distance
-// isSigned (true/false)
-
-//    pub fn get_min_value() -> T;
-//    pub fn get_max_value() -> T;
-}
-
-impl DistanceField<u8> {
-    fn new(source: &SourceField) -> Self {
-        let width = source.width;
-        let height = source.height;
-        DistanceField {
-            data: vec![0_u8; (width * height) as usize],
-            width,
-            height,
-        }
-    }
-
-    fn init_for_outer_distance() {}
-
-    fn init_for_inner_distance() {}
-}
+*/
 
 #[cfg(test)]
 mod tests {
     use crate::source::SourceField;
-    use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances, get_df_from_buffer, generate_outer_df, generate_inner_df};
+
+// use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances, get_df_from_buffer, generate_outer_df, generate_inner_df};
 
     // helper method to get an empty source field
     fn get_source_0_0() -> SourceField {
@@ -261,6 +406,7 @@ mod tests {
         ], 3, 3)
     }
 
+    /* TODO: reactivate this test !
     #[test]
     fn generates_buffer_with_additional_border() {
         let b_1x1_empty = init_buffer(&get_source_1_1_empty(), 0, 0);
@@ -272,7 +418,9 @@ mod tests {
         let b_2x2 = init_buffer(&get_source_2_2_checker(), 0, 0);
         assert_eq!(b_2x2.len(), 4 * 4);
     }
+     */
 
+    /* TODO: reactivate this test
     #[test]
     fn get_filled_buffer_for_outer_distance() {
         let b = init_buffer_for_outer_distances(&get_source_2_2_checker());
@@ -284,7 +432,9 @@ mod tests {
             m, m, m, m,
         ]);
     }
+     */
 
+    /* TODO: reactivate this test
     #[test]
     fn get_filled_buffer_for_inner_distance() {
         let b = init_buffer_for_inner_distances(&get_source_2_2_checker());
@@ -296,7 +446,9 @@ mod tests {
             0, 0, 0, 0,
         ]);
     }
+     */
 
+    /* TODO: reactivate this test
     #[test]
     fn gets_correct_distance_field_size_from_oversize_buffer() {
         let b_filled = init_buffer_for_outer_distances(&get_source_1_1_filled());
@@ -309,7 +461,9 @@ mod tests {
         assert_eq!(df_filled.data.len(), 1);
         assert_eq!(df_filled.data[0], u8::MAX);
     }
+     */
 
+    /* TODO: reactivate this test
     #[test]
     fn generates_outer_distance_field() {
         let df_checker = generate_outer_df(&get_source_2_2_checker());
@@ -329,7 +483,9 @@ mod tests {
         let df_filled_big = generate_outer_df(&get_source_3_3_filled());
         assert_eq!(df_filled_big.data, vec![0, 0, 0, 0, 0, 0, 0, 0, 0]);
     }
+     */
 
+    /* TODO: reactivate this test
     #[test]
     fn generates_inner_distance_field() {
         let df_checker = generate_inner_df(&get_source_2_2_checker());
@@ -347,6 +503,7 @@ mod tests {
         let df_filled_big = generate_inner_df(&get_source_3_3_filled());
         assert_eq!(df_filled_big.data, vec![1, 1, 1, 1, 2, 1, 1, 1, 1]);
     }
+     */
 
 // TODO: generate signed distance field
 // TODO: check for max ranges and clamping

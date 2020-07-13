@@ -43,6 +43,8 @@ Paper about the dead reckoning algorithm for Distance Field calculation
 1) [8-points Signed Sequential Euclidean Distance Transform](https://github.com/Lisapple/8SSEDT)  
 Explanation of the 8PSSDT algorithm
 
+http://webstaff.itn.liu.se/~stegu/edtaa/
+
 ## Fluent syntax
 
 ##### Current version

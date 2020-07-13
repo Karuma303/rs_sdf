@@ -1,8 +1,10 @@
+
 use crate::generator::{DistanceGenerator, GenerationStrategy, ExportType};
 use crate::input::PngInput;
 use crate::output::PngOutput;
 use std::path::{Path, PathBuf};
 
+mod df;
 mod input;
 mod source;
 mod generator;

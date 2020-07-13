@@ -7,7 +7,7 @@ use std::path::{PathBuf};
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn FieldInput>>,
-    output: Option<Box<dyn FieldOutput<DistanceFieldType = u8>>>,
+    output: Option<Box<dyn FieldOutput>>,
     strategy: GenerationStrategy,
     export_type: ExportType,
 }
@@ -27,7 +27,7 @@ impl DistanceGenerator {
         self
     }
 
-    pub fn output(mut self, output: impl FieldOutput<DistanceFieldType = u8> + 'static) -> Self {
+    pub fn output(mut self, output: impl FieldOutput + 'static) -> Self {
         self.output = Some(Box::new(output));
         self
     }
@@ -47,6 +47,8 @@ impl DistanceGenerator {
         if let Some(input) = &self.input {
             let source = input.get_source_field().unwrap();
             if let Some(output) = &self.output {
+                let df = generate_df(&source);
+                /*
                 let sdf = match self.export_type {
                     ExportType::UnsignedOuterDistance => {
                         generate_outer_df(&source)
@@ -59,7 +61,8 @@ impl DistanceGenerator {
                         generate_combined_df(&source)
                     }
                 };
-                output.output(sdf);
+                 */
+                output.output(df);
             }
 
             // we should test and maybe micro-benchmark at least two known approaches here:
