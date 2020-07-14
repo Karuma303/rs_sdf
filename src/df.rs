@@ -8,16 +8,16 @@ pub struct Cell {
     pub layer: CellLayer,
 
     /// The horizontal position of the cell in the field.
-    x: u16,
+    pub x: u16,
 
     /// The vertical position of the cell in the field.
-    y: u16,
+    pub y: u16,
 
     /// The position of the nearest cell from the other layer.
     nearest_cell_position: Option<(u16, u16)>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 /// The layer definition for the cells.
 pub enum CellLayer {
     /// The foreground layer. This is the layer where cells are regarded as being set.
@@ -45,17 +45,30 @@ impl Cell {
         if let Some((nearest_x, nearest_y)) = &self.nearest_cell_position {
             // TODO: we should check all the casts here
             // TODO: use appropriate rust functions here
-            let horiz_dist = i32::from(self.x) - i32::from(nearest_x.clone());
-            let vert_dist = i32::from(self.y) - i32::from(nearest_y.clone());
-            Some(horiz_dist.pow(2) as u32 + vert_dist.pow(2) as u32)
+//            let horiz_dist = i32::from(self.x) - i32::from(nearest_x.clone());
+//            let vert_dist = i32::from(self.y) - i32::from(nearest_y.clone());
+            // Some(horiz_dist.pow(2) as u32 + vert_dist.pow(2) as u32)
+            Some(Self::get_distance_squared(&self.x, &self.y, &nearest_x, &nearest_y))
         } else {
             None
         }
     }
 
+    pub fn get_nearest_cell_position(&self) -> Option<(u16, u16)> {
+        self.nearest_cell_position
+    }
+
     /// Set the position (x,y) of the nearest cell with the opposite layer type.
-    fn set_nearest_cell_position(&mut self, x: u16, y: u16) {
+    pub fn set_nearest_cell_position(&mut self, x: u16, y: u16) {
         self.nearest_cell_position = Some((x, y));
+    }
+
+    pub fn get_distance_squared(first_x : &u16, first_y : &u16, second_x: &u16, second_y:&u16) -> u32 {
+        // TODO: we should check all the casts here
+        // TODO: maybe use appropriate rust functions here
+        let horiz_dist = i32::from(first_x.clone()) - i32::from(second_x.clone());
+        let vert_dist = i32::from(first_y.clone()) - i32::from(second_y.clone());
+        horiz_dist.pow(2) as u32 + vert_dist.pow(2) as u32
     }
 }
 
@@ -78,21 +91,21 @@ impl DistanceField {
             .into_iter()
             .enumerate()
             .map(
-            |(y, row_values)| {
-                let row_vector = row_values
-                    .iter()
-                    .enumerate()
-                    .map(
-                        move|(x, &value)| {
-                            Cell {
-                                x: x.clone() as u16,
-                                y: y.clone() as u16,
-                                nearest_cell_position: None,
-                                layer: if value { CellLayer::Foreground } else { CellLayer::Background },
-                            }
-                        });
-                row_vector
-            })
+                |(y, row_values)| {
+                    let row_vector = row_values
+                        .iter()
+                        .enumerate()
+                        .map(
+                            move |(x, &value)| {
+                                Cell {
+                                    x: x.clone() as u16,
+                                    y: y.clone() as u16,
+                                    nearest_cell_position: None,
+                                    layer: if value { CellLayer::Foreground } else { CellLayer::Background },
+                                }
+                            });
+                    row_vector
+                })
             .flatten()
             .collect();
 

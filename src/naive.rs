@@ -22,6 +22,7 @@ fn init_buffer_for_distance_field(source: &SourceField) -> Vec<Cell> {
 
     for y in 0..h {
         for x in 0..w {
+            println!("x/y : {}/{}", x, y);
             buf[(x + 1 + (y + 1) * (w + 2)) as usize] = match d[(x + (y * h)) as usize] {
                 true => Cell::new(CellLayer::Foreground, x, y),
                 false => Cell::new(CellLayer::Background, x, y),
@@ -51,10 +52,10 @@ fn sweep_buffer_down(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32
         // ...
         for _ in 0..field_width {
             // let target_cell = &mut buffer[idx];
-            compare_cells(&buffer, idx, idx - 1, -1, 0); // left
-            compare_cells(&buffer, idx, idx - buffer_width, 0, -1); // top
-            compare_cells(&buffer, idx, idx - buffer_width - 1, -1, -1); // top left
-            compare_cells(&buffer, idx, idx - buffer_width + 1, 1, -1); // top right
+            compare_cells(buffer, idx, idx - 1, -1, 0); // left
+            compare_cells(buffer, idx, idx - buffer_width, 0, -1); // top
+            compare_cells(buffer, idx, idx - buffer_width - 1, -1, -1); // top left
+            compare_cells(buffer, idx, idx - buffer_width + 1, 1, -1); // top right
             idx = idx + 1;
         }
         //      ...
@@ -62,7 +63,7 @@ fn sweep_buffer_down(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32
         //      ...
         for _ in (0..field_width).rev() {
             idx = idx - 1;
-            compare_cells(&buffer, idx, idx + 1, 1, 0); // right
+            compare_cells(buffer, idx, idx + 1, 1, 0); // right
         }
         idx = idx + buffer_width;
     }
@@ -80,10 +81,10 @@ fn sweep_buffer_up(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) 
         //      ***
         for _ in (0..field_width).rev() {
             // let mut target_cell = &mut buffer[idx];
-            compare_cells(&buffer, idx, idx + 1, 1, 0); // right
-            compare_cells(&buffer, idx, idx + buffer_width, 0, 1); // bottom
-            compare_cells(&buffer, idx, idx + buffer_width - 1, -1, 1); // bottom left
-            compare_cells(&buffer, idx, idx + buffer_width + 1, 1, 1); // bottom right
+            compare_cells(buffer, idx, idx + 1, 1, 0); // right
+            compare_cells(buffer, idx, idx + buffer_width, 0, 1); // bottom
+            compare_cells(buffer, idx, idx + buffer_width - 1, -1, 1); // bottom left
+            compare_cells(buffer, idx, idx + buffer_width + 1, 1, 1); // bottom right
             idx = idx - 1;
         }
         // ...
@@ -91,33 +92,90 @@ fn sweep_buffer_up(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) 
         // ...
         for _ in 0..field_width {
             idx = idx + 1;
-            compare_cells(&buffer, idx, idx - 1, -1, 0); // left
+            compare_cells(buffer, idx, idx - 1, -1, 0); // left
         }
         idx = idx - buffer_width;
     }
 }
 
 fn compare_cells(
-    buffer: &[Cell],
+    buffer: &mut Vec<Cell>,
     target_index: usize,
     source_index: usize,
-    inc_x: i8,
-    inc_y: i8) {
-    let target_cell = &buffer[target_index];
-    let source_cell = &buffer[source_index];
+    inc_x: i8, inc_y: i8) {
+    let mut nearest_pos: Option<(u16, u16)> = None; // TODO: continue here...
 
-    // if target = other type -> distance == 1
-    // if target == same_type = dist = min(d_source, d_target+1)
-    // if(target_cell.layer )
+    {
+        let target_cell = &buffer[target_index];
+        let source_cell = &buffer[source_index];
 
-    // TODO: implement again!!!
-    /*
-    let orig_distance = buffer[check_index as usize];
-    let new_distance = buffer[other_index as usize].saturating_add(1);
-    if new_distance < orig_distance {
-        buffer[check_index as usize] = new_distance
+
+        if target_cell.layer != source_cell.layer {
+
+            // the cells have a different layer, so we are on the boundary between
+            // foreground and background. In that case, we will set the source
+            // cell as the nearest cell in our target cell
+
+            nearest_pos = Some((source_cell.x, source_cell.y));
+            // target_cell.set_nearest_cell_position(source_cell.x, source_cell.y);
+
+            // TODO: check, if we can and should use:
+            // a) relative x/a offset here
+            // b) relative index offset here
+            // c) absolute index here
+        } else {
+
+            // the cells are on the same layer (foreground or background),
+            // so we should maybe check their distances
+
+            match target_cell.distance_to_nearest_squared() {
+                None => {
+
+                    // our target cell does not have a nearest cell yet,
+                    // so we should take the nearest cell of the source
+                    // as a reference.
+
+                    // does the source have a nearest cell?
+
+                    if let Some((x, y)) = source_cell.get_nearest_cell_position() {
+
+                        // yes it has, so we set this as the targets nearest cell position
+                        // target_cell.set_nearest_cell_position(x, y);
+                        nearest_pos = Some((x, y));
+                    }
+                }
+
+                Some(existing_target_distance) => {
+
+                    // our target already has a distance
+
+                    // let's check, if the source also has a nearest cell
+                    if let Some((source_nearest_cell_x, source_nearest_cell_y)) = source_cell.get_nearest_cell_position() {
+
+                        // yes it has, so let's calculate the distance from our target cell
+                        // to the nearest cell of the source
+                        let distance_to_sources_nearest_cell =
+                            Cell::get_distance_squared(
+                                &target_cell.x,
+                                &target_cell.y,
+                                &source_nearest_cell_x,
+                                &source_nearest_cell_y); //
+
+                        if distance_to_sources_nearest_cell < existing_target_distance {
+                            // set the new target
+                            // target_cell.set_nearest_cell_position(source_nearest_cell_x, source_nearest_cell_y)
+                            nearest_pos = Some((source_nearest_cell_x, source_nearest_cell_y));
+                        }
+                    }
+                    // otherwise we do nothing
+                }
+            }
+        }
     }
-     */
+    if let Some((x, y)) = nearest_pos {
+        let target_cell = &mut buffer[target_index];
+        target_cell.set_nearest_cell_position(x, y);
+    }
 }
 
 // new
