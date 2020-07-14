@@ -19,15 +19,15 @@ fn main() {
     // generate some distance field output images based on input images
 
     // TODO: remove
-    generate_sdf("test/test_rgba_2x2_checkerboard.png", "test_checkerboard.png");
+    // generate_sdf("test/test_rgba_2x2_checkerboard.png", "test_checkerboard.png");
 
-    // generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png");
+    generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png");
 
-    // generate_sdf("example_2_rgba_512x512.png", "example_2_512x512.png");
+    generate_sdf("example_2_rgba_512x512.png", "example_2_512x512.png");
 
-    // generate_sdf("example_3_rgba_512x512.png", "example_3_512x512.png");
+    generate_sdf("example_3_rgba_512x512.png", "example_3_512x512.png");
 
-    // generate_sdf("example_4_rgba_512x512.png", "example_4_512x512.png");
+    generate_sdf("example_4_rgba_512x512.png", "example_4_512x512.png");
 }
 
 fn generate_sdf(source_image_name: &str, target_image_name: &str) {

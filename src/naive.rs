@@ -45,43 +45,57 @@ fn sweep_buffer_down(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32
     let w = field_width as usize;
     let h = field_height as usize;
 
-    let mut idx: usize = w + 1;
+    // first row
 
-    // down
+    // sweep to the right (left)
+    //
+    //      *O- -->
+    //
+    for index in 1..w {
+        compare_cells(buffer, index, index - 1); // left
+    };
 
-        // first row sweep left / sweep right
+    // sweep to the left (right)
+    //
+    // <--  -O*
+    //
+    for index in (0..w - 1).rev() {
+        compare_cells(buffer, index, index + 1); // right
+    };
 
-        // others:
-        // special treatment for first
-        // sweep row
-        // special treatment for last
-        // sweep to right skips the last cell but goes to the first
+    let mut idx = w;
 
-    // up
+    // other rows
+    for _ in 1..h {
 
-        // skip the last row but go until the first
+        // sweep to the right
 
-    for _ in 1..(h - 1) {
-        //
-        // ***
-        // *O.  -->
-        // ...
-        for _ in 1..(w - 1) {
-            // let target_cell = &mut buffer[idx];
+        // first cell (top, top-right)
+        compare_cells(buffer, idx, idx - w); // top
+        compare_cells(buffer, idx, idx - w + 1); // top right
+
+        idx += 1;
+
+        // row cells (except first and last)
+        for _ in 1..w - 1 {
             compare_cells(buffer, idx, idx - 1); // left
             compare_cells(buffer, idx, idx - w); // top
             compare_cells(buffer, idx, idx - w - 1); // top left
             compare_cells(buffer, idx, idx - w + 1); // top right
-            idx = idx + 1;
+            idx += 1;
         }
-        //      ...
-        // <--  .O*
-        //      ...
-        for _ in (1..(w - 1)).rev() {
-            idx = idx - 1;
+
+        // last cell (left, top-left, top)
+        compare_cells(buffer, idx, idx - 1); // left
+        compare_cells(buffer, idx, idx - w); // top
+        compare_cells(buffer, idx, idx - w - 1); // top left
+
+        // sweep to the left
+        for _ in 0..w - 1 {
+            idx -= 1;
             compare_cells(buffer, idx, idx + 1); // right
-        }
-        idx = idx + w;
+        };
+        idx += w;
     }
 }
 
@@ -90,28 +104,56 @@ fn sweep_buffer_up(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) 
     let w = field_width as usize;
     let h = field_height as usize;
 
-    let mut idx: usize = w * (h - 1) - 2;
+    let mut idx = w * h - 1;
 
-    for _ in (1..(h - 1)).rev() {
-        //      ...
-        // <--  .O*
-        //      ***
-        for _ in (1..(w - 1)).rev() {
-            // let mut target_cell = &mut buffer[idx];
+    // last row
+    // sweep to the left (right)
+    for _ in 1..w {
+        idx -= 1;
+        compare_cells(buffer, idx, idx + 1); // right
+    }
+    // sweep to the right (left)
+    for _ in 1..w {
+        compare_cells(buffer, idx, idx - 1); // left
+        idx += 1;
+    }
+
+    // other rows
+    for _ in 1..h {
+        idx -= w;
+
+        // sweep to the left
+        // first element (bottom, bottom-left)
+        compare_cells(buffer, idx, idx + w); // bottom
+        compare_cells(buffer, idx, idx + w - 1); // bottom left
+
+        for _ in 1..w - 1 {
+            // other elements (except first and last)
+            idx -= 1;
+
+            //      ...
+            // <--  .O*
+            //      ***
             compare_cells(buffer, idx, idx + 1); // right
             compare_cells(buffer, idx, idx + w); // bottom
-            compare_cells(buffer, idx, idx + w - 1); // bottom left
             compare_cells(buffer, idx, idx + w + 1); // bottom right
-            idx = idx - 1;
+            compare_cells(buffer, idx, idx + w - 1); // bottom left
         }
+
+        // last element (right, bottom-right, bottom)
+        idx -= 1;
+        compare_cells(buffer, idx, idx + 1); // right
+        compare_cells(buffer, idx, idx + w); // bottom
+        compare_cells(buffer, idx, idx + w + 1); // bottom right
+
+        // sweep to the right (left)
         // ...
         // *O.  -->
         // ...
-        for _ in 0..w {
-            idx = idx + 1;
-            compare_cells(buffer, idx, idx - 1); // left
+        for _ in 1..w {
+            idx += 1;
+            compare_cells(buffer, idx, idx - 1);
         }
-        idx = idx - w;
     }
 }
 
@@ -196,9 +238,10 @@ fn compare_cells(
 
 // new
 fn get_distance_field_from_buffer(buffer: &Vec<Cell>, width: u32, height: u32) -> DistanceField {
+    print!("None: ");
     buffer.iter().enumerate().for_each(|(index, cell)| {
         if cell.nearest_cell_position.is_none() {
-            println!("None at index {}", index);
+            print!(" {} ", index);
         }
     });
 
