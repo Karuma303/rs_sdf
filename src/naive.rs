@@ -13,23 +13,24 @@ pub fn generate_df(field: &SourceField) -> DistanceField {
 
 /// Initialize an inner buffer with cells to calculate the distance field.
 fn init_buffer_for_distance_field(source: &SourceField) -> Vec<Cell> {
-    // let mut buf = vec![unset_value; ((source.width + 2) * (source.height + 2)) as usize];
-    let mut buf: Vec<Cell> = Vec::with_capacity(((source.width + 2) * (source.height + 2)) as usize);
-
-    let d = &source.data;
-    let w = source.width as u16;
-    let h = source.height as u16;
-
-    for y in 0..h {
-        for x in 0..w {
-            println!("x/y : {}/{}", x, y);
-            buf[(x + 1 + (y + 1) * (w + 2)) as usize] = match d[(x + (y * h)) as usize] {
-                true => Cell::new(CellLayer::Foreground, x, y),
-                false => Cell::new(CellLayer::Background, x, y),
-            };
-        };
-    };
-    buf
+    source.data
+        .chunks(source.width as usize)
+        .enumerate()
+        .map(|(row_index, row_data)| {
+            row_data.iter().enumerate().map(move |(col_index, value)| {
+                Cell {
+                    x: col_index as u16,
+                    y: row_index as u16,
+                    layer: match value {
+                        true => CellLayer::Foreground,
+                        false => CellLayer::Background,
+                    },
+                    nearest_cell_position: None,
+                }
+            })
+        })
+        .flatten()
+        .collect()
 }
 
 /// 2-pass sweep over the inner buffer to calculate the distances.
@@ -41,68 +42,83 @@ fn sweep_buffer(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
 
 /// Down sweep (pass #1)
 fn sweep_buffer_down(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
-    let buffer_width: usize = field_width as usize + 2;
+    let w = field_width as usize;
+    let h = field_height as usize;
 
-    // outer loop (going down)
-    let mut idx = buffer_width + 1; // start at pos (1/1)
-    for _ in 0..field_height {
+    let mut idx: usize = w + 1;
+
+    // down
+
+        // first row sweep left / sweep right
+
+        // others:
+        // special treatment for first
+        // sweep row
+        // special treatment for last
+        // sweep to right skips the last cell but goes to the first
+
+    // up
+
+        // skip the last row but go until the first
+
+    for _ in 1..(h - 1) {
         //
         // ***
         // *O.  -->
         // ...
-        for _ in 0..field_width {
+        for _ in 1..(w - 1) {
             // let target_cell = &mut buffer[idx];
-            compare_cells(buffer, idx, idx - 1, -1, 0); // left
-            compare_cells(buffer, idx, idx - buffer_width, 0, -1); // top
-            compare_cells(buffer, idx, idx - buffer_width - 1, -1, -1); // top left
-            compare_cells(buffer, idx, idx - buffer_width + 1, 1, -1); // top right
+            compare_cells(buffer, idx, idx - 1); // left
+            compare_cells(buffer, idx, idx - w); // top
+            compare_cells(buffer, idx, idx - w - 1); // top left
+            compare_cells(buffer, idx, idx - w + 1); // top right
             idx = idx + 1;
         }
         //      ...
         // <--  .O*
         //      ...
-        for _ in (0..field_width).rev() {
+        for _ in (1..(w - 1)).rev() {
             idx = idx - 1;
-            compare_cells(buffer, idx, idx + 1, 1, 0); // right
+            compare_cells(buffer, idx, idx + 1); // right
         }
-        idx = idx + buffer_width;
+        idx = idx + w;
     }
 }
 
 /// Up sweep (pass #2)
 fn sweep_buffer_up(buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
-    let buffer_width = field_width as usize + 2;
+    let w = field_width as usize;
+    let h = field_height as usize;
 
-    // outer loop (going up)
-    let mut idx = buffer_width * field_height as usize + field_width as usize;
-    for _ in (0..field_height).rev() {
+    let mut idx: usize = w * (h - 1) - 2;
+
+    for _ in (1..(h - 1)).rev() {
         //      ...
         // <--  .O*
         //      ***
-        for _ in (0..field_width).rev() {
+        for _ in (1..(w - 1)).rev() {
             // let mut target_cell = &mut buffer[idx];
-            compare_cells(buffer, idx, idx + 1, 1, 0); // right
-            compare_cells(buffer, idx, idx + buffer_width, 0, 1); // bottom
-            compare_cells(buffer, idx, idx + buffer_width - 1, -1, 1); // bottom left
-            compare_cells(buffer, idx, idx + buffer_width + 1, 1, 1); // bottom right
+            compare_cells(buffer, idx, idx + 1); // right
+            compare_cells(buffer, idx, idx + w); // bottom
+            compare_cells(buffer, idx, idx + w - 1); // bottom left
+            compare_cells(buffer, idx, idx + w + 1); // bottom right
             idx = idx - 1;
         }
         // ...
         // *O.  -->
         // ...
-        for _ in 0..field_width {
+        for _ in 0..w {
             idx = idx + 1;
-            compare_cells(buffer, idx, idx - 1, -1, 0); // left
+            compare_cells(buffer, idx, idx - 1); // left
         }
-        idx = idx - buffer_width;
+        idx = idx - w;
     }
 }
 
 fn compare_cells(
     buffer: &mut Vec<Cell>,
     target_index: usize,
-    source_index: usize,
-    inc_x: i8, inc_y: i8) {
+    source_index: usize) {
     let mut nearest_pos: Option<(u16, u16)> = None; // TODO: continue here...
 
     {
@@ -180,29 +196,16 @@ fn compare_cells(
 
 // new
 fn get_distance_field_from_buffer(buffer: &Vec<Cell>, width: u32, height: u32) -> DistanceField {
-    let source_w = (width + 2) as usize;
-    let source_h = (height + 2) as usize;
-
-    if buffer.len() != source_w * source_h {
-        panic!("incorrect buffer size");
-    }
-
-    let target_w = width as usize;
-    let target_h = height as usize;
-
-    // let mut distance_vec = vec![0; target_w * target_h];
-    let mut cells: Vec<Cell> = Vec::with_capacity(target_w * target_h);
-
-    for y in 0..target_h {
-        for x in 0..target_w {
-            cells[y * target_w + x] = buffer[(y + 1) * source_w + x + 1].clone();
+    buffer.iter().enumerate().for_each(|(index, cell)| {
+        if cell.nearest_cell_position.is_none() {
+            println!("None at index {}", index);
         }
-    }
+    });
 
     DistanceField {
-        data: cells,
         width,
         height,
+        data: buffer.clone(),
     }
 }
 

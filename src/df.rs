@@ -14,7 +14,7 @@ pub struct Cell {
     pub y: u16,
 
     /// The position of the nearest cell from the other layer.
-    nearest_cell_position: Option<(u16, u16)>,
+    pub nearest_cell_position: Option<(u16, u16)>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
