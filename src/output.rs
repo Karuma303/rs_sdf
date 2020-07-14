@@ -3,7 +3,7 @@ use std::path::Path;
 use std::io::{BufWriter};
 use std::fs::File;
 use crate::df::{DistanceField, Cell};
-use std::cmp::max;
+use std::cmp::{max, min};
 
 pub trait FieldOutput {
     fn output(&self, df: DistanceField);
@@ -35,7 +35,8 @@ impl FieldOutput for PngOutput {
 
         let data = df.data.into_iter().map(|cell: Cell| {
             // TODO: what to to if distance is none?
-            max(cell.distance_to_nearest_squared().unwrap(), 255) as u8
+            // max((cell.distance_to_nearest_squared().unwrap() as f64).sqrt() as u8, 255) as u8
+            min((cell.distance_to_nearest_squared().unwrap() as f64).sqrt() as u8, 255) as u8
         }).collect::<Vec<u8>>();
 
         writer.write_image_data(&data).unwrap(); // Save
