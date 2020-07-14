@@ -36,7 +36,11 @@ impl FieldOutput for PngOutput {
         let data = df.data.into_iter().map(|cell: Cell| {
             // TODO: what to to if distance is none?
             // max((cell.distance_to_nearest_squared().unwrap() as f64).sqrt() as u8, 255) as u8
-            min((cell.distance_to_nearest_squared().unwrap() as f64).sqrt() as u8, 255) as u8
+            let square_root = (cell.distance_to_nearest_squared().unwrap() as f32).sqrt();
+            // let val = min(square_root, 255f32);
+            if square_root > 255f32 { 255u8 } else {
+                square_root as u8
+            }
         }).collect::<Vec<u8>>();
 
         writer.write_image_data(&data).unwrap(); // Save
