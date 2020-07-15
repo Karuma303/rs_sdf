@@ -1,7 +1,6 @@
-
 use crate::generator::{DistanceGenerator, GenerationStrategy, ExportType};
 use crate::input::PngInput;
-use crate::output::PngOutput;
+use crate::output::{PngOutput, ImageOutputChannels, ImageOutputChannelDepth};
 use std::path::{Path, PathBuf};
 
 mod df;
@@ -37,7 +36,9 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str) {
 
     let g = DistanceGenerator::new()
         .input(PngInput::new(&source_image_path))
-        .output(PngOutput::new(&target_image_path))
+        .output(PngOutput::new(&target_image_path,
+                               ImageOutputChannels::One,
+                               ImageOutputChannelDepth::Eight))
         .export_type(ExportType::UnsignedOuterDistance)
         .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
 
@@ -45,14 +46,18 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str) {
     display_result(&result, &source_image_path, &target_image_path);
 
     let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "idf_" + target_image_name;
-    let g = g.output(PngOutput::new(&target_image_path))
+    let g = g.output(PngOutput::new(&target_image_path,
+                                    ImageOutputChannels::One,
+                                    ImageOutputChannelDepth::Eight))
         .export_type(ExportType::UnsignedInnerDistance);
 
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);
 
     let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "cdf_" + target_image_name;
-    let g = g.output(PngOutput::new(&target_image_path))
+    let g = g.output(PngOutput::new(&target_image_path,
+                                    ImageOutputChannels::One,
+                                    ImageOutputChannelDepth::Eight))
         .export_type(ExportType::UnsignedInnerOuterDistance);
 
     let result = g.generate();

@@ -9,14 +9,31 @@ pub trait FieldOutput {
     fn output(&self, df: DistanceField);
 }
 
+pub enum ImageOutputChannelDepth {
+    Eight = 8,
+    Sixteen = 16,
+    ThirtyTwo = 32,
+}
+
+pub enum ImageOutputChannels {
+    One = 1,
+    Two = 2,
+}
+
 pub struct PngOutput {
     file_path: String,
+    channel_depth: ImageOutputChannelDepth,
+    num_channels: ImageOutputChannels,
 }
 
 impl PngOutput {
-    pub fn new(file_path: &String) -> Self {
+    pub fn new(file_path: &String,
+               num_channels: ImageOutputChannels,
+               channel_depth: ImageOutputChannelDepth) -> Self {
         Self {
             file_path: String::from(file_path),
+            num_channels,
+            channel_depth,
         }
     }
 }
