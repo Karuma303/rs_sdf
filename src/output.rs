@@ -46,19 +46,44 @@ impl FieldOutput for PngOutput {
     // ...
 
     fn output(&self, df: DistanceField) {
-        let e = get_standard_encoder(&self.file_path, df.width, df.height);
+        let e = get_standard_encoder(&self.file_path, df.width, df.height, &self.channel_depth);
 
         let mut writer = e.write_header().unwrap();
 
-        let data = df.data.into_iter().map(|cell: Cell| {
-            // TODO: what to to if distance is none?
-            // max((cell.distance_to_nearest_squared().unwrap() as f64).sqrt() as u8, 255) as u8
-            let square_root = (cell.distance_to_nearest_squared().unwrap() as f32).sqrt();
-            // let val = min(square_root, 255f32);
-            if square_root > 255f32 { 255u8 } else {
-                square_root as u8
+        let mut data: Vec<u8> = Vec::new();
+
+        match &self.channel_depth {
+            ImageOutputChannelDepth::Eight => {
+                df.data.into_iter().for_each(|cell: Cell| {
+                    // TODO: There might be cases, where the distance is None. How do we handle that?
+                    let square_root = (cell.distance_to_nearest_squared().unwrap() as f32).sqrt();
+                    // let val = min(square_root, 255f32);
+                    data.push(if square_root > 255f32 { 255u8 } else {
+                        square_root as u8
+                    });
+                });
             }
-        }).collect::<Vec<u8>>();
+            ImageOutputChannelDepth::Sixteen => {
+                df.data.into_iter().for_each(|cell: Cell| {
+                    // TODO: There might be cases, where the distance is None. How do we handle that?
+                    let square_root = (cell.distance_to_nearest_squared().unwrap() as f32).sqrt();// * 16f32;
+                    // let square_root = (cell.distance_to_nearest_squared().unwrap() as f32);
+
+                    if square_root > 65535.0f32 {
+                        data.push(0xFFu8);
+                        data.push(0xFFu8);
+                    } else {
+                        let val = square_root.round() as u16;
+                        data.push((val >> 8) as u8);
+                        data.push((val & 0xFF) as u8);
+                    }
+                });
+            }
+            _ => {
+                unimplemented!()
+            }
+        }
+
 
         writer.write_image_data(&data).unwrap(); // Save
     }
@@ -78,7 +103,7 @@ impl FieldOutput for PngOutput {
     */
 }
 
-fn get_standard_encoder(file_path: &String, width: u32, height: u32) -> Encoder<BufWriter<File>> {
+fn get_standard_encoder(file_path: &String, width: u32, height: u32, channel_depth: &ImageOutputChannelDepth) -> Encoder<BufWriter<File>> {
     println!("{:?}", file_path);
     let file = File::create(file_path).unwrap();
     let mut w = BufWriter::new(file);
@@ -86,7 +111,11 @@ fn get_standard_encoder(file_path: &String, width: u32, height: u32) -> Encoder<
     let mut e = Encoder::new(w, width, height);
     e.set_color(ColorType::Grayscale);
     e.set_compression(Compression::Best);
-    e.set_depth(BitDepth::Eight);
+    e.set_depth(match channel_depth {
+        ImageOutputChannelDepth::Eight => BitDepth::Eight,
+        ImageOutputChannelDepth::Sixteen => BitDepth::Sixteen,
+        _ => unimplemented!(),
+    });
     e.set_filter(FilterType::NoFilter); // ???
     e
 }
@@ -124,7 +153,7 @@ mod tests {
 
     #[test]
     fn generates_png_file() {
-        // should generate a 1x1 pixel grey image
+// should generate a 1x1 pixel grey image
         let d: DistanceField = DistanceField {
             data: vec![Cell::new(CellLayer::Foreground, 90, 90); 1], // Foreground(Distance::new(180, 180))
             width: 1,
@@ -133,7 +162,7 @@ mod tests {
 
         create_temp_dir();
 
-        // TODO: implement the exporter as a type (not as a trait)
+// TODO: implement the exporter as a type (not as a trait)
 
         let out = PngOutput::new(
             &get_temp_image_path().into_os_string().into_string().unwrap(),

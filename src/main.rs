@@ -27,6 +27,8 @@ fn main() {
     generate_sdf("example_3_rgba_512x512.png", "example_3_512x512.png");
 
     generate_sdf("example_4_rgba_512x512.png", "example_4_512x512.png");
+
+    generate_sdf("example_6_rgba_16384x16384.png", "example_6_16384x16384.png");
 }
 
 fn generate_sdf(source_image_name: &str, target_image_name: &str) {
@@ -62,6 +64,17 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str) {
 
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);
+
+    /* example for 16-bit / single channel output
+    let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "cdf_16_" + target_image_name;
+    let g = g.output(PngOutput::new(&target_image_path,
+                                    ImageOutputChannels::One,
+                                    ImageOutputChannelDepth::Sixteen))
+        .export_type(ExportType::UnsignedInnerOuterDistance);
+
+    let result = g.generate();
+    display_result(&result, &source_image_path, &target_image_path);
+    */
 }
 
 fn display_result(result: &Result<(), String>, source_image_path: &String, target_image_path: &String) {
