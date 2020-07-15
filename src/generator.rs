@@ -4,6 +4,7 @@ use crate::naive::*;
 use crate::input::{FieldInput};
 use crate::output::{FieldOutput};
 use std::path::{PathBuf};
+use crate::df::DistanceField;
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn FieldInput>>,
@@ -47,21 +48,19 @@ impl DistanceGenerator {
         if let Some(input) = &self.input {
             let source = input.get_source_field().unwrap();
             if let Some(output) = &self.output {
-                let df = generate_df(&source);
-                /*
-                let sdf = match self.export_type {
+                let mut df = generate_df(&source);
+
+                match self.export_type {
                     ExportType::UnsignedOuterDistance => {
-                        generate_outer_df(&source)
+                        df = DistanceField::filter_outer(&df);
                     }
                     ExportType::UnsignedInnerDistance => {
-                        generate_inner_df(&source)
+                        df = DistanceField::filter_inner(&df)
                     }
-
                     ExportType::UnsignedInnerOuterDistance => {
-                        generate_combined_df(&source)
+
                     }
                 };
-                 */
                 output.output(df);
             }
 

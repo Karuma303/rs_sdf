@@ -63,7 +63,7 @@ impl Cell {
         self.nearest_cell_position = Some((x, y));
     }
 
-    pub fn get_distance_squared(first_x : &u16, first_y : &u16, second_x: &u16, second_y:&u16) -> u32 {
+    pub fn get_distance_squared(first_x: &u16, first_y: &u16, second_x: &u16, second_y: &u16) -> u32 {
         // TODO: we should check all the casts here
         // TODO: maybe use appropriate rust functions here
         let horiz_dist = i32::from(first_x.clone()) - i32::from(second_x.clone());
@@ -80,6 +80,46 @@ pub struct DistanceField {
 }
 
 impl DistanceField {
+    // TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the output stage.
+    pub fn filter_inner(source: &Self) -> Self {
+        let cells = source.data.iter().map(|cell| {
+            match cell.layer {
+                CellLayer::Foreground => cell.clone(),
+                CellLayer::Background => Cell {
+                    x: cell.x,
+                    y: cell.y,
+                    layer: CellLayer::Background,
+                    nearest_cell_position: Some((cell.x, cell.y)),
+                }
+            }
+        }).collect();
+        DistanceField {
+            width: source.width,
+            height: source.height,
+            data: cells,
+        }
+    }
+
+    // TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the output stage.
+    pub fn filter_outer(source: &Self) -> Self {
+        let cells = source.data.iter().map(|cell| {
+            match cell.layer {
+                CellLayer::Background => cell.clone(),
+                CellLayer::Foreground => Cell {
+                    x: cell.x,
+                    y: cell.y,
+                    layer: CellLayer::Foreground,
+                    nearest_cell_position: Some((cell.x, cell.y)),
+                }
+            }
+        }).collect();
+        DistanceField {
+            width: source.width,
+            height: source.height,
+            data: cells,
+        }
+    }
+
     /// Initialize a DistanceField based on the given SourceField.
     fn new(source: &SourceField) -> Self {
         let width = source.width;

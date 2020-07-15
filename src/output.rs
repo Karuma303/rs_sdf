@@ -95,7 +95,7 @@ fn get_standard_encoder(file_path: &String, width: u32, height: u32) -> Encoder<
 mod tests {
     use std::path::{Path, PathBuf};
     use std::fs::{remove_file, create_dir_all, remove_dir};
-    use crate::output::{PngOutput, FieldOutput};
+    use crate::output::{PngOutput, FieldOutput, ImageOutputChannels, ImageOutputChannelDepth};
     use crate::df::{DistanceField, Cell, CellLayer};
 
     const TEMP_DIR: &str = r"__tmp__output__dir__/";
@@ -135,7 +135,10 @@ mod tests {
 
         // TODO: implement the exporter as a type (not as a trait)
 
-        let out = PngOutput::new(&get_temp_image_path().into_os_string().into_string().unwrap());
+        let out = PngOutput::new(
+            &get_temp_image_path().into_os_string().into_string().unwrap(),
+            ImageOutputChannels::One,
+            ImageOutputChannelDepth::Eight);
         out.output(d);
 
         assert!(get_temp_image_path().is_file());
