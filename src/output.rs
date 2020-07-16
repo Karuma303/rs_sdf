@@ -4,7 +4,7 @@ use std::fs::File;
 use crate::df::{DistanceField, Cell, CellLayer};
 
 pub trait FieldOutput {
-    fn output(&self, df: DistanceField);
+    fn output(&self, df: &DistanceField);
 }
 
 pub enum ImageOutputChannelDepth {
@@ -40,10 +40,10 @@ impl PngOutput {
     fn get_8_bit_distance(&self, cell: &Cell) -> u8 {
         if let Some(distance_squared) = cell.distance_to_nearest_squared() {
             let square_root = (distance_squared as f32).sqrt();
-            if square_root > 255f32 {
+            return if square_root > 255f32 {
                 255u8
             } else {
-                square_root as u8
+                (square_root as u8) //  ^ 0xffu8 to invert
             };
         }
         // TODO: We should think about the best behaviour of the None case here. For now, we just return 0.
@@ -74,14 +74,14 @@ impl PngOutput {
         // 8 bit / 16 bit
         match &self.channel_depth {
             ImageOutputChannelDepth::Eight => {
-                df.data.into_iter().for_each(|cell: Cell| {
+                df.data.iter().for_each(|cell: &Cell| {
                     // TODO: right now, we just add the inner distances and the outer distances
                     // We should add a feature to generate real 8-bit-signed distance field here!
                     buffer.push(self.get_8_bit_distance(&cell));
                 });
             }
             ImageOutputChannelDepth::Sixteen => {
-                df.data.into_iter().for_each(|cell: Cell| {
+                df.data.iter().for_each(|cell: &Cell| {
                     let (byte_1, byte_2) = self.get_16_bit_distance(&cell);
                     buffer.push(byte_1);
                     buffer.push(byte_2);
@@ -97,14 +97,16 @@ impl PngOutput {
         // inner and outer go on a separate channel
         match &self.channel_depth {
             ImageOutputChannelDepth::Eight => {
-                df.data.into_iter().for_each(|cell: Cell| {
+                df.data.iter().for_each(|cell: &Cell| {
                     let distance = self.get_8_bit_distance(&cell);
                     match cell.layer {
                         CellLayer::Foreground => {
                             buffer.push(distance);
                             buffer.push(0x00);
+                            buffer.push(0x00);
                         }
                         CellLayer::Background => {
+                            buffer.push(0x00);
                             buffer.push(distance);
                             buffer.push(0x00);
                         }
@@ -114,6 +116,7 @@ impl PngOutput {
             }
             ImageOutputChannelDepth::Sixteen => {
                 todo!();
+                // mode rgb width 16 bit per channel needed here
             }
             _ => unimplemented!(),
         }
@@ -123,8 +126,11 @@ impl PngOutput {
 }
 
 impl FieldOutput for PngOutput {
-    fn output(&self, df: DistanceField) {
-        let e = get_standard_encoder(&self.file_path, df.width, df.height, &self.channel_depth);
+    fn output(&self, df: &DistanceField) {
+        let e = get_standard_encoder(&self.file_path,
+                                     df.width,
+                                     df.height,
+                                     &self.channel_depth, &self.num_channels);
 
         let mut writer = e.write_header().unwrap();
 
@@ -160,13 +166,17 @@ impl FieldOutput for PngOutput {
 fn get_standard_encoder(file_path: &String,
                         width: u32,
                         height: u32,
-                        channel_depth: &ImageOutputChannelDepth) -> Encoder<BufWriter<File>> {
+                        channel_depth: &ImageOutputChannelDepth,
+                        num_channels: &ImageOutputChannels) -> Encoder<BufWriter<File>> {
     println!("{:?}", file_path);
     let file = File::create(file_path).unwrap();
     let w = BufWriter::new(file);
 
     let mut e = Encoder::new(w, width, height);
-    e.set_color(ColorType::Grayscale);
+    match num_channels {
+        ImageOutputChannels::One => e.set_color(ColorType::Grayscale),
+        ImageOutputChannels::Two => e.set_color(ColorType::RGB),
+    }
     e.set_compression(Compression::Best);
     e.set_depth(match channel_depth {
         ImageOutputChannelDepth::Eight => BitDepth::Eight,
@@ -225,7 +235,7 @@ mod tests {
             &get_temp_image_path().into_os_string().into_string().unwrap(),
             ImageOutputChannels::One,
             ImageOutputChannelDepth::Eight);
-        out.output(d);
+        out.output(&d);
 
         assert!(get_temp_image_path().is_file());
 

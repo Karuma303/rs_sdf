@@ -60,7 +60,7 @@ impl DistanceGenerator {
 
                     }
                 };
-                output.output(df);
+                output.output(&df);
             }
 
             // we should test and maybe micro-benchmark at least two known approaches here:
