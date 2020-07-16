@@ -20,13 +20,13 @@ and especially not in production. 😉
 ## TODO
 
 - [x] Simple prototype with image input and output  
-- [ ] Updated readme and add some documentation  
-- [ ] DfProcessor trait  
+- [X] SourceProcessor trait  
 - [X] Two-channel image output 
+- [ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
+- [ ] Update readme and add some documentation  
 - [ ] Unit tests  
 - [ ] More algorithms for distance generation (currently only sweeping)
 - [ ] Real signed distance field output  
-- [ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
 - [ ] Simple WASM project with some WGPU Shader to demonstrate font rendering with SDFs  
 - [ ] Command line interface  
 - [ ] OTF/TTF Interface to convert font glyphs to SDFs 
