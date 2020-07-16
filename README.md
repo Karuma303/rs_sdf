@@ -5,7 +5,7 @@ for example for high quality font rendering.
 Please note that this is my personal playground to learn the Rust programming 
 language, so don't expect any highly sophisticated code samples here. 
 I will try to improve this library over time, however right now the whole repo
-is work in progress and it is not recommended to use it for anything 
+is WIP and it is not recommended to use it for anything 
 and especially not in production. 😉
 
 ## Examples
@@ -17,7 +17,17 @@ and especially not in production. 😉
 | <img alt="input image 3" src="assets/example_3_rgba_512x512.png" width="150" height="150" /> | <img alt="outer distance 3" src="output/odf_example_3_512x512.png" width="150" height="150" /> | <img alt="inner distance 3" src="output/idf_example_3_512x512.png" width="150" height="150" /> | <img alt="combined distance 3" src="output/cdf_example_3_512x512.png" width="150" height="150" />
 | <img alt="input image 4" src="assets/example_4_rgba_512x512.png" width="150" height="150" /> | <img alt="outer distance 4" src="output/odf_example_4_512x512.png" width="150" height="150" /> | <img alt="inner distance 4" src="output/idf_example_4_512x512.png" width="150" height="150" /> | <img alt="combined distance 4" src="output/cdf_example_4_512x512.png" width="150" height="150" />
 
+## TODO
 
+[ ] Simple prototype with image input and output  
+[ ] Updated readme and some documentation  
+[ ] Two-channel image output  
+[ ] Real signed distance field output  
+[ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
+[ ] Simple WASM project with some WGPU Shader to demonstrate font rendering with SDFs  
+[ ] Command line interface  
+[ ] OTF/TTF Interface to convert font glyphs to SDFs  
+ 
 ## Links about SDFs and there usage (for example in text rendering) 
 
 1) [Drawing Text with Signed Distance Fields in Mapbox GL](https://blog.mapbox.com/drawing-text-with-signed-distance-fields-in-mapbox-gl-b0933af6f817)  

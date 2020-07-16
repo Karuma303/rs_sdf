@@ -1,7 +1,4 @@
-use std::cmp::{max, min};
-
 use crate::df::{Cell, CellLayer, DistanceField};
-use crate::input::FieldInput;
 use crate::source::SourceField;
 
 /// Generate a distance field for the source field.
@@ -244,6 +241,7 @@ fn get_distance_field_from_buffer(buffer: &Vec<Cell>, width: u32, height: u32) -
             print!(" {} ", index);
         }
     });
+    println!();
 
     DistanceField {
         width,
@@ -255,8 +253,6 @@ fn get_distance_field_from_buffer(buffer: &Vec<Cell>, width: u32, height: u32) -
 #[cfg(test)]
 mod tests {
     use crate::source::SourceField;
-
-// use crate::naive::{init_buffer, init_buffer_for_outer_distances, init_buffer_for_inner_distances, get_df_from_buffer, generate_outer_df, generate_inner_df};
 
     // helper method to get an empty source field
     fn get_source_0_0() -> SourceField {

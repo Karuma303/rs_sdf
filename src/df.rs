@@ -1,5 +1,4 @@
 use crate::source::SourceField;
-use std::ops::{SubAssign, Sub};
 
 #[derive(Debug, Clone)]
 /// A single cell of a distance field

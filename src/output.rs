@@ -1,9 +1,7 @@
 use png::{Encoder, ColorType, Compression, BitDepth, FilterType};
-use std::path::Path;
 use std::io::{BufWriter};
 use std::fs::File;
 use crate::df::{DistanceField, Cell};
-use std::cmp::{max, min};
 
 pub trait FieldOutput {
     fn output(&self, df: DistanceField);
@@ -106,7 +104,7 @@ impl FieldOutput for PngOutput {
 fn get_standard_encoder(file_path: &String, width: u32, height: u32, channel_depth: &ImageOutputChannelDepth) -> Encoder<BufWriter<File>> {
     println!("{:?}", file_path);
     let file = File::create(file_path).unwrap();
-    let mut w = BufWriter::new(file);
+    let w = BufWriter::new(file);
 
     let mut e = Encoder::new(w, width, height);
     e.set_color(ColorType::Grayscale);
@@ -132,16 +130,16 @@ mod tests {
 
     fn create_temp_dir() {
         let p = Path::new(TEMP_DIR);
-        create_dir_all(p);
+        create_dir_all(p).unwrap();
     }
 
     fn delete_temp_dir() {
         let p = Path::new(TEMP_DIR);
-        remove_dir(p);
+        remove_dir(p).unwrap();
     }
 
     fn delete_temp_image_file() {
-        remove_file(get_temp_image_path());
+        remove_file(get_temp_image_path()).unwrap();
     }
 
     fn get_temp_image_path() -> PathBuf {

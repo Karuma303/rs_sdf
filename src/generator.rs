@@ -1,10 +1,9 @@
 use std::result::Result::Err;
 
-use crate::naive::*;
-use crate::input::{FieldInput};
-use crate::output::{FieldOutput};
-use std::path::{PathBuf};
 use crate::df::DistanceField;
+use crate::input::FieldInput;
+use crate::naive::*;
+use crate::output::FieldOutput;
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn FieldInput>>,
@@ -90,6 +89,7 @@ pub enum GenerationStrategy {
     BruteForceCircular,
 }
 
+#[derive(Clone)]
 pub enum ExportType {
     UnsignedInnerDistance,
     UnsignedOuterDistance,
