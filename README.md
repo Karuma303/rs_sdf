@@ -21,6 +21,7 @@ and especially not in production. 😉
 
 - [x] Simple prototype with image input and output  
 - [ ] Updated readme and some documentation  
+- [ ] DfProcessor trait  
 - [X] Two-channel image output 
 - [ ] Unit tests  
 - [ ] More algorithms for distance generation (currently only sweeping)
@@ -28,7 +29,8 @@ and especially not in production. 😉
 - [ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
 - [ ] Simple WASM project with some WGPU Shader to demonstrate font rendering with SDFs  
 - [ ] Command line interface  
-- [ ] OTF/TTF Interface to convert font glyphs to SDFs  
+- [ ] OTF/TTF Interface to convert font glyphs to SDFs 
+- [ ] Implement some kind of raw byte file output
  
 ## Links about SDFs and there usage (for example in text rendering) 
 
@@ -76,14 +78,6 @@ let gen = DistanceGenerator::new()
         .toOutput(FileOutput("/path")) // also ImageBufferOutput
         .generate();
 ```
-
-## TODO / Next
-
-[ ] Add simple CLI  
-[ ] Allow multi channel output  
-[ ] Allow 4/8/16 Bit output  
-[ ] Allow raw export
-[ ] Simple (GL?) Viewer with Fragment Shader 
 
 ## Input
 From ImageBuffer  
