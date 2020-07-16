@@ -16,10 +16,15 @@ const BASE_OUTPUT_FOLDER: &str = r"output";
 fn main() {
 
     // generate some distance field output images based on input images
+    generate_sdf("example_14_rgba_512x512.png",
+                 "example_4_512x512_2_channel.png",
+                 ExportType::UnsignedInnerOuterDistance,
+                 ImageOutputChannels::Two);
 
     // TODO: remove
     // generate_sdf("test/test_rgba_2x2_checkerboard.png", "test_checkerboard.png");
 
+    /*
     generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png", ExportType::UnsignedInnerDistance, ImageOutputChannels::One);
     generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png", ExportType::UnsignedOuterDistance,ImageOutputChannels::One);
     generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png", ExportType::UnsignedInnerOuterDistance,ImageOutputChannels::One);
@@ -29,6 +34,7 @@ fn main() {
     generate_sdf("example_3_rgba_512x512.png", "example_3_512x512.png", ExportType::UnsignedInnerOuterDistance,ImageOutputChannels::One);
 
     generate_sdf("example_4_rgba_512x512.png", "example_4_512x512.png", ExportType::UnsignedInnerOuterDistance, ImageOutputChannels::Two);
+    */
 
     // very big example
     // generate_sdf("example_6_rgba_16384x16384.png", "example_6_16384x16384.png", &ExportType::UnsignedInnerOuterDistance);
@@ -55,7 +61,7 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str, export_type: E
     let g = DistanceGenerator::new()
         .input(PngInput::new(&source_image_path))
         .output(PngOutput::new(&target_image_path,
-                               ImageOutputChannels::One,
+                               num_channels,
                                ImageOutputChannelDepth::Eight))
         .export_type(export_type)
         .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy

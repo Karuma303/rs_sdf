@@ -1,7 +1,7 @@
 use png::{Encoder, ColorType, Compression, BitDepth, FilterType};
 use std::io::{BufWriter};
 use std::fs::File;
-use crate::df::{DistanceField, Cell};
+use crate::df::{DistanceField, Cell, CellLayer};
 
 pub trait FieldOutput {
     fn output(&self, df: DistanceField);
@@ -36,13 +36,93 @@ impl PngOutput {
     }
 }
 
+impl PngOutput {
+    fn get_8_bit_distance(&self, cell: &Cell) -> u8 {
+        if let Some(distance_squared) = cell.distance_to_nearest_squared() {
+            let square_root = (distance_squared as f32).sqrt();
+            if square_root > 255f32 {
+                255u8
+            } else {
+                square_root as u8
+            };
+        }
+        // TODO: We should think about the best behaviour of the None case here. For now, we just return 0.
+        0
+    }
+
+    fn get_16_bit_distance(&self, cell: &Cell) -> (u8, u8) {
+        if let Some(distance_squared) = cell.distance_to_nearest_squared() {
+            let square_root = (distance_squared as f32).sqrt();// * 16f32;
+            // let square_root = (cell.distance_to_nearest_squared().unwrap() as f32);
+
+            if square_root > 65535.0f32 {
+                (0xFF, 0xFF)
+            } else {
+                let val = square_root.round() as u16;
+                ((val >> 8) as u8, (val & 0xFF) as u8)
+            };
+        }
+        // TODO: We should think about the best behaviour of the None case here. For now, we just return 0.
+        (0, 0)
+    }
+
+    fn output_single_channel(&self, df: &DistanceField, buffer: &mut Vec<u8>) {
+        // inner / outer / combined ?
+
+        // combined: add or sdf?
+
+        // 8 bit / 16 bit
+        match &self.channel_depth {
+            ImageOutputChannelDepth::Eight => {
+                df.data.into_iter().for_each(|cell: Cell| {
+                    // TODO: right now, we just add the inner distances and the outer distances
+                    // We should add a feature to generate real 8-bit-signed distance field here!
+                    buffer.push(self.get_8_bit_distance(&cell));
+                });
+            }
+            ImageOutputChannelDepth::Sixteen => {
+                df.data.into_iter().for_each(|cell: Cell| {
+                    let (byte_1, byte_2) = self.get_16_bit_distance(&cell);
+                    buffer.push(byte_1);
+                    buffer.push(byte_2);
+                });
+            }
+            _ => {
+                unimplemented!()
+            }
+        }
+    }
+
+    fn output_dual_channel(&self, df: &DistanceField, buffer: &mut Vec<u8>) {
+        // inner and outer go on a separate channel
+        match &self.channel_depth {
+            ImageOutputChannelDepth::Eight => {
+                df.data.into_iter().for_each(|cell: Cell| {
+                    let distance = self.get_8_bit_distance(&cell);
+                    match cell.layer {
+                        CellLayer::Foreground => {
+                            buffer.push(distance);
+                            buffer.push(0x00);
+                        }
+                        CellLayer::Background => {
+                            buffer.push(distance);
+                            buffer.push(0x00);
+                        }
+                    }
+                    // buffer.push(self.get_8_bit_distance(&cell));
+                });
+            }
+            ImageOutputChannelDepth::Sixteen => {
+                todo!();
+            }
+            _ => unimplemented!(),
+        }
+    }
+
+    // output quad channel
+}
+
 impl FieldOutput for PngOutput {
-
-    // TODO: we should add more options here!
-    // - What to output (inner, outer, both)
-    // - single channel, multi channel
-    // ...
-
     fn output(&self, df: DistanceField) {
         let e = get_standard_encoder(&self.file_path, df.width, df.height, &self.channel_depth);
 
@@ -50,38 +130,14 @@ impl FieldOutput for PngOutput {
 
         let mut data: Vec<u8> = Vec::new();
 
-        match &self.channel_depth {
-            ImageOutputChannelDepth::Eight => {
-                df.data.into_iter().for_each(|cell: Cell| {
-                    // TODO: There might be cases, where the distance is None. How do we handle that?
-                    let square_root = (cell.distance_to_nearest_squared().unwrap() as f32).sqrt();
-                    // let val = min(square_root, 255f32);
-                    data.push(if square_root > 255f32 { 255u8 } else {
-                        square_root as u8
-                    });
-                });
+        match &self.num_channels {
+            ImageOutputChannels::One => {
+                self.output_single_channel(&df, &mut data)
             }
-            ImageOutputChannelDepth::Sixteen => {
-                df.data.into_iter().for_each(|cell: Cell| {
-                    // TODO: There might be cases, where the distance is None. How do we handle that?
-                    let square_root = (cell.distance_to_nearest_squared().unwrap() as f32).sqrt();// * 16f32;
-                    // let square_root = (cell.distance_to_nearest_squared().unwrap() as f32);
-
-                    if square_root > 65535.0f32 {
-                        data.push(0xFFu8);
-                        data.push(0xFFu8);
-                    } else {
-                        let val = square_root.round() as u16;
-                        data.push((val >> 8) as u8);
-                        data.push((val & 0xFF) as u8);
-                    }
-                });
-            }
-            _ => {
-                unimplemented!()
+            ImageOutputChannels::Two => {
+                self.output_dual_channel(&df, &mut data)
             }
         }
-
 
         writer.write_image_data(&data).unwrap(); // Save
     }
@@ -101,7 +157,10 @@ impl FieldOutput for PngOutput {
     */
 }
 
-fn get_standard_encoder(file_path: &String, width: u32, height: u32, channel_depth: &ImageOutputChannelDepth) -> Encoder<BufWriter<File>> {
+fn get_standard_encoder(file_path: &String,
+                        width: u32,
+                        height: u32,
+                        channel_depth: &ImageOutputChannelDepth) -> Encoder<BufWriter<File>> {
     println!("{:?}", file_path);
     let file = File::create(file_path).unwrap();
     let w = BufWriter::new(file);
