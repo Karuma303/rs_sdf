@@ -1,14 +1,13 @@
 use std::result::Result::Err;
 
-use crate::df::DistanceField;
+use crate::df::{DistanceField, SourceProcessor};
 use crate::input::FieldInput;
-use crate::naive::*;
 use crate::output::FieldOutput;
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn FieldInput>>,
     output: Option<Box<dyn FieldOutput>>,
-    strategy: GenerationStrategy,
+    processor: Option<Box<dyn SourceProcessor>>,
     export_type: ExportType,
 }
 
@@ -17,7 +16,7 @@ impl DistanceGenerator {
         DistanceGenerator {
             input: None,
             output: None,
-            strategy: GenerationStrategy::Naive, // default
+            processor: None,
             export_type: ExportType::UnsignedInnerOuterDistance,
         }
     }
@@ -32,8 +31,8 @@ impl DistanceGenerator {
         self
     }
 
-    pub fn strategy(mut self, strategy: GenerationStrategy) -> Self {
-        self.strategy = strategy;
+    pub fn processor(mut self, processor: impl SourceProcessor + 'static) -> Self {
+        self.processor = Some(Box::new(processor));
         self
     }
 
@@ -46,21 +45,27 @@ impl DistanceGenerator {
         // input path is set?
         if let Some(input) = &self.input {
             let source = input.get_source_field().unwrap();
-            if let Some(output) = &self.output {
-                let mut df = generate_df(&source);
 
-                match self.export_type {
-                    ExportType::UnsignedOuterDistance => {
-                        df = DistanceField::filter_outer(&df);
-                    }
-                    ExportType::UnsignedInnerDistance => {
-                        df = DistanceField::filter_inner(&df)
-                    }
-                    ExportType::UnsignedInnerOuterDistance => {
+            if let Some(processor) = &self.processor {
+                let mut df = processor.process(&source);
 
-                    }
-                };
-                output.output(&df);
+                if let Some(output) = &self.output {
+
+                    match self.export_type {
+                        ExportType::UnsignedOuterDistance => {
+                            df = DistanceField::filter_outer(&df);
+                        }
+                        ExportType::UnsignedInnerDistance => {
+                            df = DistanceField::filter_inner(&df)
+                        }
+                        ExportType::UnsignedInnerOuterDistance => {}
+                    };
+                    output.output(&df);
+                } else {
+                    panic!("no output file specified");
+                }
+            } else {
+                panic!("no processor specified");
             }
 
             // we should test and maybe micro-benchmark at least two known approaches here:
@@ -81,12 +86,6 @@ impl DistanceGenerator {
         }
         Ok(())
     }
-}
-
-pub enum GenerationStrategy {
-    Naive,
-    BruteForceRectangular,
-    BruteForceCircular,
 }
 
 #[derive(Clone)]

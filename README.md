@@ -20,7 +20,7 @@ and especially not in production. 😉
 ## TODO
 
 - [x] Simple prototype with image input and output  
-- [ ] Updated readme and some documentation  
+- [ ] Updated readme and add some documentation  
 - [ ] DfProcessor trait  
 - [X] Two-channel image output 
 - [ ] Unit tests  

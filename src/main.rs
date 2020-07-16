@@ -1,13 +1,15 @@
-use crate::generator::{DistanceGenerator, GenerationStrategy, ExportType};
+use std::path::PathBuf;
+
+use crate::generator::{DistanceGenerator, ExportType};
 use crate::input::PngInput;
-use crate::output::{PngOutput, ImageOutputChannels, ImageOutputChannelDepth};
-use std::path::{PathBuf};
+use crate::output::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
+use crate::processor::sweep::EightSideSweepProcessor;
 
 mod df;
 mod input;
 mod source;
 mod generator;
-mod naive;
+mod processor;
 mod output;
 
 const BASE_ASSET_FOLDER: &str = r"assets";
@@ -64,7 +66,7 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str, export_type: E
                                num_channels,
                                ImageOutputChannelDepth::Eight))
         .export_type(export_type)
-        .strategy(GenerationStrategy::Naive); // maybe rename to process_strategy
+        .processor(EightSideSweepProcessor{}); // maybe rename to process_strategy
 
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);

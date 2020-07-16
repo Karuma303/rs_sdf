@@ -43,7 +43,7 @@ impl PngOutput {
             return if square_root > 255f32 {
                 255u8
             } else {
-                (square_root as u8) //  ^ 0xffu8 to invert
+                square_root as u8 //  ^ 0xffu8 to invert
             };
         }
         // TODO: We should think about the best behaviour of the None case here. For now, we just return 0.
