@@ -16,7 +16,7 @@ and especially not in production. 😉
 
 | Combined dist. (8bit) | 2-Channel (8bit) |    
 | --- | --- |  
-| <img alt="combined distance 4" src="output/cdf_example_2_rgba_512x512.png" width="256" height="256" /> | <img alt="two channel output" src="output/cdf_example_2_rgba_512x512_2_channel.png" width="256" height="256" /> |  
+| <img alt="combined distance 4" src="output/cdf_example_2_512x512.png" width="256" height="256" /> | <img alt="two channel output" src="output/cdf_example_2_512x512_2_channel.png" width="256" height="256" /> |  
 ## TODO
 
 - [x] Simple prototype with image input and output  
