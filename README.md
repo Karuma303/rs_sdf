@@ -19,14 +19,14 @@ and especially not in production. 😉
 
 ## TODO
 
-[ ] Simple prototype with image input and output  
-[ ] Updated readme and some documentation  
-[ ] Two-channel image output  
-[ ] Real signed distance field output  
-[ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
-[ ] Simple WASM project with some WGPU Shader to demonstrate font rendering with SDFs  
-[ ] Command line interface  
-[ ] OTF/TTF Interface to convert font glyphs to SDFs  
+- [x] Simple prototype with image input and output  
+- [ ] Updated readme and some documentation  
+- [ ] Two-channel image output  
+- [ ] Real signed distance field output  
+- [ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
+- [ ] Simple WASM project with some WGPU Shader to demonstrate font rendering with SDFs  
+- [ ] Command line interface  
+- [ ] OTF/TTF Interface to convert font glyphs to SDFs  
  
 ## Links about SDFs and there usage (for example in text rendering) 
 
