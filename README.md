@@ -1,7 +1,7 @@
 # About
 
-A simple library to generate 2-dimensional Distance Fields (DF) that can be used
-for example for high quality font rendering.  
+A simple Rust library to generate 2-dimensional Distance Fields (DF) from input
+images (like font glyphs).  
 Please note that this is my personal playground to learn the Rust programming 
 language, so don't expect any highly sophisticated code samples here. 
 I will try to improve this library over time, however right now the whole repo
@@ -10,18 +10,20 @@ and especially not in production. 😉
 
 ## Examples
 
-| Input | Outer dist. | Inner dist. | Combined dist.
-| --- | --- | --- | --- |  
-| <img alt="input image 1" src="assets/example_1_rgba_512x512.png" width="150" height="150" /> | <img alt="outer distance 1" src="output/odf_example_1_512x512.png" width="150" height="150" /> | <img alt="inner distance 1" src="output/idf_example_1_512x512.png" width="150" height="150" /> | <img alt="combined distance 1" src="output/cdf_example_1_512x512.png" width="150" height="150" /> 
-| <img alt="input image 2" src="assets/example_2_rgba_512x512.png" width="150" height="150" /> | <img alt="outer distance 2" src="output/odf_example_2_512x512.png" width="150" height="150" /> | <img alt="inner distance 2" src="output/idf_example_2_512x512.png" width="150" height="150" /> | <img alt="combined distance 2" src="output/cdf_example_2_512x512.png" width="150" height="150" />
-| <img alt="input image 3" src="assets/example_3_rgba_512x512.png" width="150" height="150" /> | <img alt="outer distance 3" src="output/odf_example_3_512x512.png" width="150" height="150" /> | <img alt="inner distance 3" src="output/idf_example_3_512x512.png" width="150" height="150" /> | <img alt="combined distance 3" src="output/cdf_example_3_512x512.png" width="150" height="150" />
-| <img alt="input image 4" src="assets/example_4_rgba_512x512.png" width="150" height="150" /> | <img alt="outer distance 4" src="output/odf_example_4_512x512.png" width="150" height="150" /> | <img alt="inner distance 4" src="output/idf_example_4_512x512.png" width="150" height="150" /> | <img alt="combined distance 4" src="output/cdf_example_4_512x512.png" width="150" height="150" />
+| Input image| Outer dist. (8bit) | Inner dist. (8bit) |  
+| --- | --- | --- |  
+| <img alt="input image 1" src="assets/example_2_rgba_512x512.png" width="256" height="256" /> | <img alt="outer distance 1" src="output/odf_example_2_512x512.png" width="256" height="256" /> | <img alt="inner distance 1" src="output/idf_example_2_512x512.png" width="256" height="256" />   
 
+| Combined dist. (8bit) | 2-Channel (8bit) |    
+| --- | --- |  
+| <img alt="combined distance 4" src="output/cdf_example_2_rgba_512x512.png" width="256" height="256" /> | <img alt="two channel output" src="output/cdf_example_2_rgba_512x512_2_channel.png" width="256" height="256" /> |  
 ## TODO
 
 - [x] Simple prototype with image input and output  
 - [ ] Updated readme and some documentation  
-- [X] Two-channel image output  
+- [X] Two-channel image output 
+- [ ] Unit tests  
+- [ ] More algorithms for distance generation (currently only sweeping)
 - [ ] Real signed distance field output  
 - [ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
 - [ ] Simple WASM project with some WGPU Shader to demonstrate font rendering with SDFs  
@@ -89,8 +91,8 @@ From File (File -> ImageBuffer)
 From TTF Font File  
 Additional Transformers would be nice too:
 Rotate, Flip, B/W, ChannelMatrix (Re-Map Channels), Threshold,
-scale (up/down) <- very important ... inc. linear/bilinear/triliniear interpolation
-Bits per channel Kanal (1/8/16/32/64) (Source format) - 
+scale (up/down) <- very important ... inc. linear/bi-linear/tri-linear interpolation
+Bits per channel Channel (1/8/16/32/64) (Source format) - 
 But how do we calculate the output? ->  B/W vs. Greyscale
 
 ## Output  

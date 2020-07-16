@@ -16,8 +16,8 @@ const BASE_OUTPUT_FOLDER: &str = r"output";
 fn main() {
 
     // generate some distance field output images based on input images
-    generate_sdf("example_4_rgba_512x512.png",
-                 "example_4_512x512_2_channel.png",
+    generate_sdf("example_2_rgba_512x512.png",
+                 "example_2_512x512_2_channel.png",
                  ExportType::UnsignedInnerOuterDistance,
                  ImageOutputChannels::Two);
 
