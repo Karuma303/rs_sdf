@@ -21,7 +21,7 @@ and especially not in production. 😉
 
 - [x] Simple prototype with image input and output  
 - [ ] Updated readme and some documentation  
-- [ ] Two-channel image output  
+- [X] Two-channel image output  
 - [ ] Real signed distance field output  
 - [ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
 - [ ] Simple WASM project with some WGPU Shader to demonstrate font rendering with SDFs  
