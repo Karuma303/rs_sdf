@@ -75,15 +75,14 @@ let gen = DistanceGenerator::new()
             .input("/path")
             .output("/path")
             .generate();
-```
 
-##### Future versions
-
-```rust
-    let gen = DistanceGenerator()
-        .withConfiguration(GeratorConfiguration())
-        .fromInput(ImageFileInput("/path"))
-        .toOutput(FileOutput("/path")) // also ImageBufferOutput
+    let gen = DistanceGenerator::new()
+        .input("/input/file/path.png")
+        .output(PngOutput::new("/output/file/path.png",
+                               ImageOutputChannels::Two,
+                               ImageOutputChannelDepth::Eight))
+        .export_type(ExportType::UnsignedInnerOuterDistance)
+        .processor(EightSideSweepProcessor{})
         .generate();
 ```
 

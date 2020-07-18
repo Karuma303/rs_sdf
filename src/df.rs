@@ -42,11 +42,6 @@ impl Cell {
     /// This is `None`, if no nearest cell was detected (yet).
     pub fn distance_to_nearest_squared(&self) -> Option<u32> {
         if let Some((nearest_x, nearest_y)) = &self.nearest_cell_position {
-            // TODO: we should check all the casts here
-            // TODO: use appropriate rust functions here
-//            let horiz_dist = i32::from(self.x) - i32::from(nearest_x.clone());
-//            let vert_dist = i32::from(self.y) - i32::from(nearest_y.clone());
-            // Some(horiz_dist.pow(2) as u32 + vert_dist.pow(2) as u32)
             Some(Self::get_distance_squared(&self.x, &self.y, &nearest_x, &nearest_y))
         } else {
             None

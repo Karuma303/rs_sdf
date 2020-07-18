@@ -23,9 +23,6 @@ fn main() {
                  ExportType::UnsignedInnerOuterDistance,
                  ImageOutputChannels::Two);
 
-    // TODO: remove
-    // generate_sdf("test/test_rgba_2x2_checkerboard.png", "test_checkerboard.png");
-
     /*
     generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png", ExportType::UnsignedInnerDistance, ImageOutputChannels::One);
     generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png", ExportType::UnsignedOuterDistance,ImageOutputChannels::One);
@@ -66,7 +63,7 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str, export_type: E
                                num_channels,
                                ImageOutputChannelDepth::Eight))
         .export_type(export_type)
-        .processor(EightSideSweepProcessor{}); // maybe rename to process_strategy
+        .processor(EightSideSweepProcessor{});
 
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);
