@@ -1,7 +1,14 @@
 # About
 
-A simple Rust library to generate 2-dimensional Distance Fields (DF) from input
-images (like font glyphs).  
+A simple library to generate 2-dimensional 
+[Distance Fields](https://en.wikipedia.org/wiki/Distance_transform) (DF) 
+written in pure [Rust](https://www.rust-lang.org/) 🦀
+
+The lib can import PNG images, convert them into a 
+distance field and export the distances as a PNG again.
+
+## Disclaimer
+  
 Please note that this is my personal playground to learn the Rust programming 
 language, so don't expect any highly sophisticated code samples here. 
 I will try to improve this library over time, however right now the whole repo
@@ -22,6 +29,7 @@ and especially not in production. 😉
 - [x] Simple prototype with image input and output  
 - [X] SourceProcessor trait  
 - [X] Two-channel image output 
+- [ ] Project structure (modules, libs, crates, features, examples...)
 - [ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
 - [ ] Update readme and add some documentation  
 - [ ] Unit tests  
