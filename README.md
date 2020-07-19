@@ -24,6 +24,12 @@ and especially not in production. 😉
 | Combined dist. (8bit) | 2-Channel (8bit) |    
 | --- | --- |  
 | <img alt="combined distance 4" src="output/cdf_example_2_512x512.png" width="200" height="200" /> | <img alt="two channel output" src="output/cdf_example_2_512x512_2_channel.png" width="200" height="200" /> |  
+
+| Random dots  | Regular dots  |   
+| --- | --- |  
+| <img alt="random dots" src="output/cdf_example_7_512x512.png" width="200" height="200" /> | <img alt="regular dots" src="output/cdf_example_8_512x512.png" width="200" height="200" /> |  
+
+
 ## TODO
 
 - [x] Simple prototype with image input and output  
