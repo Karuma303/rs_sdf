@@ -19,7 +19,7 @@ and especially not in production. 😉
 
 | Input image| Outer dist. (8bit) | Inner dist. (8bit) |  
 | --- | --- | --- |  
-| <img alt="input image 1" src="assets/example_2_rgba_512x512.png" width="200" height="200" /> | <img alt="outer distance 1" src="output/odf_example_2_512x512.png" width="200" height="200" /> | <img alt="inner distance 1" src="output/idf_example_2_512x512.png" width="200" height="200" />   
+| <img alt="input image 1" src="doc/images/example_2_rgba_512x512.png" width="200" height="200" /> | <img alt="outer distance 1" src="output/odf_example_2_512x512.png" width="200" height="200" /> | <img alt="inner distance 1" src="output/idf_example_2_512x512.png" width="200" height="200" />   
 
 | Combined dist. (8bit) | 2-Channel (8bit) |    
 | --- | --- |  

@@ -7,8 +7,8 @@ use rs_sdf_gen::input::PngInput;
 use rs_sdf_gen::output::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
 use rs_sdf_gen::processor::sweep::EightSideSweepProcessor;
 
-const BASE_ASSET_FOLDER: &str = r"assets";
-const BASE_OUTPUT_FOLDER: &str = r"output";
+const BASE_ASSET_FOLDER: &str = r"examples/assets";
+const BASE_OUTPUT_FOLDER: &str = r"examples/output";
 
 ///
 /// Examples that show how to generate distance fields based on input images

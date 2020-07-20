@@ -112,7 +112,7 @@ mod tests {
     fn generates_output_file() {
         let outputPath = r"output\test_output.png";
         let res = DistanceGenerator::new()
-            .input(r"assets\example_1_rgba_512x512.png")
+            .input(r"test\example_1_rgba_512x512.png")
             .output(outputPath).generate();
         let f = File::open(outputPath);
         assert!(f.is_ok(), "output file was not generated");
