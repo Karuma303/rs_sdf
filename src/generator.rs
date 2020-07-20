@@ -1,12 +1,12 @@
 use std::result::Result::Err;
 
-use crate::df::{DistanceField, SourceProcessor};
-use crate::input::FieldInput;
-use crate::output::image::FieldOutput;
+use crate::distance_field::{DistanceField, SourceProcessor};
+use crate::import::FieldInput;
+use crate::export::DistanceFieldExporter;
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn FieldInput>>,
-    output: Option<Box<dyn FieldOutput>>,
+    output: Option<Box<dyn DistanceFieldExporter>>,
     processor: Option<Box<dyn SourceProcessor>>,
     export_type: ExportType,
 }
@@ -26,7 +26,7 @@ impl DistanceGenerator {
         self
     }
 
-    pub fn output(mut self, output: impl FieldOutput + 'static) -> Self {
+    pub fn output(mut self, output: impl DistanceFieldExporter + 'static) -> Self {
         self.output = Some(Box::new(output));
         self
     }
@@ -60,9 +60,9 @@ impl DistanceGenerator {
                         }
                         ExportType::UnsignedInnerOuterDistance => {}
                     };
-                    output.output(&df);
+                    output.export(&df);
                 } else {
-                    panic!("no output file specified");
+                    panic!("no export file specified");
                 }
             } else {
                 panic!("no processor specified");
@@ -110,12 +110,12 @@ mod tests {
     /*
     #[tests]
     fn generates_output_file() {
-        let outputPath = r"output\test_output.png";
+        let outputPath = r"export\test_output.png";
         let res = DistanceGenerator::new()
             .input(r"tests\example_1_rgba_512x512.png")
-            .output(outputPath).generate();
+            .export(outputPath).generate();
         let f = File::open(outputPath);
-        assert!(f.is_ok(), "output file was not generated");
+        assert!(f.is_ok(), "export file was not generated");
     }
      */
 }

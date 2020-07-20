@@ -1,6 +1,12 @@
-pub mod df;
+/// Core data structures for distance fields
+pub mod distance_field;
+
 pub mod source;
+
 pub mod generator;
-pub mod input;
+
 pub mod processor;
-pub mod output;
+
+pub mod export;
+
+pub mod import;

@@ -74,7 +74,7 @@ pub struct DistanceField {
 }
 
 impl DistanceField {
-    // TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the output stage.
+    // TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the export stage.
     pub fn filter_inner(source: &Self) -> Self {
         let cells = source.data.iter().map(|cell| {
             match cell.layer {
@@ -94,7 +94,7 @@ impl DistanceField {
         }
     }
 
-    // TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the output stage.
+    // TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the export stage.
     pub fn filter_outer(source: &Self) -> Self {
         let cells = source.data.iter().map(|cell| {
             match cell.layer {

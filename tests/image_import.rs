@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-    use rs_sdf_gen::input::{FileInputError, get_source_from_png_file_input};
-    use rs_sdf_gen::input;
+    use rs_sdf_gen::import::image::{FileInputError, get_source_from_png_file_input};
+    use rs_sdf_gen::import::image;
 
     const TEST_ASSET_BASE_PATH: &str = r"tests/test_assets/";
 

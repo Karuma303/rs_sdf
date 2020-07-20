@@ -1,17 +1,11 @@
-//! Module to read png image files as an input for generation
 use std::fs::File;
 
 use png::{Decoder, ColorType};
 use png::Transformations;
 
-use crate::source::SourceField;
 use std::fmt;
-
-/// Type for a valid input for the distance field generator.
-/// Implementors of this trait provide a SourceField that can be further processed by the generator.
-pub trait FieldInput {
-    fn get_source_field(&self) -> Option<SourceField>;
-}
+use crate::import::FieldInput;
+use crate::source::SourceField;
 
 pub struct PngInput {
     file_path: String,
@@ -55,7 +49,7 @@ pub fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, Fi
     let input_file = File::open(&file_path).map_err(|_| { FileInputError::InvalidFile })?;
 
     // The decoder is a build for reader and can be used to set various decoding options
-    // via `Transformations`. The default output transformation is `Transformations::EXPAND
+    // via `Transformations`. The default export transformation is `Transformations::EXPAND
     // | Transformations::STRIP_ALPHA`.
 
     // NOTE: There's also a new_with_limits() constructor !
@@ -78,7 +72,7 @@ pub fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, Fi
     println!("color type: {:?}", info.color_type); // Grayscale, RGB, Indexed, GrayscaleAlpha, RGBA
     println!("bit depth: {:?}", info.bit_depth); // One, Two, Four, Eight, Sixteen
 
-    // Allocate the output buffer.
+    // Allocate the export buffer.
     let mut image_buffer = vec![0; info.buffer_size()];
     // Read the next frame. Currently this function should only called once.
     // The default options
