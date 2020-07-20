@@ -19,15 +19,15 @@ and especially not in production. 😉
 
 | Input image| Outer dist. (8bit) | Inner dist. (8bit) |  
 | --- | --- | --- |  
-| <img alt="input image 1" src="doc/images/example_2_rgba_512x512.png" width="200" height="200" /> | <img alt="outer distance 1" src="output/odf_example_2_512x512.png" width="200" height="200" /> | <img alt="inner distance 1" src="output/idf_example_2_512x512.png" width="200" height="200" />   
+| <img alt="input image 1" src="examples/assets/example_2_rgba_512x512.png" width="200" height="200" /> | <img alt="outer distance 1" src=""doc/images/odf_example_2_512x512.png" width="200" height="200" /> | <img alt="inner distance 1" src=""doc/images/idf_example_2_512x512.png" width="200" height="200" />   
 
 | Combined dist. (8bit) | 2-Channel (8bit) |    
 | --- | --- |  
-| <img alt="combined distance 4" src="output/cdf_example_2_512x512.png" width="200" height="200" /> | <img alt="two channel output" src="output/cdf_example_2_512x512_2_channel.png" width="200" height="200" /> |  
+| <img alt="combined distance 4" src=""doc/images/cdf_example_2_512x512.png" width="200" height="200" /> | <img alt="two channel output" src=""doc/images/cdf_example_2_512x512_2_channel.png" width="200" height="200" /> |  
 
 | Random dots  | Regular dots  |   
 | --- | --- |  
-| <img alt="random dots" src="output/cdf_example_7_512x512.png" width="200" height="200" /> | <img alt="regular dots" src="output/cdf_example_8_512x512.png" width="200" height="200" /> |  
+| <img alt="random dots" src=""doc/images/cdf_example_7_512x512.png" width="200" height="200" /> | <img alt="regular dots" src=""doc/images/cdf_example_8_512x512.png" width="200" height="200" /> |  
 
 
 ## TODO
@@ -84,7 +84,7 @@ let gen = DistanceGenerator::new()
 
     let gen = DistanceGenerator::new()
         .input("/input/file/path.png")
-        .output(PngOutput::new("/output/file/path.png",
+        .output(PngOutput::new("/"doc/images/file/path.png",
                                ImageOutputChannels::Two,
                                ImageOutputChannelDepth::Eight))
         .export_type(ExportType::UnsignedInnerOuterDistance)
