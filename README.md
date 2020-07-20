@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/Karuma303/rs_sdf/workflows/Rust/badge.svg)](https://github.com/Karuma303/rs_sdf/actions)
+
 # About
 
 A simple library to generate 2-dimensional 
