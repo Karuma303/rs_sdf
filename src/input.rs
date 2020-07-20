@@ -99,7 +99,7 @@ fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, FileIn
 mod tests {
     use crate::input::{get_source_from_png_file_input, FileInputError};
 
-    const TEST_ASSET_BASE_PATH: &str = r"test\";
+    const TEST_ASSET_BASE_PATH: &str = r"test/";
 
     #[test]
     fn input_does_not_exist() {
@@ -109,19 +109,19 @@ mod tests {
 
     #[test]
     fn input_is_not_png() {
-        let res = get_source_from_png_file_input(r"test\invalid_file.dat");
+        let res = get_source_from_png_file_input(r"test/invalid_file.dat");
         assert_eq!(res.err().unwrap(), FileInputError::InvalidFileType);
     }
 
     #[test]
     fn input_file_is_no_valid_rgba() {
-        let res = get_source_from_png_file_input(r"test\test_rgb_1x1_black.png");
+        let res = get_source_from_png_file_input(r"test/test_rgb_1x1_black.png");
         assert_eq!(res.err().unwrap(), FileInputError::InvalidImageFormat);
     }
 
     #[test]
     fn input_file_is_valid() {
-        let res = get_source_from_png_file_input(r"test\test_rgba_1x1_fully_transparent.png");
+        let res = get_source_from_png_file_input(r"test/test_rgba_1x1_fully_transparent.png");
         assert!(res.is_ok());
     }
 
@@ -129,15 +129,15 @@ mod tests {
     fn generated_source_field_contains_valid_data() {
 
         // check fully transparent 1x1 image
-        let s1 = get_source_from_png_file_input(r"test\test_rgba_1x1_fully_transparent.png").unwrap();
+        let s1 = get_source_from_png_file_input(r"test/test_rgba_1x1_fully_transparent.png").unwrap();
         assert_eq!(s1.data[0], false);
 
         // check fully opaque 1x1 image
-        let s2 = get_source_from_png_file_input(r"test\test_rgba_1x1_90_percent_opaque.png").unwrap();
+        let s2 = get_source_from_png_file_input(r"test/test_rgba_1x1_90_percent_opaque.png").unwrap();
         assert_eq!(s2.data[0], true);
 
         // check checkered 2x2 image
-        let s3 = get_source_from_png_file_input(r"test\test_rgba_2x2_checkerboard.png").unwrap();
+        let s3 = get_source_from_png_file_input(r"test/test_rgba_2x2_checkerboard.png").unwrap();
         assert_eq!(s3.data[0], true); // tl
         assert_eq!(s3.data[1], false); // tr
         assert_eq!(s3.data[2], false); // bl
