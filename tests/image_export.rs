@@ -2,9 +2,9 @@
 mod tests {
     use std::path::{Path, PathBuf};
     use std::fs::{remove_file, create_dir_all, remove_dir};
-    use rs_sdf_gen::distance_field::{DistanceField, Cell, CellLayer};
-    use rs_sdf_gen::export::image::{PngOutput, ImageOutputChannels, ImageOutputChannelDepth};
-    use rs_sdf_gen::export::DistanceFieldExporter;
+    use rs_sdf::distance_field::{DistanceField, Cell, CellLayer};
+    use rs_sdf::export::image::{PngOutput, ImageOutputChannels, ImageOutputChannelDepth};
+    use rs_sdf::export::DistanceFieldExporter;
 
     const TEMP_DIR: &str = r"__tmp__output__dir__/";
     const TEMP_IMAGE_FILE: &str = r"image.png";

@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use rs_sdf_gen::source::SourceField;
+    use rs_sdf::source::SourceField;
 
     // helper method to get an empty source field
     fn get_source_0_0() -> SourceField {

@@ -1,5 +1,5 @@
 [package]
-name = "rs_sdf_gen"
+name = "rs_sdf"
 version = "0.1.0"
 authors = ["Karuma <info@karuma.de>"]
 edition = "2018"

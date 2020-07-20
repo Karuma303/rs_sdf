@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use rs_sdf_gen::source::SourceField;
+    use rs_sdf::source::SourceField;
 
     #[test]
     fn distance_field_initializes_correctly() {

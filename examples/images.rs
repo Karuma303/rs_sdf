@@ -2,10 +2,10 @@ extern crate png;
 
 use std::path::PathBuf;
 
-use rs_sdf_gen::generator::{DistanceGenerator, ExportType};
-use rs_sdf_gen::import::image::PngInput;
-use rs_sdf_gen::export::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
-use rs_sdf_gen::processor::sweep::EightSideSweepProcessor;
+use rs_sdf::generator::{DistanceGenerator, ExportType};
+use rs_sdf::import::image::PngInput;
+use rs_sdf::export::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
+use rs_sdf::processor::sweep::EightSideSweepProcessor;
 
 const BASE_ASSET_FOLDER: &str = r"examples/assets";
 const BASE_OUTPUT_FOLDER: &str = r"examples/output";

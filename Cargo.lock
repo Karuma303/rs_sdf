@@ -57,7 +57,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rs_sdf_gen"
+name = "rs_sdf"
 version = "0.1.0"
 dependencies = [
  "png 0.16.3 (registry+https://github.com/rust-lang/crates.io-index)",
