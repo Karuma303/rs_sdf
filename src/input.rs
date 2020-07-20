@@ -51,7 +51,7 @@ impl fmt::Display for FileInputError {
 }
 
 /// Opens a png file from the given path and converts it into a SourceField
-fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, FileInputError> {
+pub fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, FileInputError> {
     let input_file = File::open(&file_path).map_err(|_| { FileInputError::InvalidFile })?;
 
     // The decoder is a build for reader and can be used to set various decoding options
@@ -93,54 +93,4 @@ fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, FileIn
 
     let source = SourceField::new(&output_buffer, info.width, info.height);
     Ok(source)
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::input::{get_source_from_png_file_input, FileInputError};
-
-    const TEST_ASSET_BASE_PATH: &str = r"./test/";
-
-    #[test]
-    fn input_does_not_exist() {
-        let res = get_source_from_png_file_input("some_random_path_that_does_not_exist.dat");
-        assert_eq!(res.err().unwrap(), FileInputError::InvalidFile);
-    }
-
-    #[test]
-    fn input_is_not_png() {
-        let res = get_source_from_png_file_input(r"./test/invalid_file.dat");
-        assert_eq!(res.err().unwrap(), FileInputError::InvalidFileType);
-    }
-
-    #[test]
-    fn input_file_is_no_valid_rgba() {
-        let res = get_source_from_png_file_input(r"./test/test_rgb_1x1_black.png");
-        assert_eq!(res.err().unwrap(), FileInputError::InvalidImageFormat);
-    }
-
-    #[test]
-    fn input_file_is_valid() {
-        let res = get_source_from_png_file_input(r"./test/test_rgba_1x1_fully_transparent.png");
-        assert!(res.is_ok());
-    }
-
-    #[test]
-    fn generated_source_field_contains_valid_data() {
-
-        // check fully transparent 1x1 image
-        let s1 = get_source_from_png_file_input(r"./test/test_rgba_1x1_fully_transparent.png").unwrap();
-        assert_eq!(s1.data[0], false);
-
-        // check fully opaque 1x1 image
-        let s2 = get_source_from_png_file_input(r"./test/test_rgba_1x1_90_percent_opaque.png").unwrap();
-        assert_eq!(s2.data[0], true);
-
-        // check checkered 2x2 image
-        let s3 = get_source_from_png_file_input(r"./test/test_rgba_2x2_checkerboard.png").unwrap();
-        assert_eq!(s3.data[0], true); // tl
-        assert_eq!(s3.data[1], false); // tr
-        assert_eq!(s3.data[2], false); // bl
-        assert_eq!(s3.data[3], true); // br
-    }
 }

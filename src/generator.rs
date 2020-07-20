@@ -68,7 +68,7 @@ impl DistanceGenerator {
                 panic!("no processor specified");
             }
 
-            // we should test and maybe micro-benchmark at least two known approaches here:
+            // we should tests and maybe micro-benchmark at least two known approaches here:
             // 1) brute force O(n²)
             // 2) the old EightPointSeqEuclideanDistTrans O(n)
 
@@ -108,11 +108,11 @@ mod tests {
     }
 
     /*
-    #[test]
+    #[tests]
     fn generates_output_file() {
         let outputPath = r"output\test_output.png";
         let res = DistanceGenerator::new()
-            .input(r"test\example_1_rgba_512x512.png")
+            .input(r"tests\example_1_rgba_512x512.png")
             .output(outputPath).generate();
         let f = File::open(outputPath);
         assert!(f.is_ok(), "output file was not generated");

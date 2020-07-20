@@ -303,8 +303,8 @@ mod tests {
         ], 3, 3)
     }
 
-    /* TODO: reactivate this test !
-    #[test]
+    /* TODO: reactivate this tests !
+    #[tests]
     fn generates_buffer_with_additional_border() {
         let b_1x1_empty = init_buffer(&get_source_1_1_empty(), 0, 0);
         assert_eq!(b_1x1_empty.len(), 3 * 3);
@@ -317,8 +317,8 @@ mod tests {
     }
      */
 
-    /* TODO: reactivate this test
-    #[test]
+    /* TODO: reactivate this tests
+    #[tests]
     fn get_filled_buffer_for_outer_distance() {
         let b = init_buffer_for_outer_distances(&get_source_2_2_checker());
         let m = u8::MAX;
@@ -331,8 +331,8 @@ mod tests {
     }
      */
 
-    /* TODO: reactivate this test
-    #[test]
+    /* TODO: reactivate this tests
+    #[tests]
     fn get_filled_buffer_for_inner_distance() {
         let b = init_buffer_for_inner_distances(&get_source_2_2_checker());
         let m = u8::MAX;
@@ -345,8 +345,8 @@ mod tests {
     }
      */
 
-    /* TODO: reactivate this test
-    #[test]
+    /* TODO: reactivate this tests
+    #[tests]
     fn gets_correct_distance_field_size_from_oversize_buffer() {
         let b_filled = init_buffer_for_outer_distances(&get_source_1_1_filled());
         let df_filled = get_df_from_buffer(&b_filled, 1, 1);
@@ -360,8 +360,8 @@ mod tests {
     }
      */
 
-    /* TODO: reactivate this test
-    #[test]
+    /* TODO: reactivate this tests
+    #[tests]
     fn generates_outer_distance_field() {
         let df_checker = generate_outer_df(&get_source_2_2_checker());
         assert_eq!(df_checker.data, vec![0, 1, 1, 0]);
@@ -382,8 +382,8 @@ mod tests {
     }
      */
 
-    /* TODO: reactivate this test
-    #[test]
+    /* TODO: reactivate this tests
+    #[tests]
     fn generates_inner_distance_field() {
         let df_checker = generate_inner_df(&get_source_2_2_checker());
         assert_eq!(df_checker.data, vec![1, 0, 0, 1]);
@@ -405,7 +405,7 @@ mod tests {
 // TODO: generate signed distance field
 // TODO: check for max ranges and clamping
     /*
-    #[test]
+    #[tests]
     fn generates_signed_distance_field_i8_3x3() {
         let b = vec![0, 0, 0, 0, 1, 0, 0, 0, 0];
         let s = SourceField::new(&b,3,3);
