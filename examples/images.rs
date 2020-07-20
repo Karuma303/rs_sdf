@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use rs_sdf_gen::generator::{DistanceGenerator, ExportType};
 use rs_sdf_gen::input::PngInput;
-use rs_sdf_gen::output::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
+use rs_sdf_gen::output::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
 use rs_sdf_gen::processor::sweep::EightSideSweepProcessor;
 
 const BASE_ASSET_FOLDER: &str = r"assets";
@@ -18,22 +18,50 @@ const BASE_OUTPUT_FOLDER: &str = r"output";
 /// ´cargo run --example images´
 ///
 fn main() {
-    /*
+
+    // 1. Demonstrate different export types for the same input image
+
+    // 1.1. Export PNG with 8-bit inner distance
+    generate_sdf("example_1_rgba_512x512.png",
+                 "example_1_512x512.png",
+                 ExportType::UnsignedInnerDistance,
+                 ImageOutputChannels::One);
+
+    // 1.2. Export PNG with 8-bit outer distance
+    generate_sdf("example_1_rgba_512x512.png",
+                 "example_1_512x512.png",
+                 ExportType::UnsignedOuterDistance,
+                 ImageOutputChannels::One);
+
+    // 1.3. Export PNG with 8-bit inner and outer distance (distances added in one channel)
+    generate_sdf("example_1_rgba_512x512.png",
+                 "example_1_512x512.png",
+                 ExportType::UnsignedInnerOuterDistance,
+                 ImageOutputChannels::One);
+
+    // 2. Demonstrate single- and dual-channel export
+
+    // 2.1. Export PNG with inner and outer distance added together in one 8-bit channel
+    generate_sdf("example_2_rgba_512x512.png",
+                 "example_2_512x512.png",
+                 ExportType::UnsignedInnerOuterDistance,
+                 ImageOutputChannels::One);
+
+    // 2.2. Export PNG with inner and outer distance separated to two 8-bit channels
     generate_sdf("example_2_rgba_512x512.png",
                  "example_2_512x512_2_channel.png",
-    */
+                 ExportType::UnsignedInnerOuterDistance,
+                 ImageOutputChannels::Two);
 
+
+    // another example...
     generate_sdf("example_8_rgba_512x512.png",
                  "example_8_512x512.png",
                  ExportType::UnsignedInnerOuterDistance,
                  ImageOutputChannels::One);
 
     /*
-    generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png", ExportType::UnsignedInnerDistance, ImageOutputChannels::One);
-    generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png", ExportType::UnsignedOuterDistance,ImageOutputChannels::One);
-    generate_sdf("example_1_rgba_512x512.png", "example_1_512x512.png", ExportType::UnsignedInnerOuterDistance,ImageOutputChannels::One);
 
-    generate_sdf("example_2_rgba_512x512.png", "example_2_512x512.png", ExportType::UnsignedInnerOuterDistance,ImageOutputChannels::One);
 
     generate_sdf("example_3_rgba_512x512.png", "example_3_512x512.png", ExportType::UnsignedInnerOuterDistance,ImageOutputChannels::One);
 
@@ -60,8 +88,6 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str, export_type: E
 
     let target_image_path = get_output_image_file_path(target_image_name, &prefix);
 
-    // let target_image_path = BASE_OUTPUT_FOLDER.to_owned().clone() + "odf_" + target_image_name;
-
     let g = DistanceGenerator::new()
         .input(PngInput::new(&source_image_path))
         .output(PngOutput::new(&target_image_path,
@@ -72,38 +98,6 @@ fn generate_sdf(source_image_name: &str, target_image_name: &str, export_type: E
 
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);
-    /*
-        // let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "idf_" + target_image_name;
-        let target_image_path = get_output_image_file_path(target_image_name, "idf");
-
-        let g = g.output(PngOutput::new(&target_image_path,
-                                        ImageOutputChannels::One,
-                                        ImageOutputChannelDepth::Eight))
-            .export_type(ExportType::UnsignedInnerDistance);
-
-        let result = g.generate();
-        display_result(&result, &source_image_path, &target_image_path);
-
-        // let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "cdf_" + target_image_name;
-        let target_image_path = get_output_image_file_path(target_image_name, "cdf");
-        let g = g.output(PngOutput::new(&target_image_path,
-                                        ImageOutputChannels::One,
-                                        ImageOutputChannelDepth::Eight))
-            .export_type(ExportType::UnsignedInnerOuterDistance);
-
-        let result = g.generate();
-        display_result(&result, &source_image_path, &target_image_path);
-    */
-    /* example for 16-bit / single channel output
-    let target_image_path = BASE_OUTPUT_PATH.to_owned().clone() + "cdf_16_" + target_image_name;
-    let g = g.output(PngOutput::new(&target_image_path,
-                                    ImageOutputChannels::One,
-                                    ImageOutputChannelDepth::Sixteen))
-        .export_type(ExportType::UnsignedInnerOuterDistance);
-
-    let result = g.generate();
-    display_result(&result, &source_image_path, &target_image_path);
-    */
 }
 
 fn get_output_image_file_path(filename: &str, prefix: &str) -> String {

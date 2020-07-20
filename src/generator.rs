@@ -2,7 +2,7 @@ use std::result::Result::Err;
 
 use crate::df::{DistanceField, SourceProcessor};
 use crate::input::FieldInput;
-use crate::output::FieldOutput;
+use crate::output::image::FieldOutput;
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn FieldInput>>,
