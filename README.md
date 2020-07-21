@@ -1,3 +1,5 @@
+![rs_sdf logo](doc/images/rs_sdf_logo.png)
+
 [![Actions Status](https://github.com/Karuma303/rs_sdf/workflows/Rust/badge.svg)](https://github.com/Karuma303/rs_sdf/actions) 
 ![GitHub](https://img.shields.io/github/license/karuma303/rs_sdf)
 
