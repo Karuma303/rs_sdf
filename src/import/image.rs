@@ -85,6 +85,6 @@ pub fn get_source_from_png_file_input(file_path: &str) -> Result<SourceField, Fi
         *element = image_buffer[index * 4 + 3];
     }
 
-    let source = SourceField::new(&output_buffer, info.width, info.height);
+    let source = SourceField::from_bytes(&output_buffer, 127, info.width, info.height);
     Ok(source)
 }

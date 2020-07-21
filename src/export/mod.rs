@@ -7,4 +7,3 @@ pub mod image;
 pub trait DistanceFieldExporter {
     fn export(&self, df: &DistanceField);
 }
-
