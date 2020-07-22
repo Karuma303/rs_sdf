@@ -2,7 +2,7 @@ use png::{Encoder, ColorType, Compression, BitDepth, FilterType};
 use std::io::{BufWriter};
 use std::fs::File;
 use crate::distance_field::{DistanceField, Cell, CellLayer};
-use crate::export::DistanceFieldExporter;
+use crate::export::{DistanceFieldExporter, ExportType};
 
 pub enum ImageOutputChannelDepth {
     Eight = 8,
@@ -123,10 +123,13 @@ impl PngOutput {
 }
 
 impl DistanceFieldExporter for PngOutput {
-    fn export(&self, df: &DistanceField) {
+    fn export(&self, distance_field: &DistanceField, export_type : &ExportType) {
+
+        // TODO: handle export type here
+
         let e = get_standard_encoder(&self.file_path,
-                                     df.width,
-                                     df.height,
+                                     distance_field.width,
+                                     distance_field.height,
                                      &self.channel_depth, &self.num_channels);
 
         let mut writer = e.write_header().unwrap();
@@ -135,10 +138,10 @@ impl DistanceFieldExporter for PngOutput {
 
         match &self.num_channels {
             ImageOutputChannels::One => {
-                self.output_single_channel(&df, &mut data)
+                self.output_single_channel(&distance_field, &mut data)
             }
             ImageOutputChannels::Two => {
-                self.output_dual_channel(&df, &mut data)
+                self.output_dual_channel(&distance_field, &mut data)
             }
         }
 

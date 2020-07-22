@@ -5,7 +5,7 @@ pub mod image;
 
 /// Exporter for a distance field
 pub trait DistanceFieldExporter {
-    fn export(&self, df: &DistanceField);
+    fn export(&self, distance_field: &DistanceField, export_type: &ExportType);
 }
 
 pub enum ExportType {
@@ -15,7 +15,7 @@ pub enum ExportType {
 
     /// The squared euclidean distance to the nearest cell.
     /// The distance is a single, unsigned value.
-    EuclideanDistanceSquared, // (single value)
+    EuclideanDistanceSquared,
 
     /// The Chebyshev distance (also known as the chessboard distance) to the nearest cell.
     /// It is defined as the minimum of the horizontal distance and the vertical distance.
@@ -44,3 +44,12 @@ pub enum ExportType {
     /// This is a tuple of unsigned values.
     NearestCellPosition,
 }
+
+// TODO: should be moved to export module and renamed !
+#[derive(Clone)]
+pub enum ExportSelection {
+    UnsignedInnerDistance,
+    UnsignedOuterDistance,
+    UnsignedInnerOuterDistance,
+}
+
