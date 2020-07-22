@@ -120,11 +120,7 @@ mod tests {
 
     #[test]
     fn correct_nearest_cells_for_single_centered_dot() {
-        let b = vec![
-            false, false, false,
-            false, true, false,
-            false, false, false];
-        let s = SourceField::from_booleans(&b, 3, 3);
+        let s = get_source_3_3_centered_dot();
         let processor = EightSideSweepProcessor {};
         let df = processor.process(&s);
 
