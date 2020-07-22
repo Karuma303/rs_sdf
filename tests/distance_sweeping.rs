@@ -2,13 +2,7 @@
 mod tests {
     use rs_sdf::source::SourceField;
     use rs_sdf::processor::sweep::EightSideSweepProcessor;
-    use rs_sdf::generator::DistanceGenerator;
     use rs_sdf::distance_field::{SourceProcessor};
-
-    // helper method to get an empty source field
-    fn get_source_0_0() -> SourceField {
-        SourceField::from_booleans(&[], 0, 0)
-    }
 
     // helper method to get an empty 1x1 source field
     fn get_source_1_1_empty() -> SourceField {
@@ -47,118 +41,85 @@ mod tests {
         ], 127, 3, 3)
     }
 
-    /* TODO: reactivate this tests !
-    #[test]
-    fn generates_buffer_with_additional_border() {
-        let b_1x1_empty = init_buffer(&get_source_1_1_empty(), 0, 0);
-        assert_eq!(b_1x1_empty.len(), 3 * 3);
-
-        let b_1x1_filled = init_buffer(&get_source_1_1_filled(), 0, 0);
-        assert_eq!(b_1x1_filled.len(), 3 * 3);
-
-        let b_2x2 = init_buffer(&get_source_2_2_checker(), 0, 0);
-        assert_eq!(b_2x2.len(), 4 * 4);
+    // helper method to get a 3x3 source field with just a centered dot (other cells are empty)
+    fn get_source_3_3_centered_dot() -> SourceField {
+        SourceField::from_booleans(&[
+            false, false, false,
+            false, true, false,
+            false, false, false], 3, 3)
     }
-     */
 
-    /* TODO: reactivate this tests
     #[test]
-    fn get_filled_buffer_for_outer_distance() {
-        let b = init_buffer_for_outer_distances(&get_source_2_2_checker());
-        let m = u8::MAX;
-        assert_eq!(b, [
-            m, m, m, m,
-            m, 0, m, m,
-            m, m, 0, m,
-            m, m, m, m,
-        ]);
+    fn correct_nearest_cells_for_1x1_source() {
+        let s = get_source_1_1_empty();
+        let p = EightSideSweepProcessor {};
+        let df = p.process(&s);
+
+        assert!(df.data[0].nearest_cell_position.is_none());
+
+        let s = get_source_1_1_filled();
+        let p = EightSideSweepProcessor {};
+        let df = p.process(&s);
+
+        assert!(df.data[0].nearest_cell_position.is_none());
     }
-     */
 
-    /* TODO: reactivate this tests
     #[test]
-    fn get_filled_buffer_for_inner_distance() {
-        let b = init_buffer_for_inner_distances(&get_source_2_2_checker());
-        let m = u8::MAX;
-        assert_eq!(b, [
-            0, 0, 0, 0,
-            0, m, 0, 0,
-            0, 0, m, 0,
-            0, 0, 0, 0,
-        ]);
+    fn correct_nearest_cells_for_2x2_checker() {
+        let s = get_source_2_2_checker();
+        let p = EightSideSweepProcessor {};
+        let df = p.process(&s);
+
+        // we cannot make assumptions here, what the exact nearest cell for each
+        // point in the field will be, so we just check for not equality
+        // with the cell itself and the other cell from the same layer.
+
+        assert!(df.data[0].nearest_cell_position.is_some());
+        assert!(df.data[1].nearest_cell_position.is_some());
+        assert!(df.data[2].nearest_cell_position.is_some());
+        assert!(df.data[3].nearest_cell_position.is_some());
+
+        assert_ne!(df.data[0].nearest_cell_position.unwrap(), (1, 1));
+        assert_ne!(df.data[0].nearest_cell_position.unwrap(), (0, 0));
+
+        assert_ne!(df.data[1].nearest_cell_position.unwrap(), (1, 0));
+        assert_ne!(df.data[1].nearest_cell_position.unwrap(), (0, 1));
+
+        assert_ne!(df.data[2].nearest_cell_position.unwrap(), (1, 0));
+        assert_ne!(df.data[2].nearest_cell_position.unwrap(), (0, 1));
+
+        assert_ne!(df.data[3].nearest_cell_position.unwrap(), (1, 1));
+        assert_ne!(df.data[3].nearest_cell_position.unwrap(), (0, 0));
     }
-     */
 
-    /* TODO: reactivate this tests
     #[test]
-    fn gets_correct_distance_field_size_from_oversize_buffer() {
-        let b_filled = init_buffer_for_outer_distances(&get_source_1_1_filled());
-        let df_filled = get_df_from_buffer(&b_filled, 1, 1);
-        assert_eq!(df_filled.data.len(), 1);
-        assert_eq!(df_filled.data[0], 0);
+    fn correct_nearest_cells_for_3x3_empty() {
+        let s = get_source_3_3_empty();
+        let p = EightSideSweepProcessor {};
+        let df = p.process(&s);
 
-        let b_empty = init_buffer_for_outer_distances(&get_source_1_1_empty());
-        let df_filled = get_df_from_buffer(&b_empty, 1, 1);
-        assert_eq!(df_filled.data.len(), 1);
-        assert_eq!(df_filled.data[0], u8::MAX);
+        // totally empty or filled source fields will generate no meaningful output
+        // because we cannot detect where the nearest cells are
+        for n in 0..9 {
+            assert_eq!(df.data[n].nearest_cell_position, None);
+        }
     }
-     */
 
-    /* TODO: reactivate this tests
     #[test]
-    fn generates_outer_distance_field() {
-        let df_checker = generate_outer_df(&get_source_2_2_checker());
-        assert_eq!(df_checker.data, vec![0, 1, 1, 0]);
+    fn correct_nearest_cells_for_3x3_filled() {
+        let s = get_source_3_3_filled();
+        let p = EightSideSweepProcessor {};
+        let df = p.process(&s);
 
-        let df_empty = generate_outer_df(&get_source_1_1_empty());
-        assert_eq!(df_empty.data, vec![u8::MAX]);
-
-        let df_empty_big = generate_outer_df(&get_source_3_3_empty());
-        assert_eq!(df_empty_big.data, vec![u8::MAX, u8::MAX, u8::MAX,
-                                           u8::MAX, u8::MAX, u8::MAX,
-                                           u8::MAX, u8::MAX, u8::MAX]);
-
-        let df_filled = generate_outer_df(&get_source_1_1_filled());
-        assert_eq!(df_filled.data, vec![0]);
-
-        let df_filled_big = generate_outer_df(&get_source_3_3_filled());
-        assert_eq!(df_filled_big.data, vec![0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        // totally empty or filled source fields will generate no meaningful output
+        // because we cannot detect where the nearest cells are
+        for n in 0..9 {
+            assert_eq!(df.data[n].nearest_cell_position, None);
+        }
     }
-     */
 
-    /* TODO: reactivate this tests
     #[test]
-    fn generates_inner_distance_field() {
-        let df_checker = generate_inner_df(&get_source_2_2_checker());
-        assert_eq!(df_checker.data, vec![1, 0, 0, 1]);
-
-        let df_empty = generate_inner_df(&get_source_1_1_empty());
-        assert_eq!(df_empty.data, vec![0]);
-
-        let df_empty_big = generate_inner_df(&get_source_3_3_empty());
-        assert_eq!(df_empty_big.data, vec![0, 0, 0, 0, 0, 0, 0, 0, 0]);
-
-        let df_filled = generate_inner_df(&get_source_1_1_filled());
-        assert_eq!(df_filled.data, vec![1]);
-
-        let df_filled_big = generate_inner_df(&get_source_3_3_filled());
-        assert_eq!(df_filled_big.data, vec![1, 1, 1, 1, 2, 1, 1, 1, 1]);
-    }
-     */
-
-    // TODO: generate signed distance field
-// TODO: check for max ranges and clamping
-    /*
-    #[test]
-    fn generates_signed_distance_field_i8_3x3() {
-        let b = vec![0, 0, 0, 0, 1, 0, 0, 0, 0];
-        let s = SourceField::new(&b,3,3);
-        let df = generate_sdf(&s);
-        assert!(df.data == vec![2, 1, 2, 1, -1, 1, 2, 1, 2]);
-    }
-     */
-    #[test]
-    fn generates_correct_distances() {
+    fn correct_nearest_cells_for_single_centered_dot() {
         let b = vec![
             false, false, false,
             false, true, false,
@@ -167,11 +128,19 @@ mod tests {
         let processor = EightSideSweepProcessor {};
         let df = processor.process(&s);
 
-        assert_eq!(df.width, 3);
-        assert_eq!(df.height, 3);
-
         assert_eq!(df.data[0].get_nearest_cell_position(), Some((1, 1)));
+        assert_eq!(df.data[1].get_nearest_cell_position(), Some((1, 1)));
+        assert_eq!(df.data[2].get_nearest_cell_position(), Some((1, 1)));
 
-        // TODO: we should add more assertions here !
+        assert_eq!(df.data[3].get_nearest_cell_position(), Some((1, 1)));
+        // because the center "dot" has many nearest cells we cannot
+        // predict the exact one that was set during sweeping,
+        // so we just test for is_some() here!
+        assert!(df.data[4].get_nearest_cell_position().is_some());
+        assert_eq!(df.data[5].get_nearest_cell_position(), Some((1, 1)));
+
+        assert_eq!(df.data[6].get_nearest_cell_position(), Some((1, 1)));
+        assert_eq!(df.data[7].get_nearest_cell_position(), Some((1, 1)));
+        assert_eq!(df.data[8].get_nearest_cell_position(), Some((1, 1)));
     }
 }
