@@ -239,7 +239,8 @@ impl EightSideSweepProcessor {
     }
 
     // new
-    fn get_distance_field_from_buffer(&self, buffer: &Vec<Cell>, width: u32, height: u32) -> DistanceField {
+    fn get_distance_field_from_buffer(&self, buffer: &[Cell], width: u32, height: u32) -> DistanceField {
+        /*
         print!("None: ");
         buffer.iter().enumerate().for_each(|(index, cell)| {
             if cell.nearest_cell_position.is_none() {
@@ -247,11 +248,12 @@ impl EightSideSweepProcessor {
             }
         });
         println!();
+         */
 
         DistanceField {
             width,
             height,
-            data: buffer.clone(),
+            data: Vec::from(buffer),
         }
     }
 }

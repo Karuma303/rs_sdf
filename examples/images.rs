@@ -66,6 +66,13 @@ fn main() {
                  ImageOutputChannelDepth::Eight,
                  ImageOutputChannels::One);
 
+    generate_sdf("example_10_rgba_3100x900.png",
+                 "example_10_3100x900.png",
+                 ExportType::UnsignedOuterDistance,
+                 ImageOutputChannelDepth::Eight,
+                 ImageOutputChannels::One);
+
+
     /*
 
 
