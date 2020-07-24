@@ -60,8 +60,8 @@ impl Cell {
     pub fn get_distance_squared(first_x: &u16, first_y: &u16, second_x: &u16, second_y: &u16) -> u32 {
         // TODO: we should check all the casts here
         // TODO: maybe use appropriate rust functions here
-        let horiz_dist = i32::from(first_x.clone()) - i32::from(second_x.clone());
-        let vert_dist = i32::from(first_y.clone()) - i32::from(second_y.clone());
+        let horiz_dist = i32::from(*first_x) - i32::from(*second_x);
+        let vert_dist = i32::from(*first_y) - i32::from(*second_y);
         horiz_dist.pow(2) as u32 + vert_dist.pow(2) as u32
     }
 }
@@ -124,19 +124,18 @@ impl DistanceField {
             .enumerate()
             .map(
                 |(y, row_values)| {
-                    let row_vector = row_values
+                    row_values
                         .iter()
                         .enumerate()
                         .map(
                             move |(x, &value)| {
                                 Cell {
-                                    x: x.clone() as u16,
-                                    y: y.clone() as u16,
+                                    x: x as u16,
+                                    y: y as u16,
                                     nearest_cell_position: None,
                                     layer: if value { CellLayer::Foreground } else { CellLayer::Background },
                                 }
-                            });
-                    row_vector
+                            })
                 })
             .flatten()
             .collect();
