@@ -5,9 +5,15 @@ pub mod image;
 
 /// Exporter for a distance field
 pub trait DistanceFieldExporter {
-    fn export(&self, distance_field: &DistanceField, export_type: &ExportType);
+    fn export(
+        &self,
+        distance_field: &DistanceField,
+        export_type: &ExportType,
+        export_filter: &ExportFilter,
+    );
 }
 
+/// Specification of the exported value.
 pub enum ExportType {
     /// The euclidean distance to the nearest cell.
     /// The distance is a single, unsigned value.
@@ -45,11 +51,10 @@ pub enum ExportType {
     NearestCellPosition,
 }
 
-// TODO: should be moved to export module and renamed !
 #[derive(Clone)]
-pub enum ExportSelection {
-    UnsignedInnerDistance,
-    UnsignedOuterDistance,
-    UnsignedInnerOuterDistance,
+pub enum ExportFilter {
+    Foreground,
+    Background,
+    All,
 }
 

@@ -82,19 +82,15 @@ http://webstaff.itn.liu.se/~stegu/edtaa/
 
 ##### Current version
 ```rust
-let gen = DistanceGenerator::new()
-            .input("/path")
-            .output("/path")
-            .generate();
-
-    let gen = DistanceGenerator::new()
-        .input("/input/file/path.png")
-        .output(PngOutput::new("/"doc/images/file/path.png",
-                               ImageOutputChannels::Two,
+    let g : DistanceGenerator = DistanceGenerator::new()
+        .input(PngInput::new("example/image.png"))
+        .output(PngOutput::new("example/image_generated.png",
+                               ImageOutputChannels::One,
                                ImageOutputChannelDepth::Eight))
-        .export_type(ExportType::UnsignedInnerOuterDistance)
-        .processor(EightSideSweepProcessor{})
-        .generate();
+        .export_filter(ExportFilter::Foreground)
+        .processor(EightSideSweepProcessor {});
+
+    let result = g.generate();
 ```
 
 ## Input

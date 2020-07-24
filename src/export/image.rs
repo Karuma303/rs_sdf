@@ -1,8 +1,10 @@
-use png::{Encoder, ColorType, Compression, BitDepth, FilterType};
-use std::io::{BufWriter};
 use std::fs::File;
-use crate::distance_field::{DistanceField, Cell, CellLayer};
-use crate::export::{DistanceFieldExporter, ExportType};
+use std::io::BufWriter;
+
+use png::{BitDepth, ColorType, Compression, Encoder, FilterType};
+
+use crate::distance_field::{Cell, CellLayer, DistanceField};
+use crate::export::{DistanceFieldExporter, ExportFilter, ExportType};
 
 pub enum ImageOutputChannelDepth {
     Eight = 8,
@@ -22,7 +24,7 @@ pub struct PngOutput {
 }
 
 impl PngOutput {
-    pub fn new(file_path: &String,
+    pub fn new(file_path: &str,
                num_channels: ImageOutputChannels,
                channel_depth: ImageOutputChannelDepth) -> Self {
         Self {
@@ -61,6 +63,31 @@ impl PngOutput {
         }
         // TODO: We should think about the best behaviour of the None case here. For now, we just return 0.
         (0, 0)
+    }
+
+    fn output_df(&self, df: &DistanceField, _export_type: &ExportType) {
+
+        // TODO: handle export_type !
+
+        let e = get_standard_encoder(&self.file_path,
+                                     df.width,
+                                     df.height,
+                                     &self.channel_depth, &self.num_channels);
+
+        let mut writer = e.write_header().unwrap();
+
+        let mut data: Vec<u8> = Vec::new();
+
+        match &self.num_channels {
+            ImageOutputChannels::One => {
+                self.output_single_channel(df, &mut data)
+            }
+            ImageOutputChannels::Two => {
+                self.output_dual_channel(df, &mut data)
+            }
+        }
+
+        writer.write_image_data(&data).unwrap(); // Save
     }
 
     fn output_single_channel(&self, df: &DistanceField, buffer: &mut Vec<u8>) {
@@ -123,47 +150,19 @@ impl PngOutput {
 }
 
 impl DistanceFieldExporter for PngOutput {
-    fn export(&self, distance_field: &DistanceField, export_type : &ExportType) {
-
-        // TODO: handle export type here
-
-        let e = get_standard_encoder(&self.file_path,
-                                     distance_field.width,
-                                     distance_field.height,
-                                     &self.channel_depth, &self.num_channels);
-
-        let mut writer = e.write_header().unwrap();
-
-        let mut data: Vec<u8> = Vec::new();
-
-        match &self.num_channels {
-            ImageOutputChannels::One => {
-                self.output_single_channel(&distance_field, &mut data)
-            }
-            ImageOutputChannels::Two => {
-                self.output_dual_channel(&distance_field, &mut data)
-            }
-        }
-
-        writer.write_image_data(&data).unwrap(); // Save
+    fn export(&self,
+              distance_field: &DistanceField,
+              export_type: &ExportType,
+              export_filter: &ExportFilter) {
+        match export_filter {
+            ExportFilter::Background => self.output_df(&DistanceField::filter_outer(distance_field), export_type),
+            ExportFilter::Foreground => self.output_df(&DistanceField::filter_outer(distance_field), export_type),
+            ExportFilter::All => self.output_df(distance_field, export_type),
+        };
     }
-
-    /*
-    fn output_i8(&self, df : DistanceField<i8>) {
-        let e = get_standard_encoder(&self.file_path, df.width, df.height);
-
-        let mut writer = e.write_header().unwrap();
-
-        let dest = &df.data
-            .iter()
-            .map(|element| element.clone() as u8)
-            .collect::<Vec<u8>>();
-        writer.write_image_data(&dest).unwrap(); // Save
-    }
-    */
 }
 
-fn get_standard_encoder(file_path: &String,
+fn get_standard_encoder(file_path: &str,
                         width: u32,
                         height: u32,
                         channel_depth: &ImageOutputChannelDepth,

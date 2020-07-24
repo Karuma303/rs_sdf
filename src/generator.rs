@@ -1,15 +1,15 @@
 use std::result::Result::Err;
 
-use crate::distance_field::{DistanceField, SourceProcessor};
+use crate::distance_field::{SourceProcessor};
 use crate::import::FieldInput;
-use crate::export::{DistanceFieldExporter, ExportSelection, ExportType};
+use crate::export::{DistanceFieldExporter, ExportFilter, ExportType};
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn FieldInput>>,
     output: Option<Box<dyn DistanceFieldExporter>>,
     processor: Option<Box<dyn SourceProcessor>>,
     export_type: ExportType,
-    export_selection: ExportSelection,
+    export_filter: ExportFilter,
 }
 
 impl DistanceGenerator {
@@ -19,7 +19,7 @@ impl DistanceGenerator {
             output: None,
             processor: None,
             export_type: ExportType::EuclideanDistance,
-            export_selection: ExportSelection::UnsignedInnerOuterDistance,
+            export_filter: ExportFilter::All,
         }
     }
 
@@ -38,8 +38,8 @@ impl DistanceGenerator {
         self
     }
 
-    pub fn export_selection(mut self, export_selection: ExportSelection) -> Self {
-        self.export_selection = export_selection;
+    pub fn export_filter(mut self, export_selection: ExportFilter) -> Self {
+        self.export_filter = export_selection;
         self
     }
 
@@ -54,19 +54,11 @@ impl DistanceGenerator {
             let source = input.get_source_field().unwrap();
 
             if let Some(processor) = &self.processor {
-                let mut df = processor.process(&source);
+                let df = processor.process(&source);
 
                 if let Some(output) = &self.output {
-                    match self.export_selection {
-                        ExportSelection::UnsignedOuterDistance => {
-                            df = DistanceField::filter_outer(&df);
-                        }
-                        ExportSelection::UnsignedInnerDistance => {
-                            df = DistanceField::filter_inner(&df)
-                        }
-                        ExportSelection::UnsignedInnerOuterDistance => {}
-                    };
-                    output.export(&df, &self.export_type);
+
+                    output.export(&df, &self.export_type, &self.export_filter);
                 } else {
                     panic!("no export file specified");
                 }
