@@ -36,6 +36,14 @@ impl PngOutput {
     }
 }
 
+fn cast_to_byte(value: u16) -> u8 {
+    if value > 255u16 {
+        255u8
+    } else {
+        value as u8
+    }
+}
+
 impl PngOutput {
     fn output_df(&self, df: &DistanceField, distance_type: &DistanceType) {
 
@@ -63,6 +71,7 @@ impl PngOutput {
         writer.write_image_data(&data).unwrap(); // Save
     }
 
+
     fn output_single_channel(&self, df: &DistanceField, distance_type: &DistanceType, buffer: &mut Vec<u8>) {
         // inner / outer / combined ?
 
@@ -71,16 +80,16 @@ impl PngOutput {
         // 8 bit / 16 bit
         match &self.channel_depth {
             ImageOutputChannelDepth::Eight => {
-                let function = distance_type.calculator_8_bit();
+                let function = distance_type.calculation_function();
                 df.data.iter().for_each(|cell: &Cell| {
                     // TODO: right now, we just add the inner distances and the outer distances
                     // We should add a feature to generate real 8-bit-signed distance field here!
                     // buffer.push(self.get_8_bit_distance(&cell));
-                    buffer.push(function(&cell));
+                    buffer.push(cast_to_byte(function(&cell)));
                 });
             }
             ImageOutputChannelDepth::Sixteen => {
-                let function = distance_type.calculator_16_bit();
+                let function = distance_type.calculation_function();
                 df.data.iter().for_each(|cell: &Cell| {
                     let distance = function(&cell);
                     buffer.push((distance >> 8) as u8);
@@ -98,10 +107,10 @@ impl PngOutput {
         // inner and outer go on a separate channel
         match &self.channel_depth {
             ImageOutputChannelDepth::Eight => {
-                let function = distance_type.calculator_8_bit();
+                let function = distance_type.calculation_function();
                 df.data.iter().for_each(|cell: &Cell| {
                     // let distance = self.get_8_bit_distance(&cell);
-                    let distance = function(&cell);
+                    let distance = cast_to_byte(function(&cell));
                     match cell.layer {
                         CellLayer::Foreground => {
                             buffer.push(distance);
@@ -117,7 +126,7 @@ impl PngOutput {
                 });
             }
             ImageOutputChannelDepth::Sixteen => {
-                let function = distance_type.calculator_16_bit();
+                let function = distance_type.calculation_function();
                 df.data.iter().for_each(|cell: &Cell| {
                     // let distance = self.get_8_bit_distance(&cell);
                     let distance = function(&cell);

@@ -1,5 +1,5 @@
-use crate::data::{DistanceField, Cell};
-use crate::distance::{DistanceType, CalculationFunction8, CalculationFunction16};
+use crate::data::{DistanceField};
+use crate::distance::{DistanceType};
 
 /// Module for image based export functionality
 pub mod image;
