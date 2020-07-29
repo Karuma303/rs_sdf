@@ -2,7 +2,9 @@
 //! distance fields.
 
 /// Core data structures for distance fields
-pub mod distance_field;
+pub mod data;
+
+pub mod distance;
 
 pub mod source;
 

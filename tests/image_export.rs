@@ -2,9 +2,10 @@
 mod tests {
     use std::path::{Path, PathBuf};
     use std::fs::{remove_file, create_dir_all, remove_dir};
-    use rs_sdf::distance_field::{DistanceField, Cell, CellLayer};
+    use rs_sdf::data::{DistanceField, Cell, CellLayer};
     use rs_sdf::export::image::{PngOutput, ImageOutputChannels, ImageOutputChannelDepth};
-    use rs_sdf::export::{DistanceFieldExporter, ExportType, ExportFilter};
+    use rs_sdf::export::{DistanceFieldExporter, ExportFilter};
+    use rs_sdf::distance::DistanceType;
 
     const TEMP_DIR: &str = r"__tmp__output__dir__/";
     const TEMP_IMAGE_FILE: &str = r"image.png";
@@ -48,7 +49,7 @@ mod tests {
             ImageOutputChannels::One,
             ImageOutputChannelDepth::Eight);
 
-        out.export(&d, &ExportType::EuclideanDistance, &ExportFilter::All);
+        out.export(&d, &DistanceType::EuclideanDistance, &ExportFilter::All);
 
         assert!(get_temp_image_path().is_file());
 

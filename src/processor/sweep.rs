@@ -1,5 +1,6 @@
-use crate::distance_field::{Cell, CellLayer, DistanceField, SourceProcessor};
+use crate::data::{Cell, CellLayer, DistanceField};
 use crate::source::SourceField;
+use crate::processor::SourceProcessor;
 
 pub struct EightSideSweepProcessor;
 

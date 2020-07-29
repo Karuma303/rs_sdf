@@ -1,14 +1,15 @@
 use std::result::Result::Err;
 
-use crate::distance_field::{SourceProcessor};
 use crate::import::FieldInput;
-use crate::export::{DistanceFieldExporter, ExportFilter, ExportType};
+use crate::export::{DistanceFieldExporter, ExportFilter};
+use crate::processor::SourceProcessor;
+use crate::distance::DistanceType;
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn FieldInput>>,
     output: Option<Box<dyn DistanceFieldExporter>>,
     processor: Option<Box<dyn SourceProcessor>>,
-    export_type: ExportType,
+    distance_type: DistanceType,
     export_filter: ExportFilter,
 }
 
@@ -18,7 +19,7 @@ impl DistanceGenerator {
             input: None,
             output: None,
             processor: None,
-            export_type: ExportType::EuclideanDistance,
+            distance_type: DistanceType::EuclideanDistance,
             export_filter: ExportFilter::All,
         }
     }
@@ -43,8 +44,8 @@ impl DistanceGenerator {
         self
     }
 
-    pub fn export_type(mut self, export_type : ExportType) -> Self {
-        self.export_type = export_type;
+    pub fn distance_type(mut self, export_type: DistanceType) -> Self {
+        self.distance_type = export_type;
         self
     }
 
@@ -57,8 +58,7 @@ impl DistanceGenerator {
                 let df = processor.process(&source);
 
                 if let Some(output) = &self.output {
-
-                    output.export(&df, &self.export_type, &self.export_filter);
+                    output.export(&df, &self.distance_type, &self.export_filter);
                 } else {
                     panic!("no export file specified");
                 }

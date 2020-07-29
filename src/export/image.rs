@@ -3,8 +3,9 @@ use std::io::BufWriter;
 
 use png::{BitDepth, ColorType, Compression, Encoder, FilterType};
 
-use crate::distance_field::{Cell, CellLayer, DistanceField};
-use crate::export::{DistanceFieldExporter, ExportFilter, ExportType};
+use crate::data::{Cell, CellLayer, DistanceField};
+use crate::export::{DistanceFieldExporter, ExportFilter};
+use crate::distance::DistanceType;
 
 pub enum ImageOutputChannelDepth {
     Eight = 8,
@@ -36,43 +37,15 @@ impl PngOutput {
 }
 
 impl PngOutput {
-    fn get_8_bit_distance(&self, cell: &Cell) -> u8 {
-        if let Some(distance_squared) = cell.distance_to_nearest_squared() {
-            let square_root = (distance_squared as f32).sqrt();
-            return if square_root > 255f32 {
-                255u8
-            } else {
-                square_root as u8 //  ^ 0xffu8 to invert
-            };
-        }
-        // TODO: We should think about the best behaviour of the None case here. For now, we just return 0.
-        0
-    }
-
-    fn get_16_bit_distance(&self, cell: &Cell) -> (u8, u8) {
-        if let Some(distance_squared) = cell.distance_to_nearest_squared() {
-            let square_root = (distance_squared as f32).sqrt();// * 16f32;
-            // let square_root = (cell.distance_to_nearest_squared().unwrap() as f32);
-
-            if square_root > 65535.0f32 {
-                (0xFF, 0xFF)
-            } else {
-                let val = square_root.round() as u16;
-                ((val >> 8) as u8, (val & 0xFF) as u8)
-            };
-        }
-        // TODO: We should think about the best behaviour of the None case here. For now, we just return 0.
-        (0, 0)
-    }
-
-    fn output_df(&self, df: &DistanceField, _export_type: &ExportType) {
+    fn output_df(&self, df: &DistanceField, distance_type: &DistanceType) {
 
         // TODO: handle export_type !
 
         let e = get_standard_encoder(&self.file_path,
                                      df.width,
                                      df.height,
-                                     &self.channel_depth, &self.num_channels);
+                                     &self.channel_depth,
+                                     &self.num_channels);
 
         let mut writer = e.write_header().unwrap();
 
@@ -80,17 +53,17 @@ impl PngOutput {
 
         match &self.num_channels {
             ImageOutputChannels::One => {
-                self.output_single_channel(df, &mut data)
+                self.output_single_channel(df, &distance_type, &mut data)
             }
             ImageOutputChannels::Two => {
-                self.output_dual_channel(df, &mut data)
+                self.output_dual_channel(df, &distance_type, &mut data)
             }
         }
 
         writer.write_image_data(&data).unwrap(); // Save
     }
 
-    fn output_single_channel(&self, df: &DistanceField, buffer: &mut Vec<u8>) {
+    fn output_single_channel(&self, df: &DistanceField, distance_type: &DistanceType, buffer: &mut Vec<u8>) {
         // inner / outer / combined ?
 
         // combined: add or sdf?
@@ -98,31 +71,37 @@ impl PngOutput {
         // 8 bit / 16 bit
         match &self.channel_depth {
             ImageOutputChannelDepth::Eight => {
+                let function = distance_type.calculator_8_bit();
                 df.data.iter().for_each(|cell: &Cell| {
                     // TODO: right now, we just add the inner distances and the outer distances
                     // We should add a feature to generate real 8-bit-signed distance field here!
-                    buffer.push(self.get_8_bit_distance(&cell));
+                    // buffer.push(self.get_8_bit_distance(&cell));
+                    buffer.push(function(&cell));
                 });
             }
             ImageOutputChannelDepth::Sixteen => {
+                let function = distance_type.calculator_16_bit();
                 df.data.iter().for_each(|cell: &Cell| {
-                    let (byte_1, byte_2) = self.get_16_bit_distance(&cell);
-                    buffer.push(byte_1);
-                    buffer.push(byte_2);
+                    let distance = function(&cell);
+                    buffer.push((distance >> 8) as u8);
+                    buffer.push((distance & 0xFF) as u8);
                 });
             }
             _ => {
+                // TODO: we have to implement the 32 bit output (use for example for squared distance output)
                 unimplemented!()
             }
         }
     }
 
-    fn output_dual_channel(&self, df: &DistanceField, buffer: &mut Vec<u8>) {
+    fn output_dual_channel(&self, df: &DistanceField, distance_type: &DistanceType, buffer: &mut Vec<u8>) {
         // inner and outer go on a separate channel
         match &self.channel_depth {
             ImageOutputChannelDepth::Eight => {
+                let function = distance_type.calculator_8_bit();
                 df.data.iter().for_each(|cell: &Cell| {
-                    let distance = self.get_8_bit_distance(&cell);
+                    // let distance = self.get_8_bit_distance(&cell);
+                    let distance = function(&cell);
                     match cell.layer {
                         CellLayer::Foreground => {
                             buffer.push(distance);
@@ -135,10 +114,36 @@ impl PngOutput {
                             buffer.push(0x00);
                         }
                     }
-                    // buffer.push(self.get_8_bit_distance(&cell));
                 });
             }
             ImageOutputChannelDepth::Sixteen => {
+                let function = distance_type.calculator_16_bit();
+                df.data.iter().for_each(|cell: &Cell| {
+                    // let distance = self.get_8_bit_distance(&cell);
+                    let distance = function(&cell);
+                    let higher_byte = (distance >> 8) as u8;
+                    let lower_byte = (distance & 0xFF) as u8;
+                    match cell.layer {
+                        CellLayer::Foreground => {
+                            buffer.push(higher_byte);
+                            buffer.push(lower_byte);
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                        }
+                        CellLayer::Background => {
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                            buffer.push(higher_byte);
+                            buffer.push(lower_byte);
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                        }
+                    }
+                });
+
+                // TODO: we have to implement the 32 bit output (use for example for squared distance output)
                 todo!();
                 // mode rgb width 16 bit per channel needed here
             }
@@ -152,12 +157,12 @@ impl PngOutput {
 impl DistanceFieldExporter for PngOutput {
     fn export(&self,
               distance_field: &DistanceField,
-              export_type: &ExportType,
+              distance_type: &DistanceType,
               export_filter: &ExportFilter) {
         match export_filter {
-            ExportFilter::Background => self.output_df(&DistanceField::filter_outer(distance_field), export_type),
-            ExportFilter::Foreground => self.output_df(&DistanceField::filter_outer(distance_field), export_type),
-            ExportFilter::All => self.output_df(distance_field, export_type),
+            ExportFilter::Background => self.output_df(&DistanceField::filter_outer(distance_field), distance_type),
+            ExportFilter::Foreground => self.output_df(&DistanceField::filter_outer(distance_field), distance_type),
+            ExportFilter::All => self.output_df(distance_field, distance_type),
         };
     }
 }
