@@ -39,7 +39,7 @@ pub enum DistanceType {
     NearestCellPosition,
 }
 
-impl  DistanceType {
+impl DistanceType {
     pub(crate) fn calculator_8_bit(&self) -> CalculationFunction8 {
         let function: CalculationFunction8 = match self {
             DistanceType::EuclideanDistance => get_8_bit_euclidean_distance,
@@ -58,7 +58,6 @@ impl  DistanceType {
             _ => get_16_bit_euclidean_distance,
         }
     }
-
 }
 
 pub type CalculationFunction8 = fn(&Cell) -> u8;
@@ -107,14 +106,12 @@ fn get_8_bit_euclidean_distance(cell: &Cell) -> u8 {
 
 fn get_16_bit_euclidean_distance(cell: &Cell) -> u16 {
     if let Some(distance_squared) = cell.distance_to_nearest_squared() {
-        let square_root = (distance_squared as f32).sqrt();// * 16f32;
-        // let square_root = (cell.distance_to_nearest_squared().unwrap() as f32);
+        let distance = (distance_squared as f32).sqrt();// * 16f32;
 
-        if square_root > 65535.0f32 {
+        if distance > 65535.0f32 {
             0xffff
         } else {
-            square_root.round() as u16
-//            ((val >> 8) as u8, (val & 0xFF) as u8)
+            distance.round() as u16
         };
     }
     // TODO: We should think about the best behaviour of the None case here. For now, we just return 0.
