@@ -1,4 +1,4 @@
-//! This crate contains tools and data structures to import, process and export
+//! This crate contains tools and data structures to import, process, transform and export
 //! distance fields.
 
 /// Core data structures for distance fields
@@ -6,12 +6,11 @@ pub mod data;
 
 pub mod distance;
 
-pub mod source;
-
 pub mod generator;
 
 pub mod processor;
 
+/// Module for export related types and functionality
 pub mod export;
 
-pub mod import;
+pub mod input;

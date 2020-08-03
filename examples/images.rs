@@ -3,10 +3,11 @@ extern crate png;
 use std::path::PathBuf;
 
 use rs_sdf::generator::{DistanceGenerator};
-use rs_sdf::import::image::PngInput;
+use rs_sdf::input::image::PngInput;
 use rs_sdf::export::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
 use rs_sdf::processor::sweep::EightSideSweepProcessor;
-use rs_sdf::export::ExportFilter;
+use rs_sdf::distance::DistanceLayer;
+use rs_sdf::data::DistanceField;
 
 const BASE_ASSET_FOLDER: &str = r"examples/assets";
 const BASE_OUTPUT_FOLDER: &str = r"examples/output";
@@ -25,21 +26,21 @@ fn main() {
     // 1.1. Export PNG with 8-bit inner distance
     generate_sdf("example_1_rgba_512x512.png",
                  "example_1_512x512.png",
-                 ExportFilter::Foreground,
+                 DistanceLayer::Foreground,
                  ImageOutputChannelDepth::Eight,
                  ImageOutputChannels::One);
 
     // 1.2. Export PNG with 8-bit outer distance
     generate_sdf("example_1_rgba_512x512.png",
                  "example_1_512x512.png",
-                 ExportFilter::Background,
+                 DistanceLayer::Background,
                  ImageOutputChannelDepth::Eight,
                  ImageOutputChannels::One);
 
     // 1.3. Export PNG with 8-bit inner and outer distance (distances added in one channel)
     generate_sdf("example_1_rgba_512x512.png",
                  "example_1_512x512.png",
-                 ExportFilter::All,
+                 DistanceLayer::Combined,
                  ImageOutputChannelDepth::Eight,
                  ImageOutputChannels::One);
 
@@ -48,14 +49,14 @@ fn main() {
     // 2.1. Export PNG with inner and outer distance added together in one 8-bit channel
     generate_sdf("example_2_rgba_512x512.png",
                  "example_2_512x512.png",
-                 ExportFilter::All,
+                 DistanceLayer::Combined,
                  ImageOutputChannelDepth::Eight,
                  ImageOutputChannels::One);
 
     // 2.2. Export PNG with inner and outer distance separated to two 8-bit channels
     generate_sdf("example_2_rgba_512x512.png",
                  "example_2_512x512_2_channel.png",
-                 ExportFilter::All,
+                 DistanceLayer::Combined,
                  ImageOutputChannelDepth::Eight,
                  ImageOutputChannels::Two);
 
@@ -63,13 +64,13 @@ fn main() {
     // another example...
     generate_sdf("example_8_rgba_512x512.png",
                  "example_8_512x512.png",
-                 ExportFilter::All,
+                 DistanceLayer::Combined,
                  ImageOutputChannelDepth::Eight,
                  ImageOutputChannels::One);
 
     generate_sdf("example_10_rgba_3100x900.png",
                  "example_10_3100x900.png",
-                 ExportFilter::Background,
+                 DistanceLayer::Background,
                  ImageOutputChannelDepth::Eight,
                  ImageOutputChannels::One);
 
@@ -89,7 +90,7 @@ fn main() {
 
 fn generate_sdf(source_image_name: &str,
                 target_image_name: &str,
-                export_type: ExportFilter,
+                export_type: DistanceLayer,
                 bit_depth: ImageOutputChannelDepth,
                 num_channels: ImageOutputChannels) {
     let mut image_path_buff = PathBuf::new();
@@ -118,6 +119,24 @@ fn generate_sdf(source_image_name: &str,
 
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);
+
+
+    // let input : DistanceInput = PngInput::new(&source_image_path);
+
+    // let proc : DistanceProcessor = DistanceProcessor::new(input);
+    // oder
+    // let proc : DistanceProcessor = input::into::<DistanceProcessor>();
+    // oder
+    // let proc = DistanceProcessor::from(input);
+
+    // let df : DistanceField = proc.process([Sweeping]);
+
+    // let dt : DistanceTransformation = df.filter(Inner).transform(CartesianDistance).scale(xy);
+
+    // intern wird dann vom output getChannels() oder transform() oder so aufgerufen
+
+    // let output : DistanceOutput = PngOutput::new(dt, ChannelConfiguration::new(...));
+    // output.save();
 }
 
 fn get_output_image_file_path(filename: &str, prefix: &str) -> String {
@@ -127,11 +146,11 @@ fn get_output_image_file_path(filename: &str, prefix: &str) -> String {
     file_path_buff.into_os_string().into_string().unwrap()
 }
 
-fn get_type_prefix(export_type: &ExportFilter) -> String {
+fn get_type_prefix(export_type: &DistanceLayer) -> String {
     match export_type {
-        ExportFilter::Foreground => String::from("idf"),
-        ExportFilter::Background => String::from("odf"),
-        ExportFilter::All => String::from("cdf"),
+        DistanceLayer::Foreground => String::from("idf"),
+        DistanceLayer::Background => String::from("odf"),
+        DistanceLayer::Combined => String::from("cdf"),
     }
 }
 

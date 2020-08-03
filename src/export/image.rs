@@ -4,8 +4,12 @@ use std::io::BufWriter;
 use png::{BitDepth, ColorType, Compression, Encoder, FilterType};
 
 use crate::data::{Cell, CellLayer, DistanceField};
-use crate::export::{DistanceFieldExporter, ExportFilter};
-use crate::distance::DistanceType;
+use crate::export::{DistanceFieldExporter};
+use crate::distance::{DistanceType, DistanceLayer};
+
+// Todo: We have to add to the image exporter something like a color channel definition,
+// that maps the export channels to color channels
+
 
 pub enum ImageOutputChannelDepth {
     Eight = 8,
@@ -36,8 +40,16 @@ impl PngOutput {
     }
 }
 
-fn cast_to_byte(value: u16) -> u8 {
+fn cast_u16_to_u8(value: u16) -> u8 {
     if value > 255u16 {
+        255u8
+    } else {
+        value as u8
+    }
+}
+
+fn cast_f32_to_u8(value: f32) -> u8 {
+    if value > 255f32 {
         255u8
     } else {
         value as u8
@@ -85,7 +97,7 @@ impl PngOutput {
                     // TODO: right now, we just add the inner distances and the outer distances
                     // We should add a feature to generate real 8-bit-signed distance field here!
                     // buffer.push(self.get_8_bit_distance(&cell));
-                    buffer.push(cast_to_byte(function(&cell)));
+                    buffer.push(cast_u16_to_u8(function(&cell)));
                 });
             }
             ImageOutputChannelDepth::Sixteen => {
@@ -110,7 +122,7 @@ impl PngOutput {
                 let function = distance_type.calculation_function();
                 df.data.iter().for_each(|cell: &Cell| {
                     // let distance = self.get_8_bit_distance(&cell);
-                    let distance = cast_to_byte(function(&cell));
+                    let distance = cast_u16_to_u8(function(&cell));
                     match cell.layer {
                         CellLayer::Foreground => {
                             buffer.push(distance);
@@ -167,11 +179,11 @@ impl DistanceFieldExporter for PngOutput {
     fn export(&self,
               distance_field: &DistanceField,
               distance_type: &DistanceType,
-              export_filter: &ExportFilter) {
+              export_filter: &DistanceLayer) {
         match export_filter {
-            ExportFilter::Background => self.output_df(&DistanceField::filter_outer(distance_field), distance_type),
-            ExportFilter::Foreground => self.output_df(&DistanceField::filter_outer(distance_field), distance_type),
-            ExportFilter::All => self.output_df(distance_field, distance_type),
+            DistanceLayer::Background => self.output_df(&DistanceField::filter_outer(distance_field), distance_type),
+            DistanceLayer::Foreground => self.output_df(&DistanceField::filter_outer(distance_field), distance_type),
+            DistanceLayer::Combined => self.output_df(distance_field, distance_type),
         };
     }
 }

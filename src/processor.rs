@@ -1,5 +1,5 @@
-use crate::source::SourceField;
 use crate::data::DistanceField;
+use crate::data::source::SourceField;
 
 pub mod sweep;
 

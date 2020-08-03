@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use rs_sdf::source::SourceField;
     use rs_sdf::processor::sweep::EightSideSweepProcessor;
     use rs_sdf::processor::SourceProcessor;
+    use rs_sdf::data::source::SourceField;
 
     // helper method to get an empty 1x1 source field
     fn get_source_1_1_empty() -> SourceField {

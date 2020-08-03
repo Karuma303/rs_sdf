@@ -1,16 +1,16 @@
 use std::result::Result::Err;
 
-use crate::import::FieldInput;
-use crate::export::{DistanceFieldExporter, ExportFilter};
+use crate::input::Input;
+use crate::export::{DistanceFieldExporter};
 use crate::processor::SourceProcessor;
-use crate::distance::DistanceType;
+use crate::distance::{DistanceType, DistanceLayer};
 
 pub struct DistanceGenerator {
-    input: Option<Box<dyn FieldInput>>,
+    input: Option<Box<dyn Input>>,
     output: Option<Box<dyn DistanceFieldExporter>>,
     processor: Option<Box<dyn SourceProcessor>>,
     distance_type: DistanceType,
-    export_filter: ExportFilter,
+    distance_layer: DistanceLayer,
 }
 
 impl DistanceGenerator {
@@ -20,11 +20,11 @@ impl DistanceGenerator {
             output: None,
             processor: None,
             distance_type: DistanceType::EuclideanDistance,
-            export_filter: ExportFilter::All,
+            distance_layer: DistanceLayer::Combined,
         }
     }
 
-    pub fn input(mut self, input: impl FieldInput + 'static) -> Self {
+    pub fn input(mut self, input: impl Input + 'static) -> Self {
         self.input = Some(Box::new(input));
         self
     }
@@ -39,8 +39,8 @@ impl DistanceGenerator {
         self
     }
 
-    pub fn export_filter(mut self, export_selection: ExportFilter) -> Self {
-        self.export_filter = export_selection;
+    pub fn export_filter(mut self, export_selection: DistanceLayer) -> Self {
+        self.distance_layer = export_selection;
         self
     }
 
@@ -52,13 +52,15 @@ impl DistanceGenerator {
     pub fn generate(&self) -> Result<(), String> {
         // input path is set?
         if let Some(input) = &self.input {
-            let source = input.get_source_field().unwrap();
+
+            // TODO: add matching here !!!
+            let source = input.source_field().ok().unwrap(); //unwrap();
 
             if let Some(processor) = &self.processor {
                 let df = processor.process(&source);
 
                 if let Some(output) = &self.output {
-                    output.export(&df, &self.distance_type, &self.export_filter);
+                    output.export(&df, &self.distance_type, &self.distance_layer);
                 } else {
                     panic!("no export file specified");
                 }
