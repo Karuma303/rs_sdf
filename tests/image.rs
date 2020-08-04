@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use rs_sdf::input::image::{FileInputError, PngInput};
+    use rs_sdf::input::image::{PngInput};
     use rs_sdf::input::{Input, InputError};
-    use rs_sdf::data::source::SourceField;
+    use rs_sdf::data::input::InputField;
 
-    fn get_png_source(file_path : &str) -> Result<SourceField, InputError> {
+    fn get_png_source(file_path: &str) -> Result<InputField, InputError> {
         PngInput::new(&file_path.to_string()).source_field()
     }
 
@@ -14,7 +14,7 @@ mod tests {
             = get_png_source("non_existing_path.dat");
 
         assert!(source.is_err());
-        assert_eq!(source.unwrap_err(), InputError::InvalidInput);
+        assert!(matches!(source.unwrap_err(), InputError::InvalidInput{ message:_}));
     }
 
     #[test]
@@ -23,7 +23,8 @@ mod tests {
             = get_png_source(r"tests/test_assets/invalid_file.dat");
 
         assert!(source.is_err());
-        assert_eq!(source.unwrap_err(), InputError::InvalidInput);
+        // assert_eq!(source.unwrap_err(), InputError::InvalidInput);
+        assert!(matches!(source.unwrap_err(), InputError::InvalidInput{message:_}));
     }
 
     #[test]
@@ -32,7 +33,7 @@ mod tests {
             = get_png_source(r"tests/test_assets/test_rgb_1x1_black.png");
 
         assert!(source.is_err());
-        assert_eq!(source.unwrap_err(), InputError::InvalidInput);
+        assert!(matches!(source.unwrap_err(), InputError::InvalidInput{message : _}));
     }
 
     #[test]

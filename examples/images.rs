@@ -2,12 +2,11 @@ extern crate png;
 
 use std::path::PathBuf;
 
-use rs_sdf::generator::{DistanceGenerator};
-use rs_sdf::input::image::PngInput;
-use rs_sdf::export::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
-use rs_sdf::processor::sweep::EightSideSweepProcessor;
 use rs_sdf::distance::DistanceLayer;
-use rs_sdf::data::DistanceField;
+use rs_sdf::export::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
+use rs_sdf::generator::DistanceGenerator;
+use rs_sdf::input::image::PngInput;
+use rs_sdf::processor::sweep::EightSideSweepProcessor;
 
 const BASE_ASSET_FOLDER: &str = r"examples/assets";
 const BASE_OUTPUT_FOLDER: &str = r"examples/output";
@@ -177,7 +176,7 @@ fn get_num_channels_prefix(num_channels: &ImageOutputChannels) -> String {
     }
 }
 
-fn display_result(result: &Result<(), String>, source_image_path: &String, target_image_path: &String) {
+fn display_result(result: &Result<(), String>, source_image_path: &str, target_image_path: &str) {
     match result {
         Ok(_) =>
             println!("generated sdf {} for input image {}", target_image_path, source_image_path),

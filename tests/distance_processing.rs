@@ -1,13 +1,14 @@
 #[cfg(test)]
 mod tests {
-    use rs_sdf::data::source::SourceField;
+    use rs_sdf::data::input::InputField;
+    use bitvec::prelude::*;
 
     #[test]
     fn distance_field_initializes_correctly() {
-        let sf: SourceField = SourceField {
+        let sf: InputField = InputField {
             width: 2,
             height: 2,
-            data: Vec::from([true, false, false, true]),
+            data: bitvec![1, 0, 0, 1],
         };
         assert_eq!(sf.width, 2);
         assert_eq!(sf.height, 2);

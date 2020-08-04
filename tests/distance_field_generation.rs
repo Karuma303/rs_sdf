@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use rs_sdf::data::source::SourceField;
     use rs_sdf::data::DistanceField;
+    use rs_sdf::data::input::{BoolInputData, InputField};
 
     // helper method to get an empty source field
-    fn get_source_0_0() -> SourceField {
-        SourceField::from_booleans(&[], 0, 0)
+    fn get_source_0_0() -> InputField {
+        InputField::from(BoolInputData::new(vec![], 0, 0))
     }
 
     #[test]
@@ -17,13 +17,13 @@ mod tests {
 
     #[test]
     fn distance_field_has_correct_dimension() {
-        let source = SourceField::from_booleans(&[true, true, true], 3, 1);
+        let source = InputField::from(BoolInputData::new(vec![true, true, true], 3, 1));
         let df = DistanceField::new(&source);
 
         assert_eq!(df.width, 3);
         assert_eq!(df.height, 1);
 
-        let source = SourceField::from_booleans(&[true, true, true], 1, 3);
+        let source = InputField::from(BoolInputData::new(vec![true, true, true], 1, 3));
         let df = DistanceField::new(&source);
 
         assert_eq!(df.width, 1);

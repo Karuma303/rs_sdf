@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 png = "0.16.3"
+bitvec = "0.17.4"

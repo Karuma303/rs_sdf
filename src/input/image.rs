@@ -5,21 +5,21 @@ use png::Transformations;
 
 use std::fmt;
 use crate::input::{Input, InputError};
-use crate::data::source::SourceField;
+use crate::data::input::{InputField, ByteInputData};
 
 pub struct PngInput {
     file_path: String,
 }
 
 impl PngInput {
-    pub fn new(file_path: &String) -> Self {
+    pub fn new(file_path: &str) -> Self {
         Self {
             file_path: String::from(file_path),
         }
     }
 
     /// Opens a png file from the given path and converts it into a SourceField
-    fn get_source_from_png_file_input(&self) -> Result<SourceField, FileInputError> {
+    fn get_source_from_png_file_input(&self) -> Result<InputField, FileInputError> {
         let input_file = File::open(&self.file_path).map_err(|_| { FileInputError::InvalidFile })?;
 
         // The decoder is a build for reader and can be used to set various decoding options
@@ -59,13 +59,14 @@ impl PngInput {
             *element = image_buffer[index * 4 + 3];
         }
 
-        let source = SourceField::from_bytes(&output_buffer, 127, info.width, info.height);
+        let source = InputField::from(ByteInputData::new(output_buffer, 127, info.width, info.height));
+
         Ok(source)
     }
 }
 
 impl Input for PngInput {
-    fn source_field(&self) -> Result<SourceField, InputError> {
+    fn source_field(&self) -> Result<InputField, InputError> {
         let source = self.get_source_from_png_file_input()?;
         Ok(source)
 //        match res {

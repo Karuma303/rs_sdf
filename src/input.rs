@@ -4,7 +4,7 @@
 //! After import/generation of the data the input type
 //! will provide a SourceField, which can then be used for further processing.
 
-use crate::data::source::SourceField;
+use crate::data::input::InputField;
 use std::fmt;
 
 /// Image-based input types and functionality.
@@ -13,7 +13,7 @@ pub mod image;
 /// Type for a valid input for distance field generation.
 /// Implementors of this trait provide a SourceField that can be transformed to a distance field.
 pub trait Input {
-    fn source_field(&self) -> Result<SourceField, InputError>;
+    fn source_field(&self) -> Result<InputField, InputError>;
 }
 
 /// Error type for all kinds of errors that can happen on generating the input.
