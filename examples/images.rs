@@ -122,21 +122,29 @@ fn generate_sdf(source_image_name: &str,
 
 
     // let input : DistanceInput = PngInput::new(&source_image_path);
+    // let builder : DistanceFieldBuilder = DistanceFieldBuilder::new(input);
+    // let builder : DistanceFieldBuilder = DistanceFieldBuilder::from(input);
+    // let builder : DistanceFieldBuilder = input::into::<DistanceFieldBuilder>();
+    // let df : DistanceField = builder::build(EightSidedSweeping); // distance calculation method
+    // let dt : DistanceTransformation = df.filter(InnerDistance).transform(Cartesian).scale(0.5f);
 
-    // let proc : DistanceProcessor = DistanceProcessor::new(input);
-    // oder
-    // let proc : DistanceProcessor = input::into::<DistanceProcessor>();
-    // oder
-    // let proc = DistanceProcessor::from(input);
+    // DistanceTransformation provides n-channels with distances (bit depth?)
 
-    // let df : DistanceField = proc.process([Sweeping]);
-
-    // let dt : DistanceTransformation = df.filter(Inner).transform(CartesianDistance).scale(xy);
-
-    // intern wird dann vom output getChannels() oder transform() oder so aufgerufen
-
-    // let output : DistanceOutput = PngOutput::new(dt, ChannelConfiguration::new(...));
+    // let output : DistanceOutput = PngOutput::new(dt, ImageOutputChannelConfiguration::new(...));
     // output.save();
+
+
+    // short:
+    // PngOutput::new(
+    //          DistanceFieldBuilder::new(
+    //                  PngInput::new(&source_image_path))
+    //          ::build(EightSidedSweep)
+    //          ::transform(Cartesian))
+    // .save();
+
+    // let df = DistanceFieldBuilder
+    //                  ::from(PngInput::new(&source_image_path)
+    //                  ::build(EightSidedSweep);
 }
 
 fn get_output_image_file_path(filename: &str, prefix: &str) -> String {
