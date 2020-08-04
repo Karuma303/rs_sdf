@@ -12,16 +12,16 @@ pub struct InputField {
     pub height: u32,
 }
 
-struct DimensionedVector<T> {
+struct DimensionalVector<T> {
     data: Vec<T>,
     pub width: u32,
     pub height: u32,
 }
 
-impl<T> DimensionedVector<T> {
+impl<T> DimensionalVector<T> {
     pub fn new(data: Vec<T>, width: u32, height: u32) -> Self {
         check_dimensions_and_buffer_size(width, height, data.len());
-        DimensionedVector {
+        DimensionalVector {
             data,
             width,
             height,
@@ -33,31 +33,32 @@ impl<T> DimensionedVector<T> {
 /// All values equal or greater than the given threshold define the foreground. All other
 /// values define the background.
 pub struct ByteInputData {
-    buffer: DimensionedVector<u8>,
+    buffer: DimensionalVector<u8>,
     threshold: u8,
 }
 
 impl ByteInputData {
     pub fn new(buffer: Vec<u8>, threshold: u8, width: u32, height: u32) -> Self {
         Self {
-            buffer: DimensionedVector::new(buffer, width, height),
+            buffer: DimensionalVector::new(buffer, width, height),
             threshold,
         }
     }
 }
 
 pub struct BoolInputData {
-    buffer: DimensionedVector<bool>,
+    buffer: DimensionalVector<bool>,
 }
 
 impl BoolInputData {
     pub fn new(buffer: Vec<bool>, width: u32, height: u32) -> Self {
         Self {
-            buffer: DimensionedVector::new(buffer, width, height),
+            buffer: DimensionalVector::new(buffer, width, height),
         }
     }
 }
 
+/// Implementation of the From trait.
 impl From<ByteInputData> for InputField {
     fn from(input: ByteInputData) -> Self {
         let mut data = BitVec::new();
@@ -66,6 +67,7 @@ impl From<ByteInputData> for InputField {
     }
 }
 
+/// Implementation of the From trait.
 impl From<BoolInputData> for InputField {
     fn from(input: BoolInputData) -> Self {
         let mut data = BitVec::new();
@@ -74,6 +76,7 @@ impl From<BoolInputData> for InputField {
     }
 }
 
+/// Implementation of the InputField type.
 impl InputField {
     pub fn new(data: BitVec, width: u32, height: u32) -> Self {
         check_dimensions_and_buffer_size(width, height, data.len());
@@ -89,6 +92,8 @@ impl InputField {
     }
 }
 
+/// Helper method, that checks if the length of a buffer is equal to its width times its height.
+/// The method will panic, if this is not the case.
 fn check_dimensions_and_buffer_size(width: u32, height: u32, buffer_len: usize) {
     if width == 0 {
         panic!("width must be greater than zero"); // maybe an error type "incorrect dimensions" would be better here!
