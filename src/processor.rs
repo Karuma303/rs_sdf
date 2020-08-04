@@ -1,5 +1,5 @@
 use crate::data::DistanceField;
-use crate::data::source::SourceField;
+use crate::data::input::InputField;
 
 pub mod sweep;
 
@@ -7,5 +7,5 @@ pub mod sweep;
 /// (based on some internal algorithm to calculate the distances).
 pub trait SourceProcessor {
     /// Generate a distance field for the source field.
-    fn process(&self, field: &SourceField) -> DistanceField;
+    fn process(&self, field: &InputField) -> DistanceField;
 }

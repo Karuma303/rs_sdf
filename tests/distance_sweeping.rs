@@ -2,51 +2,51 @@
 mod tests {
     use rs_sdf::processor::sweep::EightSideSweepProcessor;
     use rs_sdf::processor::SourceProcessor;
-    use rs_sdf::data::source::SourceField;
+    use rs_sdf::data::input::{InputField, InputBoolBuffer, InputByteBuffer};
 
     // helper method to get an empty 1x1 source field
-    fn get_source_1_1_empty() -> SourceField {
-        SourceField::from_booleans(&[
+    fn get_source_1_1_empty() -> InputField {
+        InputField::from(InputBoolBuffer::new(&[
             false,
-        ], 1, 1)
+        ], 1, 1))
     }
 
     // helper method to get an filled 1x1 source field
-    fn get_source_1_1_filled() -> SourceField {
-        SourceField::from_booleans(&[
+    fn get_source_1_1_filled() -> InputField {
+        InputField::from(InputBoolBuffer::new(&[
             true,
-        ], 1, 1)
+        ], 1, 1))
     }
 
     // helper method to get an 2x2 source field width a checkered pattern
-    fn get_source_2_2_checker() -> SourceField {
-        SourceField::from_booleans(&[true, false, false, true], 2, 2)
+    fn get_source_2_2_checker() -> InputField {
+        InputField::from(InputBoolBuffer::new(&[true, false, false, true], 2, 2))
     }
 
     // helper method to get an empty 3x3 source field
-    fn get_source_3_3_empty() -> SourceField {
-        SourceField::from_bytes(&[
+    fn get_source_3_3_empty() -> InputField {
+        InputField::from(InputByteBuffer::new(&[
             0, 0, 0,
             0, 0, 0,
             0, 0, 0,
-        ], 127, 3, 3)
+        ], 127, 3, 3))
     }
 
     // helper method to get a filled 3x3 source field
-    fn get_source_3_3_filled() -> SourceField {
-        SourceField::from_bytes(&[
+    fn get_source_3_3_filled() -> InputField {
+        InputField::from(InputByteBuffer::new(&[
             255, 255, 255,
             255, 255, 255,
             255, 255, 255,
-        ], 127, 3, 3)
+        ], 127, 3, 3))
     }
 
     // helper method to get a 3x3 source field with just a centered dot (other cells are empty)
-    fn get_source_3_3_centered_dot() -> SourceField {
-        SourceField::from_booleans(&[
+    fn get_source_3_3_centered_dot() -> InputField {
+        InputField::from(InputBoolBuffer::new(&[
             false, false, false,
             false, true, false,
-            false, false, false], 3, 3)
+            false, false, false], 3, 3))
     }
 
     #[test]

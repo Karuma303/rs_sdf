@@ -1,6 +1,6 @@
-use crate::data::source::SourceField;
+use crate::data::input::InputField;
 
-pub mod source;
+pub mod input;
 
 #[derive(Debug, Clone)]
 /// A single cell of a distance field
@@ -117,12 +117,9 @@ impl DistanceField {
     }
 
     /// Initialize a DistanceField based on the given SourceField.
-    pub fn new(source: &SourceField) -> Self {
-        let width = source.width;
-        let height = source.height;
-
+    pub fn new(source: &InputField) -> Self {
         let cells = source.data
-            .chunks(width as usize)
+            .chunks(source.width as usize)
             .enumerate()
             .map(
                 |(y, row_values)| {
@@ -144,8 +141,8 @@ impl DistanceField {
 
         DistanceField {
             data: cells,
-            width,
-            height,
+            width: source.width,
+            height: source.height,
         }
     }
 }

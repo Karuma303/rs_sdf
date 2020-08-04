@@ -1,11 +1,11 @@
 use crate::data::{Cell, CellLayer, DistanceField};
 use crate::processor::SourceProcessor;
-use crate::data::source::SourceField;
+use crate::data::input::InputField;
 
 pub struct EightSideSweepProcessor;
 
 impl SourceProcessor for EightSideSweepProcessor {
-    fn process(&self, field: &SourceField) -> DistanceField {
+    fn process(&self, field: &InputField) -> DistanceField {
         let mut buffer = self.init_buffer_for_distance_field(&field);
         self.sweep_buffer(&mut buffer, field.width, field.height);
         self.get_distance_field_from_buffer(&buffer, field.width, field.height)
@@ -14,7 +14,7 @@ impl SourceProcessor for EightSideSweepProcessor {
 
 impl EightSideSweepProcessor {
     /// Initialize an inner buffer with cells to calculate the distance field.
-    fn init_buffer_for_distance_field(&self, source: &SourceField) -> Vec<Cell> {
+    fn init_buffer_for_distance_field(&self, source: &InputField) -> Vec<Cell> {
         source.data
             .chunks(source.width as usize)
             .enumerate()
