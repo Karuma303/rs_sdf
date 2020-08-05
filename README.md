@@ -6,19 +6,20 @@
 # About
 
 A simple library to generate 2-dimensional 
-[Distance Fields](https://en.wikipedia.org/wiki/Distance_transform) (DF) 
-written in pure [Rust](https://www.rust-lang.org/) 🦀
+[`Distance Fields`](https://en.wikipedia.org/wiki/Distance_transform) (DF) 
+written in pure [`Rust`](https://www.rust-lang.org/) 🦀
 
 The lib can import PNG images, convert them into a 
 distance field and export the distances as a PNG again.
 
-## Disclaimer
+## ⚠️ Disclaimer
   
+This project is not officially released yet. Its current status is pre-alpha and
+every part of the lib is work in progress.  
 Please note that this is my personal playground to learn the Rust programming 
 language, so don't expect any highly sophisticated code samples here. 
-I will try to improve this library over time, however right now the whole repo
-is WIP and it is not recommended to use it for anything 
-and especially not in production. 😉
+I will try to improve this library over time, however right it is not recommended 
+to use it for anything and especially not in production. 😉
 
 ## Examples
 
@@ -43,7 +44,7 @@ and especially not in production. 😉
 - [ ] Project structure (modules, libs, crates, features, examples...)
 - [ ] Simple CPU-based Renderer for SDFs (simplification of a FragmentShader)  
 - [ ] Update readme and add some documentation  
-- [ ] Unit tests  
+- [ ] Unit- & Integration-tests
 - [ ] More algorithms for distance generation (currently only sweeping)
 - [ ] Real signed distance field output  
 - [ ] Simple WASM project with some WGPU Shader to demonstrate font rendering with SDFs  
@@ -53,27 +54,27 @@ and especially not in production. 😉
  
 ## Links about SDFs and there usage (for example in text rendering) 
 
-1) [Drawing Text with Signed Distance Fields in Mapbox GL](https://blog.mapbox.com/drawing-text-with-signed-distance-fields-in-mapbox-gl-b0933af6f817)  
+1) [`Drawing Text with Signed Distance Fields in Mapbox GL`](https://blog.mapbox.com/drawing-text-with-signed-distance-fields-in-mapbox-gl-b0933af6f817)  
 Interesting blog post about MapBox and how they SDF to render the labels on their maps - 
 including some source code for a FragmentShader
 
-1) [Signed Distance Fields](https://github.com/chriscummings100/signeddistancefields/blob/master/Assets/SignedDistanceFields/SignedDistanceFieldGenerator.cs)  
+1) [`Signed Distance Fields`](https://github.com/chriscummings100/signeddistancefields/blob/master/Assets/SignedDistanceFields/SignedDistanceFieldGenerator.cs)  
 C# code repository of a SDF generator with different generation algorithms 
 (8PSSDT sweep, brute force Eikonal etc.)
 
-1) [Shader Fun](https://shaderfun.com/)  
+1) [`Shader Fun`](https://shaderfun.com/)  
 Blogpost series abouts SDFs
 
-1) [Distance Field Fonts](https://github.com/libgdx/libgdx/wiki/Distance-field-fonts)  
+1) [`Distance Field Fonts`](https://github.com/libgdx/libgdx/wiki/Distance-field-fonts)  
 Nixe explanation about the usage of SDF fonts in libGDX  
 
-1) [Ronjas Shader Tutorials](https://www.ronja-tutorials.com/2018/11/10/2d-sdf-basics.html)
+1) [`Ronjas Shader Tutorials`](https://www.ronja-tutorials.com/2018/11/10/2d-sdf-basics.html)
 2D Signed Distance Field Basics - blog with some posts about SDFs
 
-1) [The ‘dead reckoning’ signed distance transform](https://perso.ensta-paris.fr/~manzaner/Download/IAD/Grevera_04.pdf)  
+1) [`The ‘dead reckoning’ signed distance transform`](https://perso.ensta-paris.fr/~manzaner/Download/IAD/Grevera_04.pdf)  
 Paper about the dead reckoning algorithm for Distance Field calculation
 
-1) [8-points Signed Sequential Euclidean Distance Transform](https://github.com/Lisapple/8SSEDT)  
+1) [`8-points Signed Sequential Euclidean Distance Transform`](https://github.com/Lisapple/8SSEDT)  
 Explanation of the 8PSSDT algorithm
 
 http://webstaff.itn.liu.se/~stegu/edtaa/
