@@ -1,12 +1,12 @@
 use std::result::Result::Err;
 
-use crate::input::Input;
+use crate::input::DistanceInput;
 use crate::export::{DistanceFieldExporter};
 use crate::processor::SourceProcessor;
 use crate::distance::{DistanceType, DistanceLayer};
 
 pub struct DistanceGenerator {
-    input: Option<Box<dyn Input>>,
+    input: Option<Box<dyn DistanceInput>>,
     output: Option<Box<dyn DistanceFieldExporter>>,
     processor: Option<Box<dyn SourceProcessor>>,
     distance_type: DistanceType,
@@ -24,7 +24,7 @@ impl DistanceGenerator {
         }
     }
 
-    pub fn input(mut self, input: impl Input + 'static) -> Self {
+    pub fn input(mut self, input: impl DistanceInput + 'static) -> Self {
         self.input = Some(Box::new(input));
         self
     }

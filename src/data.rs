@@ -1,6 +1,8 @@
 use crate::data::input::InputField;
 
 pub mod input;
+pub mod builder;
+pub mod transformation;
 
 #[derive(Debug, Clone)]
 /// A single cell of a distance field

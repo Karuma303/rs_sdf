@@ -2,11 +2,16 @@ extern crate png;
 
 use std::path::PathBuf;
 
-use rs_sdf::distance::DistanceLayer;
+use rs_sdf::distance::{DistanceLayer, DistanceType};
 use rs_sdf::export::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
 use rs_sdf::generator::DistanceGenerator;
+use rs_sdf::input::DistanceInput;
 use rs_sdf::input::image::PngInput;
 use rs_sdf::processor::sweep::EightSideSweepProcessor;
+use rs_sdf::data::builder::DistanceFieldBuilder;
+use rs_sdf::data::DistanceField;
+use rs_sdf::processor::Processor;
+use rs_sdf::data::transformation::{DistanceTransformation};
 
 const BASE_ASSET_FOLDER: &str = r"examples/assets";
 const BASE_OUTPUT_FOLDER: &str = r"examples/output";
@@ -119,15 +124,34 @@ fn generate_sdf(source_image_name: &str,
     let result = g.generate();
     display_result(&result, &source_image_path, &target_image_path);
 
+    // new methods
 
-    // let input : DistanceInput = PngInput::new(&source_image_path);
-    // let builder : DistanceFieldBuilder = DistanceFieldBuilder::new(input);
-    // let builder : DistanceFieldBuilder = DistanceFieldBuilder::from(input);
+
+    let input: Box<dyn DistanceInput> = Box::new(PngInput::new(&source_image_path));
+    let builder: DistanceFieldBuilder = DistanceFieldBuilder::new(input);
+
+    let input_2 = PngInput::new(&source_image_path);
+    let builder_2 = DistanceFieldBuilder::from(input_2);
+
+    let df: DistanceField = builder_2.build(Processor::from(EightSideSweepProcessor {}));
+    let builder_3: DistanceFieldBuilder = PngInput::new(&source_image_path).into(); // works too !
+
+    // let builder_2 = DistanceFieldBuilder::new(PngInput::new(&source_image_path));
+
+    // let input : DistanceInput = PngInput::new(&source_image_path); X (ist kein DistanceInput sondern PngInput!)
+    // let builder : DistanceFieldBuilder = DistanceFieldBuilder::new(input); X (geht nur mit box)
+    // let builder : DistanceFieldBuilder = DistanceFieldBuilder::from(input); ! (geht)
     // let builder : DistanceFieldBuilder = input::into::<DistanceFieldBuilder>();
     // let df : DistanceField = builder::build(EightSidedSweeping); // distance calculation method
     // let dt : DistanceTransformation = df.filter(InnerDistance).transform(Cartesian).scale(0.5f);
 
     // DistanceTransformation provides n-channels with distances (bit depth?)
+    // let dt : DistanceTransformation = df.transformation();
+    let mut dt: DistanceTransformation = DistanceTransformation::from(df);
+    dt.filter(DistanceLayer::Foreground); // TODO: rename to inner/outer/combined
+    dt.distance_type(DistanceType::EuclideanDistance);
+    dt.scale(0.9); // u8 -> 0 = orig, 1 = 2^1 = orig / 2, 2 = 2^2 = orig / 4, etc...
+    dt.transform(); // -> TransformationResult
 
     // let output : DistanceOutput = PngOutput::new(dt, ImageOutputChannelConfiguration::new(...));
     // output.save();

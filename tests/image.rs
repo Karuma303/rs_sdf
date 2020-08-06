@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use rs_sdf::input::image::{PngInput};
-    use rs_sdf::input::{Input, InputError};
+    use rs_sdf::input::{DistanceInput, InputError};
     use rs_sdf::data::input::InputField;
 
     fn get_png_source(file_path: &str) -> Result<InputField, InputError> {

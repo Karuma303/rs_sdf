@@ -12,7 +12,7 @@ pub mod image;
 
 /// Type for a valid input for distance field generation.
 /// Implementors of this trait provide a SourceField that can be transformed to a distance field.
-pub trait Input {
+pub trait DistanceInput {
     fn source_field(&self) -> Result<InputField, InputError>;
 }
 

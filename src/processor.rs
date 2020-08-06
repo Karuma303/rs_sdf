@@ -1,5 +1,6 @@
 use crate::data::DistanceField;
 use crate::data::input::InputField;
+use crate::processor::sweep::EightSideSweepProcessor;
 
 pub mod sweep;
 
@@ -8,4 +9,16 @@ pub mod sweep;
 pub trait SourceProcessor {
     /// Generate a distance field for the source field.
     fn process(&self, field: &InputField) -> DistanceField;
+}
+
+pub struct Processor {
+    pub processor : Box<dyn SourceProcessor>,
+}
+
+impl From<EightSideSweepProcessor> for Processor {
+    fn from(proc: EightSideSweepProcessor) -> Self {
+        Self {
+            processor: Box::new(proc),
+        }
+    }
 }

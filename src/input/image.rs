@@ -4,7 +4,7 @@ use png::{Decoder, ColorType};
 use png::Transformations;
 
 use std::fmt;
-use crate::input::{Input, InputError};
+use crate::input::{DistanceInput, InputError};
 use crate::data::input::{InputField, ByteInputData};
 
 pub struct PngInput {
@@ -65,14 +65,10 @@ impl PngInput {
     }
 }
 
-impl Input for PngInput {
+impl DistanceInput for PngInput {
     fn source_field(&self) -> Result<InputField, InputError> {
         let source = self.get_source_from_png_file_input()?;
         Ok(source)
-//        match res {
-//            Ok(sourcefield) => Some(sourcefield),
-//            Err(_) => None
-//        }
     }
 }
 
