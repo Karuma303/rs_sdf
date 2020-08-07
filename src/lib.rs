@@ -1,6 +1,9 @@
 //! This crate contains tools and data structures to import, process, transform and export
 //! distance fields.
 
+/// Utility module with helper methods.
+mod utils;
+
 /// Core data structures for distance fields
 pub mod data;
 

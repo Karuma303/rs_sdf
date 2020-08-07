@@ -3,7 +3,7 @@ extern crate png;
 use std::path::PathBuf;
 
 use rs_sdf::distance::{DistanceLayer, DistanceType};
-use rs_sdf::export::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput};
+use rs_sdf::export::image::{ImageOutputChannelDepth, ImageOutputChannels, PngOutput, ImageOutputConfiguration};
 use rs_sdf::generator::DistanceGenerator;
 use rs_sdf::input::DistanceInput;
 use rs_sdf::input::image::PngInput;
@@ -12,6 +12,7 @@ use rs_sdf::data::builder::DistanceFieldBuilder;
 use rs_sdf::data::DistanceField;
 use rs_sdf::processor::Processor;
 use rs_sdf::data::transformation::{DistanceTransformation};
+use rs_sdf::data::output::OutputWriter;
 
 const BASE_ASSET_FOLDER: &str = r"examples/assets";
 const BASE_OUTPUT_FOLDER: &str = r"examples/output";
@@ -113,11 +114,12 @@ fn generate_sdf(source_image_name: &str,
     let target_image_path = get_output_image_file_path(target_image_name,
                                                        prefix.as_str());
 
+    let mut output_writer = PngOutput::new(&target_image_path, num_channels);
+    output_writer.configuration(ImageOutputConfiguration::new(bit_depth));
+
     let g = DistanceGenerator::new()
         .input(PngInput::new(&source_image_path))
-        .output(PngOutput::new(&target_image_path,
-                               num_channels,
-                               bit_depth))
+        .output(output_writer)
         .export_filter(export_type)
         .processor(EightSideSweepProcessor {});
 
@@ -125,7 +127,6 @@ fn generate_sdf(source_image_name: &str,
     display_result(&result, &source_image_path, &target_image_path);
 
     // new methods
-
 
     let input: Box<dyn DistanceInput> = Box::new(PngInput::new(&source_image_path));
     let builder: DistanceFieldBuilder = DistanceFieldBuilder::new(input);
@@ -151,11 +152,12 @@ fn generate_sdf(source_image_name: &str,
     dt.filter(DistanceLayer::Foreground); // TODO: rename to inner/outer/combined
     dt.distance_type(DistanceType::EuclideanDistance);
     dt.scale(0.9); // u8 -> 0 = orig, 1 = 2^1 = orig / 2, 2 = 2^2 = orig / 4, etc...
-    dt.transform(); // -> TransformationResult
 
-    // let output : DistanceOutput = PngOutput::new(dt, ImageOutputChannelConfiguration::new(...));
-    // output.save();
+    let transformation_result = dt.transform();
 
+    let mut output = PngOutput::new(&target_image_path);
+    output.configuration(ImageOutputConfiguration::new(ImageOutputChannelDepth::Eight));
+    output.write(transformation_result);
 
     // short:
     // PngOutput::new(

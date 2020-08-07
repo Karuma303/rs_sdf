@@ -65,6 +65,8 @@ impl PngInput {
     }
 }
 
+// TODO: rename in SourceInputReader ! (or something similar)
+
 impl DistanceInput for PngInput {
     fn source_field(&self) -> Result<InputField, InputError> {
         let source = self.get_source_from_png_file_input()?;

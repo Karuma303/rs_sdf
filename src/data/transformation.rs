@@ -40,9 +40,13 @@ impl DistanceTransformation {
     }
 
     pub fn transform(&self) -> TransformationResult {
-        TransformationResult {} // TODO implement
+        unimplemented!();
+        TransformationResult {num_channels : 2} // TODO implement
     }
 }
 
 
-pub struct TransformationResult;
+pub struct TransformationResult {
+    num_channels : u8, // TODO: this should be removed
+    // we should have a vector with different output lanes here later
+}

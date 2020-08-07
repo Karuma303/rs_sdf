@@ -3,6 +3,7 @@ use crate::data::input::InputField;
 pub mod input;
 pub mod builder;
 pub mod transformation;
+pub mod output;
 
 #[derive(Debug, Clone)]
 /// A single cell of a distance field
