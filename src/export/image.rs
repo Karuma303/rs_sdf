@@ -42,19 +42,13 @@ pub enum ImageOutputChannels {
 
 pub struct PngOutput {
     file_path: String,
-    // deprecated
-    num_channels: ImageOutputChannels,
-    // TODO: do we still need that?
     configuration: ImageOutputConfiguration,
 }
 
 impl PngOutput {
-    pub fn new(file_path: &str,
-               num_channels: ImageOutputChannels,
-    ) -> Self {
+    pub fn new(file_path: &str) -> Self {
         Self {
             file_path: String::from(file_path),
-            num_channels,
             configuration: ImageOutputConfiguration { channel_depth: ImageOutputChannelDepth::Sixteen }, // default
         }
     }
@@ -65,14 +59,42 @@ impl PngOutput {
 }
 
 impl OutputWriter for PngOutput {
-    fn write(&self, output: TransformationResult) {
-        // TODO !
-        unimplemented!()
+    fn write(&self, trans_result: TransformationResult::<u8>) {
+        let channel_def = match trans_result.channels.len() {
+            1 => ImageOutputChannels::One,
+            2 => ImageOutputChannels::Two,
+            _ => panic!("not a valid number of output channels"),
+        };
+
+        let e = get_standard_encoder(&self.file_path,
+                                     trans_result.width,
+                                     trans_result.height,
+                                     &self.configuration.channel_depth,
+                                     &channel_def);
+
+        let mut writer = e.write_header().unwrap();
+
+        let mut image_data_buffer: Vec<u8> = Vec::new();
+
+        // TODO: this must come from the transformation result later!
+        let distance_type = DistanceType::EuclideanDistance;
+
+        match channel_def {
+            ImageOutputChannels::One => {
+                self.output_single_channel_u8(&trans_result.channels[0], &mut image_data_buffer)
+            }
+            ImageOutputChannels::Two => {
+                self.output_dual_channel_u8(&trans_result.channels[0],
+                                            &trans_result.channels[1],
+                                            &mut image_data_buffer)
+            }
+        }
+
+        writer.write_image_data(&image_data_buffer).unwrap(); // Save
     }
 }
 
 impl PngOutput {
-
     // deprecated! will be replaced by trait method 'write' !
     fn output_df(&self, df: &DistanceField, distance_type: &DistanceType) {
 
@@ -101,12 +123,53 @@ impl PngOutput {
     }
 
 
-    fn output_single_channel(&self, df: &DistanceField, distance_type: &DistanceType, buffer: &mut Vec<u8>) {
-        // inner / outer / combined ?
+    fn output_single_channel_u8<T: From<u8>>(&self, channel_data: &Vec<T>, buffer: &mut Vec<u8>) {
+        channel_data.iter().for_each(|value: u8| {
+            buffer.push(value);
+        });
+    }
 
-        // combined: add or sdf?
+    fn output_single_channel_u16<T: From<u16>>(&self, channel_data: &Vec<T>, buffer: &mut Vec<u16>) {
+        channel_data.iter().for_each(|value: u16| {
+            todo!()
+            // buffer.push(value);
+        });
+    }
 
-        // 8 bit / 16 bit
+    fn output_single_channel_u32<T: From<u32>>(&self, channel_data: &Vec<T>, buffer: &mut Vec<u32>) {
+        channel_data.iter().for_each(|value: u32| {
+            todo!()
+            // buffer.push(value);
+        });
+    }
+
+    fn output_dual_channel_u8<T: From<u8>>(&self,
+                                           channel_one_data: &Vec<T>,
+                                           channel_two_data: &Vec<T>,
+                                           _buffer: &mut Vec<u8>) {
+        let zipped = channel_one_data.iter().zip(channel_two_data).for_each(|(a, b)| {
+            _buffer.push(u8::from(a));
+            _buffer.push(u8::from(b));
+        });
+    }
+
+    fn output_dual_channel_u16<T: From<u16>>(&self,
+                                             _channel_one_data: &Vec<T>,
+                                             _channel_two_data: &Vec<T>,
+                                             _buffer: &mut Vec<u16>) {
+        todo!()
+    }
+
+    fn output_dual_channel_u32<T: From<u32>>(&self,
+                                             _channel_one_data: &Vec<T>,
+                                             _channel_two_data: &Vec<T>,
+                                             _buffer: &mut Vec<u32>) {
+        todo!()
+    }
+
+
+    // TODO: make this generic
+    fn output_single_channel(&self, channel_data: &Vec<u32>, distance_type: &DistanceType, buffer: &mut Vec<u8>) {
         match &self.configuration.channel_depth {
             ImageOutputChannelDepth::Eight => {
                 let function = distance_type.calculation_function();
