@@ -3,7 +3,6 @@ use crate::distance::DistanceType::EuclideanDistance;
 use crate::distance::euclid::EuclideanDistance as Euclid;
 use crate::distance::cartesian::CartesianDistance as Cartesian;
 use crate::data::{DistanceField, Cell};
-use crate::utils::u16_to_u8_clamped;
 
 impl From<DistanceField> for DistanceTransformation {
 	fn from(df: DistanceField) -> Self {
@@ -45,37 +44,7 @@ impl DistanceTransformation {
 		self.distance_type = distance_type;
 	}
 
-/*
-	// TODO: type argument must be set according to distance calculation method
-	pub fn transform<T>(&self) -> TransformationResult<T> {
-		let width = self.distance_field.width;
-		let height = self.distance_field.height;
 
-		let calculator: Calculator<T> = self.distance_type.calculator();
-
-		match calculator {
-			Calculator::OneDimensional(calc_function) => {
-				let data = self.calculate::<T>(&self.distance_field.data, calc_function);
-				TransformationResult::OneDimensional(self.get_trans_result(width, height, data))
-			}
-			Calculator::TwoDimensional(calc_function) => {
-				let data = self.calculate::<(T, T)>(&self.distance_field.data, calc_function);
-				TransformationResult::TwoDimensional(self.get_trans_result(width, height, data))
-				//			let trans_data = self.get_trans_result::<(T, T)>(width, height, data);
-				//			trans_data
-			}
-			Calculator::ThreeDimensional(calc_function) => {
-				let data = self.calculate::<(T, T, T)>(&self.distance_field.data, calc_function);
-				TransformationResult::ThreeDimensional(self.get_trans_result(width, height, data))
-				//	self.get_trans_result::<(T,T,T)>(width, height, data)
-			}
-		}
-
-		// let data = self.calculate(&self.distance_field.data, calculator);
-
-		// self.get_trans_result(width, height, data)
-	}
-*/
 	fn get_trans_result<T>(&self, width: u32, height: u32, data: Vec<T>) -> TransformationData<T> {
 		TransformationData::<T> {
 			width,
@@ -192,26 +161,16 @@ pub struct TransformationData<T> {
 	// length of the data vector should be equal width * height
 }
 
-impl <T>TransformationData<T> {
-	pub fn new(width : u32, height : u32, data : Vec<T>) -> Self {
-		Self{
+impl<T> TransformationData<T> {
+	pub fn new(width: u32, height: u32, data: Vec<T>) -> Self {
+		Self {
 			width,
 			height,
 			data,
 		}
 	}
 }
-/*
-impl TransformationData<(u8, u8)>{
-	pub fn new(width : u32, height : u32, data : Vec<(u8, u8)>) -> Self {
-		Self{
-			width,
-			height,
-			data,
-		}
-	}
-}
-*/
+
 pub struct DistanceTransformation {
 	distance_field: DistanceField,
 	filter: DistanceLayer,
@@ -228,35 +187,27 @@ pub trait TransformOutputGenerator<T> {
 
 impl TransformOutputGenerator<u8> for DistanceTransformation {
 	fn transform(&self) -> TransformationResult<u8> {
-		let width  = self.distance_field.width;
+		let width = self.distance_field.width;
 		let height = self.distance_field.height;
 
 		match self.distance_type {
 			DistanceType::EuclideanDistance => {
-					let mut buffer = Vec::with_capacity(width as usize * height as usize);
-					// TODO: das ist quatsch. "calculate" sollten keine Instanzmethode sein
-					let calc_instance = Euclid{};
-					let function = |cell : &Cell| calc_instance.calculate(&cell);
-					self.distance_field.data.iter().for_each(|cell: &Cell| {
-						// TODO: check, if we need to clamp here - should be done by the distance implementation
-						buffer.push(u16_to_u8_clamped(function(&cell)));
-					});
+				let mut buffer = Vec::with_capacity(width as usize * height as usize);
+				let function = |cell: &Cell| Euclid::calculate(&cell);
+				self.distance_field.data.iter().for_each(|cell: &Cell| {
+					buffer.push(function(&cell));
+				});
 
 				TransformationResult::OneDimensional(TransformationData::new(width, height, buffer))
 			},
 			DistanceType::CartesianDistance => {
 				let mut buffer = Vec::with_capacity(width as usize * height as usize);
-				// TODO: das ist quatsch. "calculate" sollten keine Instanzmethode sein
-				let calc_instance = Cartesian{};
-				let function = |cell : &Cell| calc_instance.calculate(&cell);
-
+				let function = |cell: &Cell| Cartesian::calculate(&cell);
 				self.distance_field.data.iter().for_each(|cell: &Cell| {
-					// TODO: no clamping here like in euclid (see above)
 					buffer.push(function(&cell));
 				});
 
-				let res: TransformationData<(u8, u8)> = TransformationData::new(width, height, buffer);
-				TransformationResult::TwoDimensional(res)
+				TransformationResult::TwoDimensional(TransformationData::new(width, height, buffer))
 			},
 			_ => panic!("not implemented"),
 		}
@@ -265,24 +216,27 @@ impl TransformOutputGenerator<u8> for DistanceTransformation {
 
 impl TransformOutputGenerator<u16> for DistanceTransformation {
 	fn transform(&self) -> TransformationResult<u16> {
+		let width = self.distance_field.width;
+		let height = self.distance_field.height;
+
 		match self.distance_type {
 			DistanceType::EuclideanDistance => {
-				// TODO: implement !
-				let res: TransformationData<u16> = TransformationData {
-					width: self.distance_field.width,
-					height: self.distance_field.height,
-					data: vec![1],
-				};
-				TransformationResult::OneDimensional(res)
+				let mut buffer = Vec::with_capacity(width as usize * height as usize);
+				let function = |cell: &Cell| Euclid::calculate(&cell);
+				self.distance_field.data.iter().for_each(|cell: &Cell| {
+					buffer.push(function(&cell));
+				});
+
+				TransformationResult::OneDimensional(TransformationData::new(width, height, buffer))
 			},
 			DistanceType::CartesianDistance => {
-				// TODO: implement !
-				let res: TransformationData<(u16, u16)> = TransformationData {
-					width: self.distance_field.width,
-					height: self.distance_field.height,
-					data: vec![(1, 2)],
-				};
-				TransformationResult::TwoDimensional(res)
+				let mut buffer = Vec::with_capacity(width as usize * height as usize);
+				let function = |cell: &Cell| Cartesian::calculate(&cell);
+				self.distance_field.data.iter().for_each(|cell: &Cell| {
+					buffer.push(function(&cell));
+				});
+
+				TransformationResult::TwoDimensional(TransformationData::new(width, height, buffer))
 			},
 			_ => panic!("not implemented"),
 		}

@@ -3,9 +3,9 @@ mod tests {
     use std::path::{Path, PathBuf};
     use std::fs::{remove_file, create_dir_all, remove_dir};
     use rs_sdf::data::{DistanceField, Cell, CellLayer};
-    use rs_sdf::export::image::{PngOutput};
+    use rs_sdf::export::image::{PngOutput, write_the_final_solution};
     use rs_sdf::distance::{DistanceType, DistanceLayer};
-    use rs_sdf::data::transformation::{DistanceTransformation, TransformOutputGenerator};
+    use rs_sdf::data::transformation::{DistanceTransformation, TransformOutputGenerator, TransformationResult};
     use rs_sdf::data::output::TransformationOutputWriter;
 
     const TEMP_DIR: &str = r"__tmp__output__dir__/";
@@ -55,7 +55,14 @@ mod tests {
         dt.distance_type(DistanceType::EuclideanDistance);
         dt.scale(0.9); // u8 -> 0 = orig, 1 = 2^1 = orig / 2, 2 = 2^2 = orig / 4, etc...
 
-        out.write(dt.transform::<u16>());
+        let trans:TransformationResult<u8> = dt.transform();
+
+        // TODO: das hier sollte gehen:
+        // out.write(trans);
+
+        // stattdessen machen wir das hier
+        write_the_final_solution(&trans);
+
 
         assert!(get_temp_image_path().is_file());
 

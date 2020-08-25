@@ -70,62 +70,6 @@ pub enum Calculator<T> {
 	ThreeDimensional(CalculationFunction<(T, T, T)>),
 }
 
-
-/*
-pub trait DistanceCalculator<T> {
-	type Output;
-	fn calculator() -> Calculator<T>;
-}
-*/
-/*
-
-impl CalculatorProvider<u8> for DistanceType {
-	type Output = u8;
-	fn calculator(&self) -> Calculator<u8>
-	{
-		match self {
-			DistanceType::EuclideanDistance => {
-				EuclideanDistance::calculator()
-			}
-			DistanceType::CartesianDistance => {
-				CartesianDistance::calculator()
-			}
-			_ => panic!("not implemented"),
-		}
-	}
-}
-
-impl CalculatorProvider<u16> for DistanceType {
-	type Output = u16;
-	fn calculator(&self) -> Calculator<u16>
-	{
-		match self {
-			DistanceType::EuclideanDistance => {
-				EuclideanDistance::calculator()
-			}
-			DistanceType::CartesianDistance => {
-				CartesianDistance::calculator()
-			}
-			_ => panic!("not implemented"),
-		}
-	}
-}
-*/
-/*
-impl CalculatorProvider<u16> for DistanceType {
-	fn calculator(&self) -> Calculator<u16> {
-		match self {
-			DistanceType::EuclideanDistance => {
-				EuclideanDistance::calculator()
-			},
-			DistanceType::CartesianDistance => {
-				CartesianDistance::calculator()
-			}
-			_ => panic!("not implemented"),
-		}
-	}
-}
-*/
 impl DistanceType {
 	/*
 		pub fn calculator<T>(&self) -> Calculator<T> {
@@ -211,15 +155,15 @@ impl DistanceType {
 // ******************************************************
 
 pub trait OneDimensionalDistanceCalculation<T> {
-	fn calculate(&self, cell: &Cell) -> T;
+	fn calculate(cell: &Cell) -> T;
 }
 
 pub trait TwoDimensionalDistanceCalculation<T> {
-	fn calculate(&self, cell: &Cell) -> (T, T);
+	fn calculate(cell: &Cell) -> (T, T);
 }
 
 pub trait ThreeDimensionalDistanceCalculation<T> {
-	fn calculate(&self, cell: &Cell) -> (T, T, T);
+	fn calculate(cell: &Cell) -> (T, T, T);
 }
 
 

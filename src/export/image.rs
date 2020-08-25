@@ -27,7 +27,22 @@ impl PngOutput {
 	}
 }
 
+pub trait ImageFileWriter {
+	fn write(&self, buffer_writer: Box<dyn ImageBufferWriter>);
+}
+
+impl ImageFileWriter for PngOutput {
+	fn write(&self, buffer_writer: Box<dyn ImageBufferWriter>) {
+		let buffer = buffer_writer.write();
+		println!("write to buffer, size:{}", buffer.len());
+
+		// TODO; we must call the old stuff from TransformationOutputWriter here !
+
+	}
+}
+
 // neu neu neu - und möglicherweise besser als der andere rotz
+/*
 impl TransformationOutputWriter<u8> for PngOutput {
 	fn write(&self, output: TransformationResult<u8>) {
 		match output {
@@ -129,7 +144,7 @@ impl TransformationOutputWriter<u32> for PngOutput {
 		}
 	}
 }
-
+*/
 impl PngOutput {
 	fn output_image_file(&self, image_data_buffer: Vec<u8>,
 						 width: u32,
@@ -268,23 +283,7 @@ impl PngOutput {
 // export quad channel
 }
 
-/*
-impl DistanceFieldExporter for PngOutput {
-	fn export(&self,
-			  distance_field: &DistanceField,
-			  distance_type: &DistanceType,
-			  export_filter: &DistanceLayer) {
-		/* TODO: deavtivated
-		match export_filter {
-			DistanceLayer::Background => self.output_df(&DistanceField::filter_outer(distance_field), distance_type),
-			DistanceLayer::Foreground => self.output_df(&DistanceField::filter_outer(distance_field), distance_type),
-			DistanceLayer::Combined => self.output_df(distance_field, distance_type),
-		};
 
-		 */
-	}
-}
- */
 fn get_standard_encoder(file_path: &str,
 						width: u32,
 						height: u32,
@@ -458,7 +457,7 @@ fn write_to_file<T: ImageBufferWriter>(res: T) {
 
 
 // TODO: add that somewhere
-fn write_the_final_solution<T: TransformationResultWriter>(writer: &T) {
+pub fn write_the_final_solution<T: TransformationResultWriter>(writer: &T) {
 	writer.write();
 }
 

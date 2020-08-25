@@ -1,19 +1,16 @@
 use crate::data::Cell;
 use crate::distance::OneDimensionalDistanceCalculation;
+use crate::utils::{f32_to_u8_clamped, f32_to_u16_clamped};
 
 /// The euclidean distance to the nearest cell.
 /// The distance is a single, unsigned value.
 pub struct EuclideanDistance;
 
 impl OneDimensionalDistanceCalculation<u8> for EuclideanDistance {
-	fn calculate(&self, cell: &Cell) -> u8 {
+	fn calculate(cell: &Cell) -> u8 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
 			let distance = (distance_squared as f32).sqrt();
-			if distance > 255.0f32 {
-				0xff
-			} else {
-				distance.round() as u8
-			}
+			f32_to_u8_clamped(distance)
 		} else {
 			0
 		}
@@ -21,14 +18,10 @@ impl OneDimensionalDistanceCalculation<u8> for EuclideanDistance {
 }
 
 impl OneDimensionalDistanceCalculation<u16> for EuclideanDistance {
-	fn calculate(&self, cell: &Cell) -> u16 {
+	fn calculate(cell: &Cell) -> u16 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
 			let distance = (distance_squared as f32).sqrt();
-			if distance > 65535.0f32 {
-				0xffff
-			} else {
-				distance.round() as u16
-			}
+			f32_to_u16_clamped(distance)
 		} else {
 			0
 		}
@@ -36,7 +29,7 @@ impl OneDimensionalDistanceCalculation<u16> for EuclideanDistance {
 }
 
 impl OneDimensionalDistanceCalculation<u32> for EuclideanDistance {
-	fn calculate(&self, _cell: &Cell) -> u32 {
+	fn calculate(_cell: &Cell) -> u32 {
 		unimplemented!()
 	}
 }
@@ -46,13 +39,13 @@ impl OneDimensionalDistanceCalculation<u32> for EuclideanDistance {
 pub struct EuclideanDistanceSquared;
 
 impl OneDimensionalDistanceCalculation<u8> for EuclideanDistanceSquared {
-	fn calculate(&self, _cell: &Cell) -> u8 {
+	fn calculate(_cell: &Cell) -> u8 {
 		unimplemented!()
 	}
 }
 
 impl OneDimensionalDistanceCalculation<u16> for EuclideanDistanceSquared {
-	fn calculate(&self, cell: &Cell) -> u16 {
+	fn calculate(cell: &Cell) -> u16 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
 			if distance_squared > 65535u32 {
 				0xffff
@@ -67,7 +60,7 @@ impl OneDimensionalDistanceCalculation<u16> for EuclideanDistanceSquared {
 }
 
 impl OneDimensionalDistanceCalculation<u32> for EuclideanDistanceSquared {
-	fn calculate(&self, _cell: &Cell) -> u32 {
+	fn calculate(_cell: &Cell) -> u32 {
 		unimplemented!()
 	}
 }

@@ -6,3 +6,4 @@ pub trait TransformationOutputWriter<T> {
 	/// Write the transformation result to the output.
 	fn write(&self, output: TransformationResult<T>);
 }
+

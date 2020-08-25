@@ -1,13 +1,17 @@
 use std::result::Result::Err;
 
 use crate::input::DistanceInput;
-use crate::export::{DistanceFieldExporter};
 use crate::processor::SourceProcessor;
 use crate::distance::{DistanceType, DistanceLayer};
+use crate::data::output::TransformationOutputWriter;
+use crate::data::transformation::{DistanceTransformation, TransformOutputGenerator, TransformationResult};
+use crate::export::image::{ImageFileWriter, PngOutput, write_the_final_solution};
+use std::borrow::Borrow;
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn DistanceInput>>,
-    output: Option<Box<dyn DistanceFieldExporter>>,
+    output: Option<Box<dyn ImageFileWriter>>,
+    // output: Option<Box<dyn DistanceFieldExporter>>,
     processor: Option<Box<dyn SourceProcessor>>,
     distance_type: DistanceType,
     distance_layer: DistanceLayer,
@@ -29,7 +33,11 @@ impl DistanceGenerator {
         self
     }
 
-    pub fn output(mut self, output: impl DistanceFieldExporter + 'static) -> Self {
+//    pub fn output(mut self, output: impl DistanceFieldExporter + 'static) -> Self {
+//        self.output = Some(Box::new(output));
+//        self
+//    }
+    pub fn output(mut self, output: impl ImageFileWriter + 'static) -> Self {
         self.output = Some(Box::new(output));
         self
     }
@@ -60,7 +68,20 @@ impl DistanceGenerator {
                 let df = processor.process(&source);
 
                 if let Some(output) = &self.output {
-                    output.export(&df, &self.distance_type, &self.distance_layer);
+                    // output.export(&df, &self.distance_type, &self.distance_layer);
+
+                    let mut dt: DistanceTransformation = DistanceTransformation::from(df);
+                    dt.filter(self.distance_layer.clone());
+                    // TODO: set distance type !
+                    // dt.distance_type(self.distance_type.clone());
+                    dt.scale(0.9); // u8 -> 0 = orig, 1 = 2^1 = orig / 2, 2 = 2^2 = orig / 4, etc...
+
+                    // das hier sollte gehen...
+                    // output.write(dt.transform());
+
+                    let res : TransformationResult<u8> = dt.transform();
+                    write_the_final_solution(&res);
+
                 } else {
                     panic!("no export file specified");
                 }
@@ -96,7 +117,7 @@ mod tests {
 
     #[test]
     fn no_input_path() {
-        let gen = DistanceGenerator::new();
+        let gen : DistanceGenerator = DistanceGenerator::new();
         assert!(gen.generate().is_err(), "non existing input path should generate an error");
     }
 
