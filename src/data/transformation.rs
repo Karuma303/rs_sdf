@@ -3,6 +3,7 @@ use crate::distance::DistanceType::EuclideanDistance;
 use crate::distance::euclid::EuclideanDistance as Euclid;
 use crate::distance::cartesian::CartesianDistance as Cartesian;
 use crate::data::{DistanceField, Cell};
+use crate::export::BitDepth;
 
 impl From<DistanceField> for DistanceTransformation {
 	fn from(df: DistanceField) -> Self {
@@ -159,6 +160,13 @@ pub struct TransformationData<T> {
 	pub height: u32,
 	pub data: Vec<T>,
 	// length of the data vector should be equal width * height
+}
+
+pub struct DataDescriptor {
+	pub width : u32,
+	pub height : u32,
+	pub bit_depth : BitDepth,
+	pub num_channels : u8,
 }
 
 impl<T> TransformationData<T> {

@@ -3,15 +3,12 @@ use std::result::Result::Err;
 use crate::input::DistanceInput;
 use crate::processor::SourceProcessor;
 use crate::distance::{DistanceType, DistanceLayer};
-use crate::data::output::TransformationOutputWriter;
 use crate::data::transformation::{DistanceTransformation, TransformOutputGenerator, TransformationResult};
-use crate::export::image::{ImageFileWriter, PngOutput, write_the_final_solution};
-use std::borrow::Borrow;
+use crate::export::image::{ImageFileWriter};
 
 pub struct DistanceGenerator {
     input: Option<Box<dyn DistanceInput>>,
     output: Option<Box<dyn ImageFileWriter>>,
-    // output: Option<Box<dyn DistanceFieldExporter>>,
     processor: Option<Box<dyn SourceProcessor>>,
     distance_type: DistanceType,
     distance_layer: DistanceLayer,
@@ -33,10 +30,6 @@ impl DistanceGenerator {
         self
     }
 
-//    pub fn output(mut self, output: impl DistanceFieldExporter + 'static) -> Self {
-//        self.output = Some(Box::new(output));
-//        self
-//    }
     pub fn output(mut self, output: impl ImageFileWriter + 'static) -> Self {
         self.output = Some(Box::new(output));
         self
@@ -76,11 +69,8 @@ impl DistanceGenerator {
                     // dt.distance_type(self.distance_type.clone());
                     dt.scale(0.9); // u8 -> 0 = orig, 1 = 2^1 = orig / 2, 2 = 2^2 = orig / 4, etc...
 
-                    // das hier sollte gehen...
-                    // output.write(dt.transform());
-
                     let res : TransformationResult<u8> = dt.transform();
-                    write_the_final_solution(&res);
+                    output.write(&res);
 
                 } else {
                     panic!("no export file specified");

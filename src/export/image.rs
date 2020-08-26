@@ -1,10 +1,10 @@
 use std::fs::File;
 use std::io::BufWriter;
 
-use png::{BitDepth, ColorType, Compression, Encoder, FilterType};
+use png::{ColorType, Compression, Encoder, FilterType};
 
-use crate::data::output::TransformationOutputWriter;
-use crate::data::transformation::{TransformationData, TransformationResult};
+use crate::data::transformation::{TransformationData, TransformationResult, DataDescriptor};
+use crate::export::BitDepth;
 
 // Todo: We have to add to the image exporter something like a color channel definition,
 // that maps the export channels to color channels
@@ -28,16 +28,36 @@ impl PngOutput {
 }
 
 pub trait ImageFileWriter {
-	fn write(&self, buffer_writer: Box<dyn ImageBufferWriter>);
+	fn write(&self, result_writer: &dyn TransformationResultWriter);
 }
 
 impl ImageFileWriter for PngOutput {
-	fn write(&self, buffer_writer: Box<dyn ImageBufferWriter>) {
-		let buffer = buffer_writer.write();
-		println!("write to buffer, size:{}", buffer.len());
+	fn write(&self, result_writer: &dyn TransformationResultWriter) {
 
-		// TODO; we must call the old stuff from TransformationOutputWriter here !
+		let buffer = result_writer.write_to_buffer();
+		let descriptor = result_writer.descriptor();
+		// TODO: continue here by using descriptor!
+		// and here comes the enchilada
 
+		let num_channels = descriptor.num_channels;
+		let bit_depth = descriptor.bit_depth;
+
+		/*
+		match num_channels {
+			1 => self.output_single_channel(buffer, bit_depth),
+			2 => self.output_dual_channel(buffer, bit_depth),
+			3 => self.output_triple_channel(buffer, bit_depth),
+			_ => panic!("number of channels not supported: {}", num_channels),
+		}
+		 */
+		let width = descriptor.width;
+		let height = descriptor.height;
+		let depth = match bit_depth {
+			BitDepth::Eight => ImageOutputChannelDepth::Eight,
+			BitDepth::Sixten => ImageOutputChannelDepth::Sixteen,
+			BitDepth::ThirtyTwo => ImageOutputChannelDepth::ThirtyTwo,
+		};
+		self.output_image_file(buffer, width, height, num_channels, depth);
 	}
 }
 
@@ -160,6 +180,9 @@ impl PngOutput {
 		// TODO: wir haben auch configuration.channel_depth! Was nutzen wir hier?
 
 		let mut writer = encoder.write_header().unwrap();
+
+		// TODO: for two channels we need to add some padding bytes before !!!
+
 		writer.write_image_data(&image_data_buffer).unwrap(); // Save
 	}
 
@@ -213,8 +236,8 @@ impl PngOutput {
 	}
 
 	fn output_dual_channel_u32<T: Into<u32> + Copy>(&self,
-											 _channel_data: &[(T, T)],
-											 _buffer: &mut Vec<u8>) {
+													_channel_data: &[(T, T)],
+													_buffer: &mut Vec<u8>) {
 		todo!()
 	}
 
@@ -303,8 +326,8 @@ fn get_standard_encoder(file_path: &str,
 	}
 	e.set_compression(Compression::Best);
 	e.set_depth(match channel_depth {
-		ImageOutputChannelDepth::Eight => BitDepth::Eight,
-		ImageOutputChannelDepth::Sixteen => BitDepth::Sixteen,
+		ImageOutputChannelDepth::Eight => png::BitDepth::Eight,
+		ImageOutputChannelDepth::Sixteen => png::BitDepth::Sixteen,
 		_ => unimplemented!(),
 	});
 	e.set_filter(FilterType::NoFilter); // ???
@@ -317,43 +340,60 @@ fn get_standard_encoder(file_path: &str,
 
 
 pub trait TransformationResultWriter {
-	fn write(&self);
+	fn write_to_buffer(&self) -> Vec<u8>;
+	fn descriptor(&self) -> DataDescriptor;
 }
 
 impl TransformationResultWriter for TransformationResult<u8> {
-	fn write(&self) {
+	fn write_to_buffer(&self) -> Vec<u8> {
 		match self {
-			TransformationResult::OneDimensional(one_dimensional_data) => {
-				// file_writer.write(trans_result);
-				write_to_file(one_dimensional_data);
-			}
-			TransformationResult::TwoDimensional(two_dimensional_data) => {
-				// file_writer.write(trans_result);
-				write_to_file(two_dimensional_data);
-			}
-			TransformationResult::ThreeDimensional(three_dimensional_data) => {
-				// file_writer.write(trans_result);
-				write_to_file(three_dimensional_data);
-			}
+			TransformationResult::OneDimensional(one_dimensional_data) =>
+				one_dimensional_data.write(),
+			TransformationResult::TwoDimensional(two_dimensional_data) =>
+				two_dimensional_data.write(),
+			TransformationResult::ThreeDimensional(three_dimensional_data) =>
+				three_dimensional_data.write(),
+		}
+	}
+
+	fn descriptor(&self) -> DataDescriptor {
+		let (num_channels, width, height) = match self {
+			TransformationResult::OneDimensional(one) => (1, one.width, one.height),
+			TransformationResult::TwoDimensional(two) => (2, two.width, two.height),
+			TransformationResult::ThreeDimensional(three) => (3, three.width, three.height),
+		};
+		DataDescriptor {
+			width,
+			height,
+			num_channels,
+			bit_depth : BitDepth::Eight,
 		}
 	}
 }
 
 impl TransformationResultWriter for TransformationResult<u16> {
-	fn write(&self) {
+	fn write_to_buffer(&self) -> Vec<u8> {
 		match self {
-			TransformationResult::OneDimensional(one_dimensional_data) => {
-				// file_writer.write(trans_result);
-				write_to_file(one_dimensional_data);
-			}
-			TransformationResult::TwoDimensional(two_dimensional_data) => {
-				// file_writer.write(trans_result);
-				write_to_file(two_dimensional_data);
-			}
-			TransformationResult::ThreeDimensional(three_dimensional_data) => {
-				// file_writer.write(trans_result);
-				write_to_file(three_dimensional_data);
-			}
+			TransformationResult::OneDimensional(one_dimensional_data) =>
+				one_dimensional_data.write(),
+			TransformationResult::TwoDimensional(two_dimensional_data) =>
+				two_dimensional_data.write(),
+			TransformationResult::ThreeDimensional(three_dimensional_data) =>
+				three_dimensional_data.write(),
+		}
+	}
+
+	fn descriptor(&self) -> DataDescriptor {
+		let (num_channels, width, height) = match self {
+			TransformationResult::OneDimensional(one) => (1, one.width, one.height),
+			TransformationResult::TwoDimensional(two) => (2, two.width, two.height),
+			TransformationResult::ThreeDimensional(three) => (3, three.width, three.height),
+		};
+		DataDescriptor {
+			width,
+			height,
+			num_channels,
+			bit_depth : BitDepth::Eight,
 		}
 	}
 }
@@ -440,29 +480,3 @@ impl ImageBufferWriter for &TransformationData<(u16, u16, u16)> {
 	}
 }
 
-pub struct FileWriter {}
-
-impl FileWriter {
-	pub fn write<T: ImageBufferWriter>(&self, buffer_writer: T) {
-		let buffer = buffer_writer.write();
-		println!("written to buffer, size:{}", buffer.len());
-		// ... and save buffer to file ;)
-	}
-}
-
-fn write_to_file<T: ImageBufferWriter>(res: T) {
-	let file_writer: FileWriter = FileWriter {};
-	file_writer.write(res);
-}
-
-
-// TODO: add that somewhere
-pub fn write_the_final_solution<T: TransformationResultWriter>(writer: &T) {
-	writer.write();
-}
-
-// hier weiter machen...
-
-// let trans_1 = DistanceTransformation { distance_type: DistanceType::Euclid };
-// let res_1: TransformationResult<u8> = trans_1.transform(); // -> u8
-// write_the_final_solution(&res_1);

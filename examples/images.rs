@@ -3,7 +3,7 @@ extern crate png;
 use std::path::PathBuf;
 
 use rs_sdf::distance::{DistanceLayer, DistanceType};
-use rs_sdf::export::image::{ImageOutputChannelDepth, PngOutput, write_the_final_solution};
+use rs_sdf::export::image::{ImageOutputChannelDepth, PngOutput, ImageFileWriter};
 use rs_sdf::generator::DistanceGenerator;
 use rs_sdf::input::DistanceInput;
 use rs_sdf::input::image::PngInput;
@@ -167,17 +167,8 @@ fn generate_sdf(source_image_name: &str,
     // old
     // let trans_res = dt.transform::<u8>();
 
-    let mut output = PngOutput::new(&target_image_path);
-
-    // TODO: das hier sollte gehene
-    // output.write(trans_res);
-
-    // stattdessen machen wir das hier
-    write_the_final_solution(&trans_res);
-
-    // hier muss es weiter gehen...
-    // TODO: reactivate
-    //   output.write(transformation_result);
+    let output = PngOutput::new(&target_image_path);
+    output.write(&trans_res);
 
     // short:
     // PngOutput::new(
