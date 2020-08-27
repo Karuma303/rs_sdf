@@ -25,4 +25,3 @@ impl From<PngInput> for DistanceFieldBuilder {
 		Self::new(Box::new(input))
 	}
 }
-

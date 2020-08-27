@@ -15,6 +15,7 @@ pub enum DistanceLayer {
 }
 
 /// Specification of all the different distance types that the library is able to calculate.
+#[derive(Clone)]
 pub enum DistanceType {
 	/// The euclidean distance to the nearest cell.
 	/// The distance is a single, unsigned value.
@@ -71,6 +72,19 @@ pub enum Calculator<T> {
 }
 
 impl DistanceType {
+	pub fn human_readable_name(&self) -> String {
+		match self {
+			DistanceType::EuclideanDistance => String::from("euclidean"),
+			DistanceType::EuclideanDistanceSquared => String::from("euclidean_squared"),
+			DistanceType::CartesianDistance => String::from("cartesian"),
+			DistanceType::ChebyshevDistance => String::from("chebyshev"),
+			DistanceType::RectilinearDistance => String::from("rectilinear"),
+			DistanceType::NearestCellPosition => String::from("nearest_cell_pos"),
+			DistanceType::NearestCellIndex => String::from("nearest_cell_index"),
+			DistanceType::NearestCellIndexOffset => String::from("nearest_cell_index_offset"),
+		}
+	}
+
 	/*
 		pub fn calculator<T>(&self) -> Calculator<T> {
 			match self {

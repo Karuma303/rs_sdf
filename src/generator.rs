@@ -65,8 +65,7 @@ impl DistanceGenerator {
 
                     let mut dt: DistanceTransformation = DistanceTransformation::from(df);
                     dt.filter(self.distance_layer.clone());
-                    // TODO: set distance type !
-                    // dt.distance_type(self.distance_type.clone());
+                    dt.distance_type(self.distance_type.clone());
                     dt.scale(0.9); // u8 -> 0 = orig, 1 = 2^1 = orig / 2, 2 = 2^2 = orig / 4, etc...
 
                     let res : TransformationResult<u8> = dt.transform();

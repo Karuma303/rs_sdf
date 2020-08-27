@@ -1,0 +1,84 @@
+From Joshua:
+If you want to find out more, the topics you want to google as 'zero-sized types',
+'unsized types',
+'transparent type wrappers' and
+'slice type memory format'
+
+Leftovers:
+
+[] Avoid code duplications in image.rs -> weird stuff is going on in there ;)
+[] Idea was to have some dynamic export Data with independent Channels where each of them has its own bit depths and
+number type
+
+pub struct ExportData {
+	pub channels: Vec<ExportChannel>,
+}
+
+pub struct ExportChannel {
+	pub data: Vec<u8>,
+	pub bit_depth: BitDepth,
+	pub number_type: NumberType,
+}
+
+pub trait Exporter {
+	fn export(&self, data: &ExportData);
+}
+
+pub trait Converter {
+    fn convert(distance_field: &DistanceField,
+               distance_type: &DistanceType,
+               distance_layer: &DistanceLayer,
+    ) -> ExportData;
+}
+
+impl ExportChannel {
+	fn new(num_elements: usize, bit_depth: BitDepth, number_type: NumberType) -> Self {
+		match bit_depth {
+			BitDepth::Eight => {
+				ExportChannel { data: Vec::<u8>::with_capacity(num_elements), bit_depth, number_type }
+			}
+			BitDepth::Sixten => {
+				ExportChannel { data: Vec::<u8>::with_capacity(num_elements * 2), bit_depth, number_type }
+			}
+			BitDepth::ThirtyTwo => {
+				ExportChannel { data: Vec::<u8>::with_capacity(num_elements * 4), bit_depth, number_type }
+			}
+		}
+	}
+}
+
+
+					let distance: u8 = u16_to_u8_clamped(function(&cell));
+					match cell.layer {
+						CellLayer::Foreground => {
+							buffer.push(distance);
+							buffer.push(0x00);
+							buffer.push(0x00);
+						}
+						CellLayer::Background => {
+							buffer.push(0x00);
+							buffer.push(distance);
+							buffer.push(0x00);
+						}
+
+
+                    let distance: u16 = function(&cell);
+                    let higher_byte = (distance >> 8) as u8;
+                    let lower_byte = (distance & 0xFF) as u8;
+                    match cell.layer {
+                        CellLayer::Foreground => {
+                            buffer.push(higher_byte);
+                            buffer.push(lower_byte);
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                        }
+                        CellLayer::Background => {
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                            buffer.push(higher_byte);
+                            buffer.push(lower_byte);
+                            buffer.push(0x00);
+                            buffer.push(0x00);
+                        }
