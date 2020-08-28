@@ -20,6 +20,7 @@ impl DistanceFieldBuilder {
 	}
 }
 
+// TODO. this must be DistanceInput I guess and not PngInput
 impl From<PngInput> for DistanceFieldBuilder {
 	fn from(input: PngInput) -> Self {
 		Self::new(Box::new(input))

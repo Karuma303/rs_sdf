@@ -7,7 +7,7 @@ pub mod rectilinear;
 use crate::data::Cell;
 use crate::distance::DistanceValueType::{TupleU16, U16, U32, I32};
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum DistanceLayer {
 	Foreground,
 	Background,
@@ -15,7 +15,7 @@ pub enum DistanceLayer {
 }
 
 /// Specification of all the different distance types that the library is able to calculate.
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum DistanceType {
 	/// The euclidean distance to the nearest cell.
 	/// The distance is a single, unsigned value.

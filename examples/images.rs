@@ -5,7 +5,6 @@ use std::path::PathBuf;
 use rs_sdf::distance::{DistanceLayer, DistanceType};
 use rs_sdf::export::image::{ImageOutputChannelDepth, PngOutput, ImageFileWriter};
 use rs_sdf::generator::DistanceGenerator;
-use rs_sdf::input::DistanceInput;
 use rs_sdf::input::image::PngInput;
 use rs_sdf::processor::sweep::EightSideSweepProcessor;
 use rs_sdf::data::DistanceField;
@@ -87,29 +86,12 @@ fn main() {
 				 DistanceType::EuclideanDistance,
 				 ImageOutputChannelDepth::Eight);
 
-	/*
-	generate_sdf("example_3_rgba_512x512.png", "example_3_512x512.png", ExportType::UnsignedInnerOuterDistance,ImageOutputChannels::One);
-	generate_sdf("example_4_rgba_512x512.png", "example_4_512x512.png", ExportType::UnsignedInnerOuterDistance, ImageOutputChannels::Two);
-	*/
-
 	// very big example
-	// generate_sdf("example_6_rgba_16384x16384.png", "example_6_16384x16384.png", &ExportType::UnsignedInnerOuterDistance);
-}
-
-fn generate_target_image_name(target_image_name: &str,
-							  layer: &DistanceLayer,
-							  distance_type: &DistanceType,
-							  num_channels: u8,
-							  bit_depth: &ImageOutputChannelDepth) -> String {
-	let mut prefixes: Vec<String> = Vec::new();
-	prefixes.push(get_distance_type_prefix(&distance_type));
-	prefixes.push(get_layer_prefix(&layer));
-	prefixes.push(get_num_channels_prefix(num_channels));
-	prefixes.push(get_bit_depth_prefix(&bit_depth));
-
-
-	get_output_image_file_path(target_image_name,
-							   prefixes.join("_").as_str())
+	generate_sdf("example_6_rgba_16384x16384.png",
+				 "example_6_16384x16384.png",
+				 DistanceLayer::Combined,
+				 DistanceType::EuclideanDistance,
+				 ImageOutputChannelDepth::Sixteen);
 }
 
 fn generate_sdf(source_image_name: &str,
@@ -117,36 +99,50 @@ fn generate_sdf(source_image_name: &str,
 				layer: DistanceLayer,
 				distance_type: DistanceType,
 				bit_depth: ImageOutputChannelDepth) {
-	let mut image_path_buff = PathBuf::new();
-	image_path_buff.push(BASE_ASSET_FOLDER);
-	image_path_buff.push(source_image_name);
 
-	let source_image_path = image_path_buff.into_os_string().into_string().unwrap();
+	let source_image_path = get_input_image_path(source_image_name);
 
 	let num_channels = 1; // TODO: this must be based on the transformation
-	let target_image_path = generate_target_image_name(&target_image_name, &layer, &distance_type, num_channels, &bit_depth);
 
-	// old way via DistanceGenerator
-	
+	let target_image_path = generate_target_image_name(&target_image_name,
+													   &layer,
+													   &distance_type,
+													   num_channels,
+													   &bit_depth);
+
+	// convenient way with the DistanceGenerator
+	generate_with_distance_generator(&source_image_path, &target_image_path, &layer, &distance_type);
+
+	// the more flexible way with the DistanceFieldBuilder
+	generate_with_distance_field_builder(&source_image_path, &target_image_path, &layer, &distance_type);
+}
+
+fn generate_with_distance_generator(source_image_path: &str,
+									target_image_path: &str,
+									layer: &DistanceLayer,
+									distance_type: &DistanceType) {
 	let g: DistanceGenerator = DistanceGenerator::new()
 		.input(PngInput::new(&source_image_path))
 		.output(PngOutput::new(&target_image_path))
-		.export_filter(layer)
-		.distance_type(distance_type)
+		.export_filter(*layer)
+		.distance_type(distance_type.clone())
 		.processor(EightSideSweepProcessor {});
 
 	let result = g.generate();
 	display_result(&result, &source_image_path, &target_image_path);
+}
 
-	// new way via DistanceFieldBuilder
-	
+fn generate_with_distance_field_builder(source_image_path: &str,
+										target_image_path: &str,
+										layer: &DistanceLayer,
+										distance_type: &DistanceType) {
 	let input = PngInput::new(&source_image_path);
 	let builder = DistanceFieldBuilder::from(input);
 
 	let df: DistanceField = builder.build(Processor::from(EightSideSweepProcessor {}));
-//	let builder_3: DistanceFieldBuilder = PngInput::new(&source_image_path).into(); // works too !
 
-	// let builder_2 = DistanceFieldBuilder::new(PngInput::new(&source_image_path));
+	// let b : DistanceFieldBuilder = PngInput::new(&source_image_path).into(); // works too !
+	// let b = DistanceFieldBuilder::new(PngInput::new(&source_image_path));
 
 	// let input : DistanceInput = PngInput::new(&source_image_path); X (ist kein DistanceInput sondern PngInput!)
 	// let builder : DistanceFieldBuilder = DistanceFieldBuilder::new(input); X (geht nur mit box)
@@ -158,8 +154,8 @@ fn generate_sdf(source_image_name: &str,
 	// DistanceTransformation provides n-channels with distances (bit depth?)
 	// let dt : DistanceTransformation = df.transformation();
 	let mut dt: DistanceTransformation = DistanceTransformation::from(df);
-	dt.filter(DistanceLayer::Foreground); // TODO: rename to inner/outer/combined
-	dt.distance_type(DistanceType::EuclideanDistance);
+	dt.filter(*layer);
+	dt.distance_type(*distance_type);
 	dt.scale(0.9); // u8 -> 0 = orig, 1 = 2^1 = orig / 2, 2 = 2^2 = orig / 4, etc...
 
 	// to generate the transformation result:
@@ -193,7 +189,32 @@ fn generate_sdf(source_image_name: &str,
 	//                  ::build(EightSidedSweep);
 }
 
-fn get_output_image_file_path(filename: &str, prefix: &str) -> String {
+
+fn generate_target_image_name(target_image_name: &str,
+							  layer: &DistanceLayer,
+							  distance_type: &DistanceType,
+							  num_channels: u8,
+							  bit_depth: &ImageOutputChannelDepth) -> String {
+	let mut prefixes: Vec<String> = Vec::new();
+	prefixes.push(get_distance_type_prefix(&distance_type));
+	prefixes.push(get_layer_prefix(&layer));
+	prefixes.push(get_num_channels_prefix(num_channels));
+	prefixes.push(get_bit_depth_prefix(&bit_depth));
+
+	get_output_image_path(target_image_name,
+						  prefixes.join("_").as_str())
+}
+
+
+fn get_input_image_path(filename: &str) -> String {
+	let mut image_path_buff = PathBuf::new();
+	image_path_buff.push(BASE_ASSET_FOLDER);
+	image_path_buff.push(filename);
+	image_path_buff.into_os_string().into_string().unwrap()
+}
+
+
+fn get_output_image_path(filename: &str, prefix: &str) -> String {
 	let mut file_path_buff = PathBuf::new();
 	file_path_buff.push(BASE_OUTPUT_FOLDER);
 	file_path_buff.push(prefix.to_owned() + "_" + filename);
