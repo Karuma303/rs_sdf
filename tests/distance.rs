@@ -1,17 +1,22 @@
 #[cfg(test)]
 mod tests {
-	use rs_sdf::data::{Cell, CellLayer};
+	use rs_sdf::data::{Cell, CellLayer, CellPosition};
+	use rs_sdf::distance::cartesian::CartesianDistance;
+	use rs_sdf::distance::chebyshev::ChebyshevDistance;
 	use rs_sdf::distance::DistanceType;
 	use rs_sdf::distance::euclid::{EuclideanDistance, EuclideanDistanceSquared};
+	use rs_sdf::distance::nearest_cell::{NearestCellPosition, NearestCellIndex};
 	use rs_sdf::distance::OneDimensionalDistanceCalculation;
-	use rs_sdf::distance::TwoDimensionalDistanceCalculation;
-	use rs_sdf::distance::cartesian::CartesianDistance;
 	use rs_sdf::distance::rectilinear::RectilinearDistance;
-	use rs_sdf::distance::chebyshev::ChebyshevDistance;
+	use rs_sdf::distance::TwoDimensionalDistanceCalculation;
 
-	fn setup_cell(source_x: u16, source_y: u16, nearest_x: u16, nearest_y: u16) -> Cell {
+	fn setup_cell(source_x: u16, source_y: u16, nearest_x: u16, nearest_y: u16, nearest_index: u32) -> Cell {
 		Cell {
-			nearest_cell_position: Some((nearest_x, nearest_y)),
+			nearest_cell_position: Some(CellPosition {
+				x: nearest_x,
+				y: nearest_y,
+				index: nearest_index,
+			}),
 			x: source_x,
 			y: source_y,
 			layer: CellLayer::Foreground,
@@ -24,16 +29,18 @@ mod tests {
 
 		let fun = EuclideanDistance::calculate;
 
+		let dummy_index = 0;
+
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0);
+		let c = setup_cell(0, 0, 0, 0, dummy_index);
 		let res: u16 = fun(&c);
 		assert_eq!(res, 0u16);
 
-		let c = setup_cell(0, 0, 3, 4);
+		let c = setup_cell(0, 0, 3, 4, dummy_index);
 		let res: u16 = fun(&c);
 		assert_eq!(res, 5u16);
 
-		let c = setup_cell(3, 4, 0, 0);
+		let c = setup_cell(3, 4, 0, 0, dummy_index);
 		let res: u16 = fun(&c);
 		assert_eq!(res, 5u16);
 
@@ -46,16 +53,18 @@ mod tests {
 
 		let f = EuclideanDistanceSquared::calculate;
 
+		let dummy_index = 0;
+
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0);
+		let c = setup_cell(0, 0, 0, 0, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 0);
 
-		let c = setup_cell(0, 0, 3, 4);
+		let c = setup_cell(0, 0, 3, 4, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 25);
 
-		let c = setup_cell(3, 4, 0, 0);
+		let c = setup_cell(3, 4, 0, 0, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 25);
 
@@ -66,16 +75,18 @@ mod tests {
 	fn calculate_chebyshev_distance() {
 		let f = ChebyshevDistance::calculate;
 
+		let dummy_index = 0;
+
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0);
+		let c = setup_cell(0, 0, 0, 0, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 0);
 
-		let c = setup_cell(0, 0, 3, 4);
+		let c = setup_cell(0, 0, 3, 4, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 4);
 
-		let c = setup_cell(3, 4, 0, 0);
+		let c = setup_cell(3, 4, 0, 0, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 4);
 
@@ -86,16 +97,18 @@ mod tests {
 	fn calculate_rectilinear_distance() {
 		let f = RectilinearDistance::calculate;
 
+		let dummy_index = 0;
+
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0);
+		let c = setup_cell(0, 0, 0, 0, dummy_index);
 		let res: u32 = f(&c);
 		assert_eq!(res, 0);
 
-		let c = setup_cell(0, 0, 3, 4);
+		let c = setup_cell(0, 0, 3, 4, dummy_index);
 		let res: u32 = f(&c);
 		assert_eq!(res, 7);
 
-		let c = setup_cell(3, 4, 0, 0);
+		let c = setup_cell(3, 4, 0, 0, dummy_index);
 		let res: u32 = f(&c);
 		assert_eq!(res, 7);
 
@@ -109,16 +122,18 @@ mod tests {
 
 		let f = CartesianDistance::calculate;
 
+		let dummy_index = 0;
+
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0);
+		let c = setup_cell(0, 0, 0, 0, dummy_index);
 		let res: (i32, i32) = f(&c);
 		assert_eq!(res, (0, 0));
 
-		let c = setup_cell(0, 0, 3, 4);
+		let c = setup_cell(0, 0, 3, 4, dummy_index);
 		let res: (i32, i32) = f(&c);
 		assert_eq!(res, (3, 4));
 
-		let c = setup_cell(3, 4, 0, 0);
+		let c = setup_cell(3, 4, 0, 0, dummy_index);
 		let res: (i32, i32) = f(&c);
 		assert_eq!(res, (-3, -4));
 
@@ -127,13 +142,24 @@ mod tests {
 
 	#[test]
 	fn get_nearest_cell_index() {
+		// Nearest Cell Index
 
+		let f = NearestCellIndex::calculate;
 
-
+		let c = setup_cell(0, 0, 0, 0, 99);
+		let res: u32 = f(&c);
+		assert_eq!(res, 99);
 	}
 
 	#[test]
 	fn get_nearest_cell_position() {
-		panic!()
+
+		// Nearest Cell Position
+
+		let f = NearestCellPosition::calculate;
+
+		let c = setup_cell(0, 0, 99, 99, 0);
+		let res: (u16, u16) = f(&c);
+		assert_eq!(res, (99, 99));
 	}
 }

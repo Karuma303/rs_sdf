@@ -10,9 +10,9 @@ pub struct ChebyshevDistance;
 
 impl OneDimensionalDistanceCalculation<u16> for ChebyshevDistance {
 	fn calculate(cell: &Cell) -> u16 {
-		if let Some((nearest_x, nearest_y)) = cell.nearest_cell_position {
-			let dx: u16 = (nearest_x as i32 - cell.x as i32).abs() as u16;
-			let dy: u16 = (nearest_y as i32 - cell.y as i32).abs() as u16;
+		if let Some(nearest) = &cell.nearest_cell_position {
+			let dx: u16 = (nearest.x as i32 - cell.x as i32).abs() as u16;
+			let dy: u16 = (nearest.y as i32 - cell.y as i32).abs() as u16;
 			max(dx, dy)
 		} else {
 			0u16

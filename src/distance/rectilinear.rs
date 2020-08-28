@@ -8,9 +8,9 @@ pub struct RectilinearDistance;
 
 impl OneDimensionalDistanceCalculation<u32> for RectilinearDistance {
 	fn calculate(cell: &Cell) -> u32 {
-		if let Some((nearest_x, nearest_y)) = cell.nearest_cell_position {
-			let dx: u32 = (nearest_x as i32 - cell.x as i32).abs() as u32;
-			let dy: u32 = (nearest_y as i32 - cell.y as i32).abs() as u32;
+		if let Some(nearest) = &cell.nearest_cell_position {
+			let dx: u32 = (nearest.x as i32 - cell.x as i32).abs() as u32;
+			let dy: u32 = (nearest.y as i32 - cell.y as i32).abs() as u32;
 			dx + dy
 		} else {
 			0u32

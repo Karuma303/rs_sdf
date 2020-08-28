@@ -18,13 +18,20 @@ pub struct Cell {
 	pub y: u16,
 
 	/// The position of the nearest cell from the other layer.
-	pub nearest_cell_position: Option<(u16, u16)>,
+	pub nearest_cell_position: Option<CellPosition>,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct CellPosition {
 	pub x: u16,
 	pub y: u16,
 	pub index: u32,
+}
+
+impl CellPosition {
+	pub fn get_coordinates(&self) -> (u16, u16) {
+		(self.x, self.y)
+	}
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -52,20 +59,20 @@ impl Cell {
 	/// The absolute squared distance to the nearest cell with the opposite layer type.
 	/// This is `None`, if no nearest cell was detected (yet).
 	pub fn distance_to_nearest_squared(&self) -> Option<u32> {
-		if let Some((nearest_x, nearest_y)) = &self.nearest_cell_position {
-			Some(Self::get_distance_squared(&self.x, &self.y, &nearest_x, &nearest_y))
+		if let Some(nearest) = &self.nearest_cell_position {
+			Some(Self::get_distance_squared(&self.x, &self.y, &nearest.x, &nearest.y))
 		} else {
 			None
 		}
 	}
 
-	pub fn get_nearest_cell_position(&self) -> Option<(u16, u16)> {
-		self.nearest_cell_position
+	pub fn get_nearest_cell_position(&self) -> &Option<CellPosition> {
+		&self.nearest_cell_position
 	}
 
-	/// Set the position (x,y) of the nearest cell with the opposite layer type.
-	pub fn set_nearest_cell_position(&mut self, x: u16, y: u16) {
-		self.nearest_cell_position = Some((x, y));
+	/// Set the position (x,y, index) of the nearest cell with the opposite layer type.
+	pub fn set_nearest_cell_position(&mut self, pos: CellPosition) {
+		self.nearest_cell_position = Some(pos);
 	}
 
 	pub fn get_distance_squared(first_x: &u16, first_y: &u16, second_x: &u16, second_y: &u16) -> u32 {
@@ -87,14 +94,20 @@ pub struct DistanceField {
 impl DistanceField {
 	// TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the export stage.
 	pub fn filter_inner(source: &Self) -> Self {
-		let cells = source.data.iter().map(|cell| {
+		let cells = source.data.iter().enumerate().map(|(index, cell)| {
 			match cell.layer {
 				CellLayer::Foreground => cell.clone(),
 				CellLayer::Background => Cell {
 					x: cell.x,
 					y: cell.y,
 					layer: CellLayer::Background,
-					nearest_cell_position: Some((cell.x, cell.y)),
+					nearest_cell_position: Some(
+						CellPosition {
+							x: cell.x,
+							y: cell.y,
+							index: index as u32,
+						}
+					),
 				}
 			}
 		}).collect();
@@ -107,14 +120,20 @@ impl DistanceField {
 
 	// TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the export stage.
 	pub fn filter_outer(source: &Self) -> Self {
-		let cells = source.data.iter().map(|cell| {
+		let cells = source.data.iter().enumerate().map(|(index, cell)| {
 			match cell.layer {
 				CellLayer::Background => cell.clone(),
 				CellLayer::Foreground => Cell {
 					x: cell.x,
 					y: cell.y,
 					layer: CellLayer::Foreground,
-					nearest_cell_position: Some((cell.x, cell.y)),
+					nearest_cell_position: Some(
+						CellPosition {
+							x: cell.x,
+							y: cell.y,
+							index: index as u32,
+						}
+					),
 				}
 			}
 		}).collect();
