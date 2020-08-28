@@ -7,7 +7,7 @@ pub fn i16_to_u8_clamped(value: i16) -> u8 {
 }
 
 pub fn i32_to_u16_clamped(value: i32) -> u16 {
-	u32_to_u16_clamped(value.saturating_abs() as u32 + i16::MAX as u32)
+	u32_to_u16_clamped(value.saturating_abs() as u32 + i8::MAX as u32)
 }
 
 pub fn u16_to_u8_clamped(value: u16) -> u8 {

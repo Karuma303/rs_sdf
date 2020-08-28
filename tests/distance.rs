@@ -127,7 +127,9 @@ mod tests {
 
 	#[test]
 	fn get_nearest_cell_index() {
-		panic!()
+
+
+
 	}
 
 	#[test]
