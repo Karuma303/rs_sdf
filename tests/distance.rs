@@ -7,6 +7,7 @@ mod tests {
 	use rs_sdf::distance::TwoDimensionalDistanceCalculation;
 	use rs_sdf::distance::cartesian::CartesianDistance;
 	use rs_sdf::distance::rectilinear::RectilinearDistance;
+	use rs_sdf::distance::chebyshev::ChebyshevDistance;
 
 	fn setup_cell(source_x: u16, source_y: u16, nearest_x: u16, nearest_y: u16) -> Cell {
 		Cell {
@@ -63,7 +64,22 @@ mod tests {
 
 	#[test]
 	fn calculate_chebyshev_distance() {
-		unimplemented!()
+		let f = ChebyshevDistance::calculate;
+
+		// zero distance
+		let c = setup_cell(0, 0, 0, 0);
+		let res: u16 = f(&c);
+		assert_eq!(res, 0);
+
+		let c = setup_cell(0, 0, 3, 4);
+		let res: u16 = f(&c);
+		assert_eq!(res, 4);
+
+		let c = setup_cell(3, 4, 0, 0);
+		let res: u16 = f(&c);
+		assert_eq!(res, 4);
+
+		// TODO: add some test for maximum range here!
 	}
 
 	#[test]
@@ -111,11 +127,6 @@ mod tests {
 
 	#[test]
 	fn get_nearest_cell_index() {
-		panic!()
-	}
-
-	#[test]
-	fn get_nearest_cell_index_offset() {
 		panic!()
 	}
 
