@@ -2,11 +2,18 @@ use std::cmp::max;
 
 use crate::data::Cell;
 use crate::distance::OneDimensionalDistanceCalculation;
+use crate::utils::u16_to_u8_clamped;
 
 /// The Chebyshev distance (also known as the chessboard distance) to the nearest cell.
 /// It is defined as the maximum of the horizontal distance and the vertical distance.
 /// The distance is a single unsigned value.
 pub struct ChebyshevDistance;
+
+impl OneDimensionalDistanceCalculation<u8> for ChebyshevDistance {
+	fn calculate(cell: &Cell) -> u8 {
+		u16_to_u8_clamped(ChebyshevDistance::calculate(&cell))
+	}
+}
 
 impl OneDimensionalDistanceCalculation<u16> for ChebyshevDistance {
 	fn calculate(cell: &Cell) -> u16 {

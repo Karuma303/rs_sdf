@@ -11,6 +11,9 @@ pub struct Cell {
 	/// The layer (foreground, background) this cell belongs to.
 	pub layer: CellLayer,
 
+	/// The index of the cell in the field when it is seen as a one dimensional list.
+	pub index: u32,
+
 	/// The horizontal position of the cell in the field.
 	pub x: u16,
 
@@ -47,8 +50,9 @@ pub enum CellLayer {
 }
 
 impl Cell {
-	pub fn new(layer: CellLayer, x: u16, y: u16) -> Self {
+	pub fn new(layer: CellLayer, index: u32, x: u16, y: u16) -> Self {
 		Self {
+			index,
 			x,
 			y,
 			layer,
@@ -98,16 +102,18 @@ impl DistanceField {
 			match cell.layer {
 				CellLayer::Foreground => cell.clone(),
 				CellLayer::Background => Cell {
+					index: cell.index,
 					x: cell.x,
 					y: cell.y,
 					layer: CellLayer::Background,
-					nearest_cell_position: Some(
-						CellPosition {
-							x: cell.x,
-							y: cell.y,
-							index: index as u32,
-						}
-					),
+					nearest_cell_position: None,
+					// Some(
+					// 	CellPosition {
+					// 		x: cell.x,
+					// 		y: cell.y,
+					// 		index: index as u32,
+					// 	}
+					// ),
 				}
 			}
 		}).collect();
@@ -124,16 +130,11 @@ impl DistanceField {
 			match cell.layer {
 				CellLayer::Background => cell.clone(),
 				CellLayer::Foreground => Cell {
+					index: cell.index,
 					x: cell.x,
 					y: cell.y,
 					layer: CellLayer::Foreground,
-					nearest_cell_position: Some(
-						CellPosition {
-							x: cell.x,
-							y: cell.y,
-							index: index as u32,
-						}
-					),
+					nearest_cell_position: None,
 				}
 			}
 		}).collect();
@@ -157,6 +158,7 @@ impl DistanceField {
 						.map(
 							move |(x, &value)| {
 								Cell {
+									index: (x + y * source.height as usize) as u32,
 									x: x as u16,
 									y: y as u16,
 									nearest_cell_position: None,

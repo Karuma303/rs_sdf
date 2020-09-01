@@ -21,6 +21,7 @@ impl EightSideSweepProcessor {
 			.map(|(row_index, row_data)| {
 				row_data.iter().enumerate().map(move |(col_index, value)| {
 					Cell {
+						index: (col_index + row_index * source.width as usize) as u32,
 						x: col_index as u16,
 						y: row_index as u16,
 						layer: match value {
@@ -243,18 +244,7 @@ impl EightSideSweepProcessor {
 		}
 	}
 
-	// new
 	fn get_distance_field_from_buffer(&self, buffer: &[Cell], width: u32, height: u32) -> DistanceField {
-		/*
-		print!("None: ");
-		buffer.iter().enumerate().for_each(|(index, cell)| {
-			if cell.nearest_cell_position.is_none() {
-				print!(" {} ", index);
-			}
-		});
-		println!();
-		 */
-
 		DistanceField {
 			width,
 			height,

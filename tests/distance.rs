@@ -10,13 +10,14 @@ mod tests {
 	use rs_sdf::distance::rectilinear::RectilinearDistance;
 	use rs_sdf::distance::TwoDimensionalDistanceCalculation;
 
-	fn setup_cell(source_x: u16, source_y: u16, nearest_x: u16, nearest_y: u16, nearest_index: u32) -> Cell {
+	fn setup_cell(index: u32, source_x: u16, source_y: u16, nearest_x: u16, nearest_y: u16, nearest_index: u32) -> Cell {
 		Cell {
 			nearest_cell_position: Some(CellPosition {
 				x: nearest_x,
 				y: nearest_y,
 				index: nearest_index,
 			}),
+			index,
 			x: source_x,
 			y: source_y,
 			layer: CellLayer::Foreground,
@@ -32,15 +33,15 @@ mod tests {
 		let dummy_index = 0;
 
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0, dummy_index);
+		let c = setup_cell( 0,0, 0, 0, 0, dummy_index);
 		let res: u16 = fun(&c);
 		assert_eq!(res, 0u16);
 
-		let c = setup_cell(0, 0, 3, 4, dummy_index);
+		let c = setup_cell(0, 0, 0, 3, 4, dummy_index);
 		let res: u16 = fun(&c);
 		assert_eq!(res, 5u16);
 
-		let c = setup_cell(3, 4, 0, 0, dummy_index);
+		let c = setup_cell(0, 3, 4, 0, 0, dummy_index);
 		let res: u16 = fun(&c);
 		assert_eq!(res, 5u16);
 
@@ -56,15 +57,15 @@ mod tests {
 		let dummy_index = 0;
 
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0, dummy_index);
+		let c = setup_cell(0,0, 0, 0, 0, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 0);
 
-		let c = setup_cell(0, 0, 3, 4, dummy_index);
+		let c = setup_cell(0,0, 0, 3, 4, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 25);
 
-		let c = setup_cell(3, 4, 0, 0, dummy_index);
+		let c = setup_cell(0,3, 4, 0, 0, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 25);
 
@@ -78,15 +79,15 @@ mod tests {
 		let dummy_index = 0;
 
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0, dummy_index);
+		let c = setup_cell(0,0, 0, 0, 0, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 0);
 
-		let c = setup_cell(0, 0, 3, 4, dummy_index);
+		let c = setup_cell(0,0, 0, 3, 4, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 4);
 
-		let c = setup_cell(3, 4, 0, 0, dummy_index);
+		let c = setup_cell(0,3, 4, 0, 0, dummy_index);
 		let res: u16 = f(&c);
 		assert_eq!(res, 4);
 
@@ -100,15 +101,15 @@ mod tests {
 		let dummy_index = 0;
 
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0, dummy_index);
+		let c = setup_cell(0,0, 0, 0, 0, dummy_index);
 		let res: u32 = f(&c);
 		assert_eq!(res, 0);
 
-		let c = setup_cell(0, 0, 3, 4, dummy_index);
+		let c = setup_cell(0,0, 0, 3, 4, dummy_index);
 		let res: u32 = f(&c);
 		assert_eq!(res, 7);
 
-		let c = setup_cell(3, 4, 0, 0, dummy_index);
+		let c = setup_cell(0,3, 4, 0, 0, dummy_index);
 		let res: u32 = f(&c);
 		assert_eq!(res, 7);
 
@@ -125,15 +126,15 @@ mod tests {
 		let dummy_index = 0;
 
 		// zero distance
-		let c = setup_cell(0, 0, 0, 0, dummy_index);
+		let c = setup_cell(0,0, 0, 0, 0, dummy_index);
 		let res: (i32, i32) = f(&c);
 		assert_eq!(res, (0, 0));
 
-		let c = setup_cell(0, 0, 3, 4, dummy_index);
+		let c = setup_cell(0,0, 0, 3, 4, dummy_index);
 		let res: (i32, i32) = f(&c);
 		assert_eq!(res, (3, 4));
 
-		let c = setup_cell(3, 4, 0, 0, dummy_index);
+		let c = setup_cell(0,3, 4, 0, 0, dummy_index);
 		let res: (i32, i32) = f(&c);
 		assert_eq!(res, (-3, -4));
 
@@ -146,7 +147,7 @@ mod tests {
 
 		let f = NearestCellIndex::calculate;
 
-		let c = setup_cell(0, 0, 0, 0, 99);
+		let c = setup_cell(0,0, 0, 0, 0, 99);
 		let res: u32 = f(&c);
 		assert_eq!(res, 99);
 	}
@@ -158,7 +159,7 @@ mod tests {
 
 		let f = NearestCellPosition::calculate;
 
-		let c = setup_cell(0, 0, 99, 99, 0);
+		let c = setup_cell(0,0, 0, 99, 99, 0);
 		let res: (u16, u16) = f(&c);
 		assert_eq!(res, (99, 99));
 	}

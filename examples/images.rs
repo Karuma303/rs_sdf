@@ -50,48 +50,59 @@ fn main() {
 				 ImageOutputChannelDepth::Eight);
 
 	// Export PNG with 8-bit inner and outer cartesian distance (distances added in one channel)
+	/*
 	generate_sdf("example_1_rgba_512x512.png",
 				 "example_1_512x512.png",
 				 DistanceLayer::Combined,
 				 DistanceType::CartesianDistance,
 				 ImageOutputChannelDepth::Eight);
+	 */
 
 	// Demonstrate single- and dual-channel export
 
 	// 2.1. Export PNG with inner and outer euclidean distance added together in one 8-bit channel
+	/*
 	generate_sdf("example_2_rgba_512x512.png",
 				 "example_2_512x512.png",
 				 DistanceLayer::Combined,
 				 DistanceType::EuclideanDistance,
 				 ImageOutputChannelDepth::Eight);
+	 */
 
 	// 2.2. Export PNG with inner and outer euclidean distance separated to two 8-bit channels
+	/*
 	generate_sdf("example_2_rgba_512x512.png",
 				 "example_2_512x512_2_channel.png",
 				 DistanceLayer::Combined,
 				 DistanceType::EuclideanDistance,
 				 ImageOutputChannelDepth::Eight);
-
+	*/
 
 	// another example...
+	/*
 	generate_sdf("example_8_rgba_512x512.png",
 				 "example_8_512x512.png",
 				 DistanceLayer::Combined,
 				 DistanceType::EuclideanDistance,
 				 ImageOutputChannelDepth::Eight);
+	 */
 
+	/*
 	generate_sdf("example_10_rgba_3100x900.png",
 				 "example_10_3100x900.png",
 				 DistanceLayer::Background,
 				 DistanceType::EuclideanDistance,
 				 ImageOutputChannelDepth::Eight);
+	 */
 
 	// very big example
+	/*
 	generate_sdf("example_6_rgba_16384x16384.png",
 				 "example_6_16384x16384.png",
 				 DistanceLayer::Combined,
 				 DistanceType::EuclideanDistance,
 				 ImageOutputChannelDepth::Sixteen);
+	 */
 }
 
 fn generate_sdf(source_image_name: &str,
@@ -99,12 +110,12 @@ fn generate_sdf(source_image_name: &str,
 				layer: DistanceLayer,
 				distance_type: DistanceType,
 				bit_depth: ImageOutputChannelDepth) {
-
 	let source_image_path = get_input_image_path(source_image_name);
 
-	let num_channels = 1; // TODO: this must be based on the transformation
+	let num_channels = distance_type.dimensions();
 
-	let target_image_path = generate_target_image_name(&target_image_name,
+	let target_image_path = generate_target_image_name("generator",
+													   &target_image_name,
 													   &layer,
 													   &distance_type,
 													   num_channels,
@@ -112,6 +123,13 @@ fn generate_sdf(source_image_name: &str,
 
 	// convenient way with the DistanceGenerator
 	generate_with_distance_generator(&source_image_path, &target_image_path, &layer, &distance_type);
+
+	let target_image_path = generate_target_image_name("builder",
+													   &target_image_name,
+													   &layer,
+													   &distance_type,
+													   num_channels,
+													   &bit_depth);
 
 	// the more flexible way with the DistanceFieldBuilder
 	generate_with_distance_field_builder(&source_image_path, &target_image_path, &layer, &distance_type);
@@ -190,12 +208,14 @@ fn generate_with_distance_field_builder(source_image_path: &str,
 }
 
 
-fn generate_target_image_name(target_image_name: &str,
+fn generate_target_image_name(prefix: &str,
+							  target_image_name: &str,
 							  layer: &DistanceLayer,
 							  distance_type: &DistanceType,
 							  num_channels: u8,
 							  bit_depth: &ImageOutputChannelDepth) -> String {
 	let mut prefixes: Vec<String> = Vec::new();
+	prefixes.push(String::from(prefix));
 	prefixes.push(get_distance_type_prefix(&distance_type));
 	prefixes.push(get_layer_prefix(&layer));
 	prefixes.push(get_num_channels_prefix(num_channels));

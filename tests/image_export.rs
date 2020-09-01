@@ -37,7 +37,7 @@ mod tests {
 	fn generates_png_file() {
 		// should generate a 1x1 pixel grey image
 		let d: DistanceField = DistanceField {
-			data: vec![Cell::new(CellLayer::Foreground, 90, 90); 1], // Foreground(Distance::new(180, 180))
+			data: vec![Cell::new(CellLayer::Foreground, 0, 90, 90); 1], // Foreground(Distance::new(180, 180))
 			width: 1,
 			height: 1,
 		};

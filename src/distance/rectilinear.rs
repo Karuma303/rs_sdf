@@ -1,10 +1,23 @@
 use crate::distance::OneDimensionalDistanceCalculation;
 use crate::data::Cell;
+use crate::utils::{u32_to_u16_clamped, u32_to_u8_clamped};
 
 /// The Rectilinear distance (also know as the Manhattan distance) to the nearest cell.
 /// It is defined as the sum of the horizontal distance and the vertical distance.
 /// The distance is a single, unsigned value.
 pub struct RectilinearDistance;
+
+impl OneDimensionalDistanceCalculation<u8> for RectilinearDistance {
+	fn calculate(cell: &Cell) -> u8 {
+		u32_to_u8_clamped(RectilinearDistance::calculate(&cell))
+	}
+}
+
+impl OneDimensionalDistanceCalculation<u16> for RectilinearDistance {
+	fn calculate(cell: &Cell) -> u16 {
+		u32_to_u16_clamped(RectilinearDistance::calculate(&cell))
+	}
+}
 
 impl OneDimensionalDistanceCalculation<u32> for RectilinearDistance {
 	fn calculate(cell: &Cell) -> u32 {
