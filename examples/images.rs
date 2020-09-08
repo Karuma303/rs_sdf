@@ -3,7 +3,7 @@ extern crate png;
 use std::path::PathBuf;
 
 use rs_sdf::distance::{DistanceLayer, DistanceType};
-use rs_sdf::export::image::{ImageOutputChannelDepth, PngOutput, ImageFileWriter};
+use rs_sdf::export::image::{ImageOutputChannelDepth, PngOutput, ImageFileWriter, DistanceTransformationResultWriter};
 use rs_sdf::generator::DistanceGenerator;
 use rs_sdf::input::image::PngInput;
 use rs_sdf::processor::sweep::EightSideSweepProcessor;
@@ -11,6 +11,7 @@ use rs_sdf::data::DistanceField;
 use rs_sdf::processor::Processor;
 use rs_sdf::data::transformation::{DistanceTransformation, TransformationResult, TransformOutputGenerator};
 use rs_sdf::data::builder::DistanceFieldBuilder;
+use rs_sdf::result::DistanceTransformationResult;
 
 const BASE_ASSET_FOLDER: &str = r"examples/assets";
 const BASE_OUTPUT_FOLDER: &str = r"examples/output";
@@ -183,6 +184,13 @@ fn generate_with_distance_field_builder(source_image_path: &str,
 	// #2 (explicit type)
 	// let res : TransformationResult<u8> = dt.transform();
 	// let res : TransformationResult<u16> = dt.transform();
+
+
+	// very new - with non-generic TransformationResult
+	let res : DistanceTransformationResult = dt.result();
+	let output = PngOutput::new(&target_image_path);
+	output.write_result(res); // TODO
+	// end of very new ;)
 
 	// new
 	let trans_res: TransformationResult<u8> = dt.transform(); // -> u8

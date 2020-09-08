@@ -5,6 +5,7 @@ use png::{ColorType, Compression, Encoder, FilterType};
 
 use crate::data::transformation::{TransformationData, TransformationResult, DataDescriptor};
 use crate::export::BitDepth;
+use crate::result::DistanceTransformationResult;
 
 // Todo: We have to add to the image exporter something like a color channel definition,
 // that maps the export channels to color channels
@@ -26,6 +27,17 @@ impl PngOutput {
 		}
 	}
 }
+
+pub trait DistanceTransformationResultWriter {
+	fn write_result(&self, trans_res: DistanceTransformationResult);
+}
+
+impl DistanceTransformationResultWriter for PngOutput {
+	fn write_result(&self, trans_res: DistanceTransformationResult) {
+		todo!("bla foo")
+	}
+}
+
 
 pub trait ImageFileWriter {
 	fn write(&self, result_writer: &dyn TransformationResultWriter);
@@ -50,8 +62,8 @@ impl ImageFileWriter for PngOutput {
 
 impl PngOutput {
 	fn output_image_file(&self, image_data_buffer: Vec<u8>,
-						 width: u32,
-						 height: u32,
+						 width: u16,
+						 height: u16,
 						 num_channels: u8,
 						 bit_depth: ImageOutputChannelDepth) {
 		let encoder = get_standard_encoder(&self.file_path,
@@ -127,15 +139,15 @@ impl PngOutput {
 
 
 fn get_standard_encoder(file_path: &str,
-						width: u32,
-						height: u32,
+						width: u16,
+						height: u16,
 						channel_depth: &ImageOutputChannelDepth,
 						num_channels: u8) -> Encoder<BufWriter<File>> {
 	println!("{:?}", file_path);
 	let file = File::create(file_path).unwrap();
 	let w = BufWriter::new(file);
 
-	let mut e = Encoder::new(w, width, height);
+	let mut e = Encoder::new(w, width as u32, height as u32);
 	match num_channels {
 		1 => e.set_color(ColorType::Grayscale),
 		2 => e.set_color(ColorType::GrayscaleAlpha),

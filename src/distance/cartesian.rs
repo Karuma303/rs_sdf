@@ -6,6 +6,19 @@ use crate::utils::{i32_to_u8_clamped, i32_to_u16_clamped};
 /// The difference is a tuple of signed values.
 pub struct CartesianDistance;
 
+impl CartesianDistance {
+	// This is the default calculation for this distance type with maximum precision
+	pub(crate) fn calculate_i32(cell : &Cell) -> (i32, i32) {
+		if let Some(nearest) = &cell.nearest_cell_position {
+			let dx: i32 = nearest.x as i32 - cell.x as i32;
+			let dy: i32 = nearest.y as i32 - cell.y as i32;
+			(dx, dy)
+		} else {
+			(0i32, 0i32)
+		}
+	}
+}
+
 impl TwoDimensionalDistanceCalculation<u8> for CartesianDistance {
 	fn calculate(cell: &Cell) -> (u8, u8) {
 		if let Some(nearest) = &cell.nearest_cell_position {

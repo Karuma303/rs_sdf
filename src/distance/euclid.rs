@@ -6,6 +6,18 @@ use crate::utils::{f32_to_u8_clamped, f32_to_u16_clamped};
 /// The distance is a single, unsigned value.
 pub struct EuclideanDistance;
 
+impl EuclideanDistance {
+
+	// This is the default calculation for this distance type with maximum precision
+	pub fn calculate_f64(cell: &Cell) -> f64 {
+		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
+			(distance_squared as f64).sqrt()
+		} else {
+			0f64
+		}
+	}
+}
+
 impl OneDimensionalDistanceCalculation<u8> for EuclideanDistance {
 	fn calculate(cell: &Cell) -> u8 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
@@ -29,14 +41,30 @@ impl OneDimensionalDistanceCalculation<u16> for EuclideanDistance {
 }
 
 impl OneDimensionalDistanceCalculation<u32> for EuclideanDistance {
-	fn calculate(_cell: &Cell) -> u32 {
-		unimplemented!()
+	fn calculate(cell: &Cell) -> u32 {
+		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
+			let distance = (distance_squared as f32).sqrt();
+			distance as u32
+		} else {
+			0
+		}
 	}
 }
 
 /// The squared euclidean distance to the nearest cell.
 /// The distance is a single, unsigned value.
 pub struct EuclideanDistanceSquared;
+
+impl EuclideanDistanceSquared {
+	// This is the default calculation for this distance type with maximum precision
+	pub fn calculate_u64(cell: &Cell) -> u64 {
+		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
+			distance_squared
+		} else {
+			0
+		}
+	}
+}
 
 impl OneDimensionalDistanceCalculation<u8> for EuclideanDistanceSquared {
 	fn calculate(_cell: &Cell) -> u8 {
@@ -47,7 +75,7 @@ impl OneDimensionalDistanceCalculation<u8> for EuclideanDistanceSquared {
 impl OneDimensionalDistanceCalculation<u16> for EuclideanDistanceSquared {
 	fn calculate(cell: &Cell) -> u16 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
-			if distance_squared > 65535u32 {
+			if distance_squared > 65535u64 {
 				0xffff
 			} else {
 				distance_squared as u16

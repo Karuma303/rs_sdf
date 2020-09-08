@@ -59,7 +59,8 @@ impl PngInput {
             *element = image_buffer[index * 4 + 3];
         }
 
-        let source = InputField::from(ByteInputData::new(output_buffer, 127, info.width, info.height));
+        // TODO: we must add some error handling here to handle the case that infos width/height is greater than u16::MAX !
+        let source = InputField::from(ByteInputData::new(output_buffer, 127, info.width as u16, info.height as u16));
 
         Ok(source)
     }

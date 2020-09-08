@@ -62,7 +62,7 @@ impl Cell {
 
 	/// The absolute squared distance to the nearest cell with the opposite layer type.
 	/// This is `None`, if no nearest cell was detected (yet).
-	pub fn distance_to_nearest_squared(&self) -> Option<u32> {
+	pub fn distance_to_nearest_squared(&self) -> Option<u64> {
 		if let Some(nearest) = &self.nearest_cell_position {
 			Some(Self::get_distance_squared(&self.x, &self.y, &nearest.x, &nearest.y))
 		} else {
@@ -79,20 +79,22 @@ impl Cell {
 		self.nearest_cell_position = Some(pos);
 	}
 
-	pub fn get_distance_squared(first_x: &u16, first_y: &u16, second_x: &u16, second_y: &u16) -> u32 {
+	pub fn get_distance_squared(first_x: &u16, first_y: &u16, second_x: &u16, second_y: &u16) -> u64 {
 		// TODO: we should check all the casts here
 		// TODO: maybe use appropriate rust functions here
 		let horiz_dist = i32::from(*first_x) - i32::from(*second_x);
 		let vert_dist = i32::from(*first_y) - i32::from(*second_y);
-		horiz_dist.pow(2) as u32 + vert_dist.pow(2) as u32
+		horiz_dist.pow(2) as u64 + vert_dist.pow(2) as u64
 	}
 }
 
 /// A two-dimensional distance field with cells.
+/// The maximum for the width and the height of the field is 2^16 (65.536) units,
+/// so the maximum size of the whole field is 2^32 (4.294.967.296) units.
 pub struct DistanceField {
 	pub data: Vec<Cell>,
-	pub width: u32,
-	pub height: u32,
+	pub width: u16,
+	pub height: u16,
 }
 
 impl DistanceField {

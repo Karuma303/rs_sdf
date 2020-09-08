@@ -37,14 +37,14 @@ impl EightSideSweepProcessor {
 	}
 
 	/// 2-pass sweep over the inner buffer to calculate the distances.
-	fn sweep_buffer(&self, buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
+	fn sweep_buffer(&self, buffer: &mut Vec<Cell>, field_width: u16, field_height: u16) {
 		// Two pass sweep (down + up)
 		self.sweep_buffer_down(buffer, field_width, field_height);
 		self.sweep_buffer_up(buffer, field_width, field_height);
 	}
 
 	/// Down sweep (pass #1)
-	fn sweep_buffer_down(&self, buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
+	fn sweep_buffer_down(&self, buffer: &mut Vec<Cell>, field_width: u16, field_height: u16) {
 		let w = field_width as usize;
 		let h = field_height as usize;
 
@@ -103,7 +103,7 @@ impl EightSideSweepProcessor {
 	}
 
 	/// Up sweep (pass #2)
-	fn sweep_buffer_up(&self, buffer: &mut Vec<Cell>, field_width: u32, field_height: u32) {
+	fn sweep_buffer_up(&self, buffer: &mut Vec<Cell>, field_width: u16, field_height: u16) {
 		let w = field_width as usize;
 		let h = field_height as usize;
 
@@ -244,7 +244,7 @@ impl EightSideSweepProcessor {
 		}
 	}
 
-	fn get_distance_field_from_buffer(&self, buffer: &[Cell], width: u32, height: u32) -> DistanceField {
+	fn get_distance_field_from_buffer(&self, buffer: &[Cell], width: u16, height: u16) -> DistanceField {
 		DistanceField {
 			width,
 			height,

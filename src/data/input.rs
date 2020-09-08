@@ -8,18 +8,18 @@ use bitvec::vec::{BitVec};
 #[derive(Debug)]
 pub struct InputField {
     pub data: BitVec,
-    pub width: u32,
-    pub height: u32,
+    pub width: u16,
+    pub height: u16,
 }
 
 struct DimensionalVector<T> {
     data: Vec<T>,
-    pub width: u32,
-    pub height: u32,
+    pub width: u16,
+    pub height: u16,
 }
 
 impl<T> DimensionalVector<T> {
-    pub fn new(data: Vec<T>, width: u32, height: u32) -> Self {
+    pub fn new(data: Vec<T>, width: u16, height: u16) -> Self {
         check_dimensions_and_buffer_size(width, height, data.len());
         DimensionalVector {
             data,
@@ -38,7 +38,7 @@ pub struct ByteInputData {
 }
 
 impl ByteInputData {
-    pub fn new(buffer: Vec<u8>, threshold: u8, width: u32, height: u32) -> Self {
+    pub fn new(buffer: Vec<u8>, threshold: u8, width: u16, height: u16) -> Self {
         Self {
             buffer: DimensionalVector::new(buffer, width, height),
             threshold,
@@ -51,7 +51,7 @@ pub struct BoolInputData {
 }
 
 impl BoolInputData {
-    pub fn new(buffer: Vec<bool>, width: u32, height: u32) -> Self {
+    pub fn new(buffer: Vec<bool>, width: u16, height: u16) -> Self {
         Self {
             buffer: DimensionalVector::new(buffer, width, height),
         }
@@ -78,7 +78,7 @@ impl From<BoolInputData> for InputField {
 
 /// Implementation of the InputField type.
 impl InputField {
-    pub fn new(data: BitVec, width: u32, height: u32) -> Self {
+    pub fn new(data: BitVec, width: u16, height: u16) -> Self {
         check_dimensions_and_buffer_size(width, height, data.len());
         InputField {
             data,
@@ -94,7 +94,7 @@ impl InputField {
 
 /// Helper method, that checks if the length of a buffer is equal to its width times its height.
 /// The method will panic, if this is not the case.
-fn check_dimensions_and_buffer_size(width: u32, height: u32, buffer_len: usize) {
+fn check_dimensions_and_buffer_size(width: u16, height: u16, buffer_len: usize) {
     if width == 0 {
         panic!("width must be greater than zero"); // maybe an error type "incorrect dimensions" would be better here!
     }
