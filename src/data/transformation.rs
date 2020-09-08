@@ -14,11 +14,11 @@ impl From<DistanceField> for DistanceTransformation {
 }
 
 pub trait DistanceCalculator {
-	fn calculate<T>(&self, cells: &Vec<Cell>, calc_function: fn(&Cell) -> T) -> Vec<T>;
+	fn calculate<T>(&self, cells: &[Cell], calc_function: fn(&Cell) -> T) -> Vec<T>;
 }
 
 impl DistanceCalculator for DistanceTransformation {
-	fn calculate<T>(&self, cells: &Vec<Cell>, calc_function: fn(&Cell) -> T) -> Vec<T> {
+	fn calculate<T>(&self, cells: &[Cell], calc_function: fn(&Cell) -> T) -> Vec<T> {
 		let mut channel = Vec::with_capacity(cells.len());
 		cells.iter().for_each(|cell| channel.push(calc_function(cell)));
 		channel

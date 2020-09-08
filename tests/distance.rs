@@ -3,7 +3,6 @@ mod tests {
 	use rs_sdf::data::{Cell, CellLayer, CellPosition};
 	use rs_sdf::distance::cartesian::CartesianDistance;
 	use rs_sdf::distance::chebyshev::ChebyshevDistance;
-	use rs_sdf::distance::DistanceType;
 	use rs_sdf::distance::euclid::{EuclideanDistance, EuclideanDistanceSquared};
 	use rs_sdf::distance::nearest_cell::{NearestCellPosition, NearestCellIndex};
 	use rs_sdf::distance::OneDimensionalDistanceCalculation;

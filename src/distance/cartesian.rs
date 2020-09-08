@@ -33,8 +33,8 @@ impl TwoDimensionalDistanceCalculation<i32> for CartesianDistance {
 impl TwoDimensionalDistanceCalculation<u16> for CartesianDistance {
 	fn calculate(cell: &Cell) -> (u16, u16) {
 		if let Some(nearest) = &cell.nearest_cell_position {
-			let dx: i32 = cell.x as i32 - cell.x as i32;
-			let dy: i32 = cell.y as i32 - cell.y as i32;
+			let dx = nearest.x as i32 - cell.x as i32;
+			let dy = nearest.y as i32 - cell.y as i32;
 			(i32_to_u16_clamped(dx), i32_to_u16_clamped(dy))
 		} else {
 			(0u16, 0u16)

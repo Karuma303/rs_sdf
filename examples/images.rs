@@ -194,6 +194,10 @@ fn generate_with_distance_field_builder(source_image_path: &str,
 	let output = PngOutput::new(&target_image_path);
 	output.write(&trans_res);
 
+
+
+
+
 	// short:
 	// PngOutput::new(
 	//          DistanceFieldBuilder::new(

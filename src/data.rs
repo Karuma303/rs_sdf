@@ -98,7 +98,7 @@ pub struct DistanceField {
 impl DistanceField {
 	// TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the export stage.
 	pub fn filter_inner(source: &Self) -> Self {
-		let cells = source.data.iter().enumerate().map(|(index, cell)| {
+		let cells = source.data.iter().map(|cell| {
 			match cell.layer {
 				CellLayer::Foreground => cell.clone(),
 				CellLayer::Background => Cell {
@@ -107,13 +107,6 @@ impl DistanceField {
 					y: cell.y,
 					layer: CellLayer::Background,
 					nearest_cell_position: None,
-					// Some(
-					// 	CellPosition {
-					// 		x: cell.x,
-					// 		y: cell.y,
-					// 		index: index as u32,
-					// 	}
-					// ),
 				}
 			}
 		}).collect();
@@ -126,7 +119,7 @@ impl DistanceField {
 
 	// TODO: it is rather stupid to make a filtered distance field. The filter should be moved to the export stage.
 	pub fn filter_outer(source: &Self) -> Self {
-		let cells = source.data.iter().enumerate().map(|(index, cell)| {
+		let cells = source.data.iter().map(|cell| {
 			match cell.layer {
 				CellLayer::Background => cell.clone(),
 				CellLayer::Foreground => Cell {

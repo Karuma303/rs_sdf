@@ -4,7 +4,6 @@ mod tests {
 	use std::path::{Path, PathBuf};
 
 	use rs_sdf::data::{Cell, CellLayer, DistanceField};
-	use rs_sdf::data::output::TransformationOutputWriter;
 	use rs_sdf::data::transformation::{DistanceTransformation, TransformationResult, TransformOutputGenerator};
 	use rs_sdf::distance::{DistanceLayer, DistanceType};
 	use rs_sdf::export::image::{ImageFileWriter, PngOutput};
