@@ -4,6 +4,7 @@ pub mod input;
 pub mod builder;
 pub mod transformation;
 pub mod output;
+pub mod serialize;
 
 #[derive(Debug, Clone)]
 /// A single cell of a distance field
