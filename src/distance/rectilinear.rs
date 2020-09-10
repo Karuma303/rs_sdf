@@ -9,7 +9,7 @@ pub struct RectilinearDistance;
 
 impl RectilinearDistance {
 	// This is the default calculation for this distance type with maximum precision
-	pub fn calculate_u32(cell : &Cell) -> u32 {
+	pub fn calculate(cell : &Cell) -> u32 {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			let dx: u32 = (nearest.x as i32 - cell.x as i32).abs() as u32;
 			let dy: u32 = (nearest.y as i32 - cell.y as i32).abs() as u32;
@@ -21,19 +21,19 @@ impl RectilinearDistance {
 }
 
 impl OneDimensionalDistanceCalculation<u8> for RectilinearDistance {
-	fn calculate(cell: &Cell) -> u8 {
-		u32_to_u8_clamped(RectilinearDistance::calculate(&cell))
+	fn calculate_legacy(cell: &Cell) -> u8 {
+		u32_to_u8_clamped(RectilinearDistance::calculate_legacy(&cell))
 	}
 }
 
 impl OneDimensionalDistanceCalculation<u16> for RectilinearDistance {
-	fn calculate(cell: &Cell) -> u16 {
-		u32_to_u16_clamped(RectilinearDistance::calculate(&cell))
+	fn calculate_legacy(cell: &Cell) -> u16 {
+		u32_to_u16_clamped(RectilinearDistance::calculate_legacy(&cell))
 	}
 }
 
 impl OneDimensionalDistanceCalculation<u32> for RectilinearDistance {
-	fn calculate(cell: &Cell) -> u32 {
+	fn calculate_legacy(cell: &Cell) -> u32 {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			let dx: u32 = (nearest.x as i32 - cell.x as i32).abs() as u32;
 			let dy: u32 = (nearest.y as i32 - cell.y as i32).abs() as u32;

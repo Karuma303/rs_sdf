@@ -27,7 +27,7 @@ mod tests {
 	fn calculate_euclidean_distance() {
 		// EuclideanDistance
 
-		let fun = EuclideanDistance::calculate;
+		let fun = EuclideanDistance::calculate_legacy;
 
 		let dummy_index = 0;
 
@@ -51,7 +51,7 @@ mod tests {
 	fn calculate_euclidean_distance_squared() {
 		// EuclideanDistanceSquared
 
-		let f = EuclideanDistanceSquared::calculate;
+		let f = EuclideanDistanceSquared::calculate_legacy;
 
 		let dummy_index = 0;
 
@@ -73,7 +73,7 @@ mod tests {
 
 	#[test]
 	fn calculate_chebyshev_distance() {
-		let f = ChebyshevDistance::calculate;
+		let f = ChebyshevDistance::calculate_legacy;
 
 		let dummy_index = 0;
 
@@ -95,7 +95,7 @@ mod tests {
 
 	#[test]
 	fn calculate_rectilinear_distance() {
-		let f = RectilinearDistance::calculate;
+		let f = RectilinearDistance::calculate_legacy;
 
 		let dummy_index = 0;
 
@@ -120,7 +120,7 @@ mod tests {
 
 		// Cartesian Distance
 
-		let f = CartesianDistance::calculate;
+		let f = CartesianDistance::calculate_legacy;
 
 		let dummy_index = 0;
 
@@ -144,7 +144,7 @@ mod tests {
 	fn get_nearest_cell_index() {
 		// Nearest Cell Index
 
-		let f = NearestCellIndex::calculate;
+		let f = NearestCellIndex::calculate_legacy;
 
 		let c = setup_cell(0,0, 0, 0, 0, 99);
 		let res: u32 = f(&c);
@@ -156,7 +156,7 @@ mod tests {
 
 		// Nearest Cell Position
 
-		let f = NearestCellPosition::calculate;
+		let f = NearestCellPosition::calculate_legacy;
 
 		let c = setup_cell(0,0, 0, 99, 99, 0);
 		let res: (u16, u16) = f(&c);

@@ -1,20 +1,14 @@
 use std::fs::File;
 use std::io::BufWriter;
 
-use png::{ColorType, Compression, Encoder, FilterType};
+use png::{ColorType, Compression, Encoder, FilterType, BitDepth as PngBitDepth};
 
 use crate::data::transformation::{TransformationData, TransformationResult, DataDescriptor};
 use crate::export::BitDepth;
-use crate::result::DistanceTransformationResult;
+use crate::result::{DistanceTransformationResult, ChannelDataType, ChannelBitDepth};
 
 // Todo: We have to add to the image exporter something like a color channel definition,
 // that maps the export channels to color channels
-
-pub enum ImageOutputChannelDepth {
-	Eight = 8,
-	Sixteen = 16,
-	ThirtyTwo = 32,
-}
 
 pub struct PngOutput {
 	file_path: String,
@@ -34,7 +28,12 @@ pub trait DistanceTransformationResultWriter {
 
 impl DistanceTransformationResultWriter for PngOutput {
 	fn write_result(&self, trans_res: DistanceTransformationResult) {
-		todo!("bla foo")
+		let data_buffer = trans_res.data;
+		let width = trans_res.width;
+		let height = trans_res.height;
+		let num_channels = trans_res.num_channels;
+		let bit_depth = trans_res.bit_depth;
+		self.output_image_file(data_buffer, width, height, num_channels, bit_depth);
 	}
 }
 
@@ -48,9 +47,10 @@ impl ImageFileWriter for PngOutput {
 		let descriptor = result_writer.descriptor();
 
 		let depth = match descriptor.bit_depth {
-			BitDepth::Eight => ImageOutputChannelDepth::Eight,
-			BitDepth::Sixten => ImageOutputChannelDepth::Sixteen,
-			BitDepth::ThirtyTwo => ImageOutputChannelDepth::ThirtyTwo,
+			BitDepth::Eight => ChannelBitDepth::Eight,
+			BitDepth::Sixteen => ChannelBitDepth::Sixteen,
+			BitDepth::ThirtyTwo => ChannelBitDepth::ThirtyTwo,
+			BitDepth::SixtyFour => ChannelBitDepth::SixtyFour,
 		};
 		self.output_image_file(result_writer.write_to_buffer(),
 							   descriptor.width,
@@ -65,7 +65,7 @@ impl PngOutput {
 						 width: u16,
 						 height: u16,
 						 num_channels: u8,
-						 bit_depth: ImageOutputChannelDepth) {
+						 bit_depth: ChannelBitDepth) {
 		let encoder = get_standard_encoder(&self.file_path,
 										   width,
 										   height,
@@ -81,13 +81,8 @@ impl PngOutput {
 		writer.write_image_data(&image_data_buffer).unwrap(); // Save
 	}
 
-	pub fn init_buffer<T>(&self, num_values: usize, bit_depth: ImageOutputChannelDepth, num_channels: usize) -> Vec<T> {
-		let byte_multiplier = match bit_depth {
-			ImageOutputChannelDepth::Eight => 1,
-			ImageOutputChannelDepth::Sixteen => 2,
-			ImageOutputChannelDepth::ThirtyTwo => 4,
-		};
-		let size = num_values as usize * byte_multiplier * num_channels;
+	pub fn init_buffer<T>(&self, num_values: usize, bit_depth: ChannelBitDepth, num_channels: usize) -> Vec<T> {
+		let size = num_values * bit_depth.number_of_bytes() as usize * num_channels;
 		Vec::<T>::with_capacity(size)
 	}
 
@@ -141,14 +136,62 @@ impl PngOutput {
 fn get_standard_encoder(file_path: &str,
 						width: u16,
 						height: u16,
-						channel_depth: &ImageOutputChannelDepth,
+						channel_depth: &ChannelBitDepth,
 						num_channels: u8) -> Encoder<BufWriter<File>> {
 	println!("{:?}", file_path);
+
+	// TODO: hier weiter machen
+/*
+	channel 	depth	->	result 	channel depth
+		1		8					1		8
+		1		16					1		16
+		1		32					2		16
+		1		64					4		16
+		2		8					2		8
+		2		16					2		16
+		2		32					4		16
+		2		64					-		- (nicht möglich)
+		3		8					3		8
+		3		16					3		16
+		3		32					-		- (nicht möglich)
+		3		64					-		- (nicht möglich)
+*/
+
+	let channels : u8;
+	let final_bit_depth : PngBitDepth;
+
+	// let num_bytes = channel_depth.number_of_bytes();
+
+	match channel_depth {
+		ChannelBitDepth::Eight => {
+			channels = num_channels;
+			final_bit_depth = PngBitDepth::Eight;
+		},
+		ChannelBitDepth::Sixteen => {
+			channels = num_channels;
+			final_bit_depth = PngBitDepth::Sixteen;
+		},
+		ChannelBitDepth::ThirtyTwo => {
+			if num_channels > 2 {
+				panic!("foo");
+			}
+			channels = num_channels * 2;
+			final_bit_depth = PngBitDepth::Sixteen;
+		},
+		ChannelBitDepth::SixtyFour => {
+			if num_channels > 1 {
+				panic!("foo");
+			}
+			channels = num_channels * 4;
+			final_bit_depth = PngBitDepth::Sixteen;
+		}
+	}
+
 	let file = File::create(file_path).unwrap();
 	let w = BufWriter::new(file);
 
 	let mut e = Encoder::new(w, width as u32, height as u32);
-	match num_channels {
+	match channels {
 		1 => e.set_color(ColorType::Grayscale),
 		2 => e.set_color(ColorType::GrayscaleAlpha),
 		3 => e.set_color(ColorType::RGB),
@@ -156,11 +199,12 @@ fn get_standard_encoder(file_path: &str,
 		_ => panic!("number of channels ({}) is not supported", num_channels),
 	}
 	e.set_compression(Compression::Best);
-	e.set_depth(match channel_depth {
-		ImageOutputChannelDepth::Eight => png::BitDepth::Eight,
-		ImageOutputChannelDepth::Sixteen => png::BitDepth::Sixteen,
-		_ => unimplemented!(),
-	});
+	e.set_depth(final_bit_depth);
+	// e.set_depth(match channel_depth {
+	// 	ChannelBitDepth::Eight => png::BitDepth::Eight,
+	// 	ChannelBitDepth::Sixteen => png::BitDepth::Sixteen,
+	// 	_ => unimplemented!(),
+	// });
 	e.set_filter(FilterType::NoFilter); // ???
 	e
 }

@@ -18,19 +18,19 @@ impl NearestCellIndex {
 }
 
 impl OneDimensionalDistanceCalculation<u8> for NearestCellIndex {
-	fn calculate(cell: &Cell) -> u8 {
-		u32_to_u8_clamped(NearestCellIndex::calculate(&cell))
+	fn calculate_legacy(cell: &Cell) -> u8 {
+		u32_to_u8_clamped(NearestCellIndex::calculate_legacy(&cell))
 	}
 }
 
 impl OneDimensionalDistanceCalculation<u16> for NearestCellIndex {
-	fn calculate(cell: &Cell) -> u16 {
-		u32_to_u16_clamped(NearestCellIndex::calculate(&cell))
+	fn calculate_legacy(cell: &Cell) -> u16 {
+		u32_to_u16_clamped(NearestCellIndex::calculate_legacy(&cell))
 	}
 }
 
 impl OneDimensionalDistanceCalculation<u32> for NearestCellIndex {
-	fn calculate(cell: &Cell) -> u32 {
+	fn calculate_legacy(cell: &Cell) -> u32 {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			nearest.index
 		} else {
@@ -46,7 +46,7 @@ pub struct NearestCellPosition;
 
 impl NearestCellPosition {
 	// This is the default calculation for this distance type with maximum precision
-	pub fn calculate_u16(cell : &Cell) -> (u16, u16) {
+	pub fn calculate(cell : &Cell) -> (u16, u16) {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			(nearest.x, nearest.y)
 		} else {
@@ -56,14 +56,14 @@ impl NearestCellPosition {
 }
 
 impl TwoDimensionalDistanceCalculation<u8> for NearestCellPosition {
-	fn calculate(cell: &Cell) -> (u8, u8) {
-		let (x, y) = NearestCellPosition::calculate(&cell);
+	fn calculate_legacy(cell: &Cell) -> (u8, u8) {
+		let (x, y) = NearestCellPosition::calculate_legacy(&cell);
 		(u16_to_u8_clamped(x), u16_to_u8_clamped(y))
 	}
 }
 
 impl TwoDimensionalDistanceCalculation<u16> for NearestCellPosition {
-	fn calculate(cell: &Cell) -> (u16, u16) {
+	fn calculate_legacy(cell: &Cell) -> (u16, u16) {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			(nearest.x, nearest.y)
 		} else {
@@ -73,7 +73,7 @@ impl TwoDimensionalDistanceCalculation<u16> for NearestCellPosition {
 }
 
 impl TwoDimensionalDistanceCalculation<u32> for NearestCellPosition {
-	fn calculate(cell: &Cell) -> (u32, u32) {
+	fn calculate_legacy(cell: &Cell) -> (u32, u32) {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			(nearest.x as u32, nearest.y as u32)
 		} else {
@@ -98,28 +98,28 @@ impl NearestCellIndexOffset {
 }
 
 impl OneDimensionalDistanceCalculation<u8> for NearestCellIndexOffset {
-	fn calculate(cell: &Cell) -> u8 {
-		let val: i32 = NearestCellIndexOffset::calculate(&cell);
+	fn calculate_legacy(cell: &Cell) -> u8 {
+		let val: i32 = NearestCellIndexOffset::calculate_legacy(&cell);
 		u32_to_u8_clamped(val as u32)
 	}
 }
 
 impl OneDimensionalDistanceCalculation<u16> for NearestCellIndexOffset {
-	fn calculate(cell: &Cell) -> u16 {
-		let val: i32 = NearestCellIndexOffset::calculate(&cell);
+	fn calculate_legacy(cell: &Cell) -> u16 {
+		let val: i32 = NearestCellIndexOffset::calculate_legacy(&cell);
 		u32_to_u16_clamped(val as u32)
 	}
 }
 
 impl OneDimensionalDistanceCalculation<u32> for NearestCellIndexOffset {
-	fn calculate(cell: &Cell) -> u32 {
-		let val: i32 = NearestCellIndexOffset::calculate(&cell);
+	fn calculate_legacy(cell: &Cell) -> u32 {
+		let val: i32 = NearestCellIndexOffset::calculate_legacy(&cell);
 		val as u32
 	}
 }
 
 impl OneDimensionalDistanceCalculation<i32> for NearestCellIndexOffset {
-	fn calculate(cell: &Cell) -> i32 {
+	fn calculate_legacy(cell: &Cell) -> i32 {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			nearest.index as i32 - cell.index as i32
 		} else {

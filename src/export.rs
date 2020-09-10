@@ -4,6 +4,7 @@ pub mod image;
 #[derive(PartialEq, Clone)]
 pub enum BitDepth {
 	Eight,
-	Sixten,
+	Sixteen,
 	ThirtyTwo,
+	SixtyFour,
 }

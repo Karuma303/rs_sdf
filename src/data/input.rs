@@ -101,7 +101,7 @@ fn check_dimensions_and_buffer_size(width: u16, height: u16, buffer_len: usize) 
     if height == 0 {
         panic!("height must be greater than zero"); // maybe an error type "incorrect dimensions" would be better here!
     }
-    let size = (width * height) as usize;
+    let size = (width as usize * height as usize);
     if buffer_len != size {
         panic!("buffer size should be {}", width * height);
     }

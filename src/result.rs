@@ -2,9 +2,27 @@ use crate::data::transformation::{TransformationResult};
 use crate::data::serialize::ByteSerializer;
 
 pub enum ChannelDataType {
-	UnsignedInt(BitDepth),
-	SignedInt(BitDepth),
-	Float(BitDepth),
+	UnsignedInt,
+	SignedInt,
+	Float,
+}
+
+pub enum ChannelBitDepth {
+	Eight,
+	Sixteen,
+	ThirtyTwo,
+	SixtyFour,
+}
+
+impl ChannelBitDepth {
+	pub fn number_of_bytes(&self) -> u8 {
+		match self {
+			ChannelBitDepth::Eight => 1,
+			ChannelBitDepth::Sixteen => 2,
+			ChannelBitDepth::ThirtyTwo => 4,
+			ChannelBitDepth::SixtyFour => 8,
+		}
+	}
 }
 
 #[derive(PartialEq, Clone)]
@@ -19,7 +37,8 @@ pub struct DistanceTransformationResult {
 	pub width: u16,
 	pub height: u16,
 	pub num_channels: u8,
-	pub channel_data_type: ChannelDataType,
+	pub data_type: ChannelDataType,
+	pub bit_depth: ChannelBitDepth,
 	pub data: Vec<u8>,
 }
 
@@ -56,7 +75,8 @@ impl From<TransformationResult<f64>> for DistanceTransformationResult {
 			width,
 			height,
 			data,
-			channel_data_type: ChannelDataType::Float(BitDepth::SixtyFour),
+			data_type: ChannelDataType::Float,
+			bit_depth: ChannelBitDepth::SixtyFour,
 			num_channels,
 		}
 	}

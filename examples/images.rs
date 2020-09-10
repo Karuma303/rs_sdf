@@ -3,7 +3,7 @@ extern crate png;
 use std::path::PathBuf;
 
 use rs_sdf::distance::{DistanceLayer, DistanceType};
-use rs_sdf::export::image::{ImageOutputChannelDepth, PngOutput, ImageFileWriter, DistanceTransformationResultWriter};
+use rs_sdf::export::image::{PngOutput, ImageFileWriter, DistanceTransformationResultWriter};
 use rs_sdf::generator::DistanceGenerator;
 use rs_sdf::input::image::PngInput;
 use rs_sdf::processor::sweep::EightSideSweepProcessor;
@@ -11,7 +11,7 @@ use rs_sdf::data::DistanceField;
 use rs_sdf::processor::Processor;
 use rs_sdf::data::transformation::{DistanceTransformation, TransformationResult, TransformOutputGenerator};
 use rs_sdf::data::builder::DistanceFieldBuilder;
-use rs_sdf::result::DistanceTransformationResult;
+use rs_sdf::result::{DistanceTransformationResult, ChannelBitDepth};
 
 const BASE_ASSET_FOLDER: &str = r"examples/assets";
 const BASE_OUTPUT_FOLDER: &str = r"examples/output";
@@ -34,21 +34,21 @@ fn main() {
 				 "example_1_512x512.png",
 				 DistanceLayer::Foreground,
 				 DistanceType::EuclideanDistance,
-				 ImageOutputChannelDepth::Eight);
+				 ChannelBitDepth::Eight);
 
 	// Export PNG with 8-bit outer euclidean distance
 	generate_sdf("example_1_rgba_512x512.png",
 				 "example_1_512x512.png",
 				 DistanceLayer::Background,
 				 DistanceType::EuclideanDistance,
-				 ImageOutputChannelDepth::Eight);
+				 ChannelBitDepth::Eight);
 
 	// Export PNG with 8-bit inner and outer euclidean distance (distances added in one channel)
 	generate_sdf("example_1_rgba_512x512.png",
 				 "example_1_512x512.png",
 				 DistanceLayer::Combined,
 				 DistanceType::EuclideanDistance,
-				 ImageOutputChannelDepth::Eight);
+				 ChannelBitDepth::Eight);
 
 	// Export PNG with 8-bit inner and outer cartesian distance (distances added in one channel)
 	/*
@@ -110,7 +110,7 @@ fn generate_sdf(source_image_name: &str,
 				target_image_name: &str,
 				layer: DistanceLayer,
 				distance_type: DistanceType,
-				bit_depth: ImageOutputChannelDepth) {
+				bit_depth: ChannelBitDepth) {
 	let source_image_path = get_input_image_path(source_image_name);
 
 	let num_channels = distance_type.dimensions();
@@ -144,11 +144,12 @@ fn generate_with_distance_generator(source_image_path: &str,
 		.input(PngInput::new(&source_image_path))
 		.output(PngOutput::new(&target_image_path))
 		.export_filter(*layer)
-		.distance_type(distance_type.clone())
+		.distance_type(*distance_type)
 		.processor(EightSideSweepProcessor {});
 
-	let result = g.generate();
-	display_result(&result, &source_image_path, &target_image_path);
+	// deactivated for now
+	//	let result = g.generate();
+	//	display_result(&result, &source_image_path, &target_image_path);
 }
 
 fn generate_with_distance_field_builder(source_image_path: &str,
@@ -225,7 +226,7 @@ fn generate_target_image_name(prefix: &str,
 							  layer: &DistanceLayer,
 							  distance_type: &DistanceType,
 							  num_channels: u8,
-							  bit_depth: &ImageOutputChannelDepth) -> String {
+							  bit_depth: &ChannelBitDepth) -> String {
 	let mut prefixes: Vec<String> = Vec::new();
 	prefixes.push(String::from(prefix));
 	prefixes.push(get_distance_type_prefix(&distance_type));
@@ -265,11 +266,12 @@ fn get_layer_prefix(export_type: &DistanceLayer) -> String {
 	}
 }
 
-fn get_bit_depth_prefix(channel_depth: &ImageOutputChannelDepth) -> String {
+fn get_bit_depth_prefix(channel_depth: &ChannelBitDepth) -> String {
 	match channel_depth {
-		ImageOutputChannelDepth::Eight => String::from("8bit"),
-		ImageOutputChannelDepth::Sixteen => String::from("16bit"),
-		ImageOutputChannelDepth::ThirtyTwo => String::from("32bit"),
+		ChannelBitDepth::Eight => String::from("8bit"),
+		ChannelBitDepth::Sixteen => String::from("16bit"),
+		ChannelBitDepth::ThirtyTwo => String::from("32bit"),
+		ChannelBitDepth::SixtyFour => String::from("64bit"),
 	}
 }
 

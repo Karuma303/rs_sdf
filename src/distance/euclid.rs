@@ -9,7 +9,7 @@ pub struct EuclideanDistance;
 impl EuclideanDistance {
 
 	// This is the default calculation for this distance type with maximum precision
-	pub fn calculate_f64(cell: &Cell) -> f64 {
+	pub fn calculate(cell: &Cell) -> f64 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
 			(distance_squared as f64).sqrt()
 		} else {
@@ -19,7 +19,7 @@ impl EuclideanDistance {
 }
 
 impl OneDimensionalDistanceCalculation<u8> for EuclideanDistance {
-	fn calculate(cell: &Cell) -> u8 {
+	fn calculate_legacy(cell: &Cell) -> u8 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
 			let distance = (distance_squared as f32).sqrt();
 			f32_to_u8_clamped(distance)
@@ -30,7 +30,7 @@ impl OneDimensionalDistanceCalculation<u8> for EuclideanDistance {
 }
 
 impl OneDimensionalDistanceCalculation<u16> for EuclideanDistance {
-	fn calculate(cell: &Cell) -> u16 {
+	fn calculate_legacy(cell: &Cell) -> u16 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
 			let distance = (distance_squared as f32).sqrt();
 			f32_to_u16_clamped(distance)
@@ -41,7 +41,7 @@ impl OneDimensionalDistanceCalculation<u16> for EuclideanDistance {
 }
 
 impl OneDimensionalDistanceCalculation<u32> for EuclideanDistance {
-	fn calculate(cell: &Cell) -> u32 {
+	fn calculate_legacy(cell: &Cell) -> u32 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
 			let distance = (distance_squared as f32).sqrt();
 			distance as u32
@@ -67,13 +67,13 @@ impl EuclideanDistanceSquared {
 }
 
 impl OneDimensionalDistanceCalculation<u8> for EuclideanDistanceSquared {
-	fn calculate(_cell: &Cell) -> u8 {
+	fn calculate_legacy(_cell: &Cell) -> u8 {
 		unimplemented!()
 	}
 }
 
 impl OneDimensionalDistanceCalculation<u16> for EuclideanDistanceSquared {
-	fn calculate(cell: &Cell) -> u16 {
+	fn calculate_legacy(cell: &Cell) -> u16 {
 		if let Some(distance_squared) = cell.distance_to_nearest_squared() {
 			if distance_squared > 65535u64 {
 				0xffff
@@ -88,7 +88,7 @@ impl OneDimensionalDistanceCalculation<u16> for EuclideanDistanceSquared {
 }
 
 impl OneDimensionalDistanceCalculation<u32> for EuclideanDistanceSquared {
-	fn calculate(_cell: &Cell) -> u32 {
+	fn calculate_legacy(_cell: &Cell) -> u32 {
 		unimplemented!()
 	}
 }

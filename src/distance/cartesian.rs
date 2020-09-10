@@ -8,7 +8,7 @@ pub struct CartesianDistance;
 
 impl CartesianDistance {
 	// This is the default calculation for this distance type with maximum precision
-	pub(crate) fn calculate_i32(cell : &Cell) -> (i32, i32) {
+	pub fn calculate(cell : &Cell) -> (i32, i32) {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			let dx: i32 = nearest.x as i32 - cell.x as i32;
 			let dy: i32 = nearest.y as i32 - cell.y as i32;
@@ -20,7 +20,7 @@ impl CartesianDistance {
 }
 
 impl TwoDimensionalDistanceCalculation<u8> for CartesianDistance {
-	fn calculate(cell: &Cell) -> (u8, u8) {
+	fn calculate_legacy(cell: &Cell) -> (u8, u8) {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			let dx: i32 = nearest.x as i32 - cell.x as i32;
 			let dy: i32 = nearest.y as i32 - cell.y as i32;
@@ -32,7 +32,7 @@ impl TwoDimensionalDistanceCalculation<u8> for CartesianDistance {
 }
 
 impl TwoDimensionalDistanceCalculation<i32> for CartesianDistance {
-	fn calculate(cell: &Cell) -> (i32, i32) {
+	fn calculate_legacy(cell: &Cell) -> (i32, i32) {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			let dx: i32 = nearest.x as i32 - cell.x as i32;
 			let dy: i32 = nearest.y as i32 - cell.y as i32;
@@ -44,7 +44,7 @@ impl TwoDimensionalDistanceCalculation<i32> for CartesianDistance {
 }
 
 impl TwoDimensionalDistanceCalculation<u16> for CartesianDistance {
-	fn calculate(cell: &Cell) -> (u16, u16) {
+	fn calculate_legacy(cell: &Cell) -> (u16, u16) {
 		if let Some(nearest) = &cell.nearest_cell_position {
 			let dx = nearest.x as i32 - cell.x as i32;
 			let dy = nearest.y as i32 - cell.y as i32;
@@ -56,7 +56,7 @@ impl TwoDimensionalDistanceCalculation<u16> for CartesianDistance {
 }
 
 impl TwoDimensionalDistanceCalculation<u32> for CartesianDistance {
-	fn calculate(_cell: &Cell) -> (u32, u32) {
+	fn calculate_legacy(_cell: &Cell) -> (u32, u32) {
 		todo!()
 	}
 }

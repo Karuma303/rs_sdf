@@ -169,15 +169,15 @@ impl DistanceType {
 // ******************************************************
 
 pub trait OneDimensionalDistanceCalculation<T> {
-	fn calculate(cell: &Cell) -> T;
+	fn calculate_legacy(cell: &Cell) -> T;
 }
 
 pub trait TwoDimensionalDistanceCalculation<T> {
-	fn calculate(cell: &Cell) -> (T, T);
+	fn calculate_legacy(cell: &Cell) -> (T, T);
 }
 
 pub trait ThreeDimensionalDistanceCalculation<T> {
-	fn calculate(cell: &Cell) -> (T, T, T);
+	fn calculate_legacy(cell: &Cell) -> (T, T, T);
 }
 
 
